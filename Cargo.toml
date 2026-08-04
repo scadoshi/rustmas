@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [[bin]]
-name = "run"
-path = "src/bin/run.rs"
+name = "solve"
+path = "src/bin/solve/main.rs"
 
 [[bin]]
 name = "init"
@@ -17,6 +17,7 @@ path = "src/lib/lib.rs"
 [dependencies]
 anyhow = "1.0.104"
 chrono = "0.4.45"
+clap = { version = "4.6.5", features = ["derive"] }
 dotenvy = "0.15.7"
 reqwest = { version = "0.13.4", features = ["blocking"] }
 thiserror = "2.0.19"
