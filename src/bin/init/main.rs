@@ -2,7 +2,7 @@ pub mod utils;
 
 use chrono::{Datelike, Utc};
 use rustmas::{
-    part::{Day, days_in_year},
+    day::{Day, days_in_year},
     session::Session,
 };
 use std::path::PathBuf;

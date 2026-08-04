@@ -1,4 +1,4 @@
-use crate::part::Day;
+use crate::day::Day;
 use anyhow::Context;
 use reqwest::{Url, blocking::Client};
 

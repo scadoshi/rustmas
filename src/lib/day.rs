@@ -1,15 +1,15 @@
-//! Validated puzzle coordinates: [`Year`] -> [`Day`] -> [`Part`].
+//! Validated puzzle coordinates: [`Year`] -> [`Day`].
 //!
-//! The three types form a cascade. Each wraps the one before it and can only be
+//! The two types form a cascade. [`Day`] wraps [`Year`], and each can only be
 //! built through a constructor that checks its own bounds, so a value can never
 //! hold an out-of-range year, a day that doesn't exist for its year, or a day
-//! without a year. Fields stay private: once you hold a [`Part`], downstream
+//! without a year. Fields stay private: once you hold a [`Day`], downstream
 //! code can trust it points at a real puzzle without re-validating.
 
 use chrono::{Datelike, Utc};
 use thiserror::Error;
 
-/// Returned when a year, day, or part falls outside the bounds AOC supports.
+/// Returned when a year or day falls outside the bounds AOC supports.
 #[derive(Debug, Error)]
 #[error("out of range")]
 pub struct OutOfRange;
@@ -74,45 +74,5 @@ impl Day {
             return Err(OutOfRange);
         }
         Ok(Self { value: day, year })
-    }
-}
-
-/// Which of a day's two puzzle parts.
-#[derive(Debug, Clone, Copy)]
-pub enum PartKind {
-    One,
-    Two,
-}
-
-/// A validated puzzle part: a [`Day`] plus which of its two parts.
-///
-/// This is the fully-specified coordinate downstream code works with, e.g. to
-/// check an answer against the AOC solver.
-#[derive(Debug)]
-pub struct Part {
-    day: Day,
-    kind: PartKind,
-}
-
-impl Part {
-    /// Returns the year value.
-    pub fn year(&self) -> u32 {
-        self.day.year.value()
-    }
-
-    /// Returns the day value.
-    pub fn day(&self) -> u32 {
-        self.day.value()
-    }
-
-    /// Returns which part this is.
-    pub fn kind(&self) -> PartKind {
-        self.kind
-    }
-
-    /// Constructs a [`Part`], validating `year` and `day` through [`Day::new`].
-    pub fn new(year: u32, day: u32, kind: PartKind) -> Result<Self, OutOfRange> {
-        let day = Day::new(day, year)?;
-        Ok(Self { day, kind })
     }
 }

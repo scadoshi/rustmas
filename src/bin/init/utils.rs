@@ -1,5 +1,5 @@
 use anyhow::{Context, bail};
-use rustmas::{part::Day, session::Session};
+use rustmas::{day::Day, session::Session};
 use std::{fs::create_dir_all, path::Path};
 
 /// Ensures a directory exists at `path`, creating parents as needed.

@@ -2,7 +2,7 @@ pub mod utils;
 
 use crate::utils::{Args, solve};
 use clap::Parser;
-use rustmas::{part::days_in_year, solutions::year_2015::day_01::Day01};
+use rustmas::{day::days_in_year, solutions::year_2015::day_01::Day01};
 
 /// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete
 /// type that solves it. Returns `None` when no solution is registered.
