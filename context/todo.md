@@ -38,7 +38,12 @@ Then:
   during a run-all. `dispatch` already returns `None` for both and `main`
   ignores the difference.
 - Decide whether a failed download should abort `init` or log and continue.
-- Give `init` the same year and day filters `solve` has.
+- Give `init` the same `-y`/`--year` and `-d`/`--day` filters `solve` has, so a
+  single puzzle can be downloaded without walking every year. Same treatment:
+  clap derive with `Option<u32>` on both, filters rather than a lookup, and the
+  two `is_some_and` guards inside the existing loops. Worth doing when a live
+  event starts and only the newest day is missing, and it would have made
+  recovering the deleted `inputs/` a one-day fetch instead of all 262.
 
 ## Later
 
