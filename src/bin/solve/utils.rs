@@ -1,5 +1,5 @@
 use clap::Parser;
-use rustmas::solutions::Solution;
+use rustmas::{session::verdict::Verdict, solutions::Solution};
 
 #[derive(Parser)]
 #[command(about = "Advent of Code solution runner")]
@@ -16,7 +16,8 @@ pub struct Args {
     pub validate: bool,
 }
 
-pub fn solve<S: Solution>(input: &'static str) -> anyhow::Result<(Option<String>, Option<String>)> {
-    let s = S::new(input)?;
-    Ok((s.part_one(), s.part_two()))
+#[derive(Debug)]
+pub struct Answer {
+    value: String,
+    verdict: Option<Verdict>,
 }

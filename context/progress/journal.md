@@ -2,6 +2,30 @@
 
 Newest first.
 
+## 2026-08-05
+
+Short session, stopped mid-change. The library compiles, the `solve` binary does
+not. See [`../todo.md`](../todo.md) for exactly what to fix.
+
+Started wiring validation into solving and hit the real decision straight away:
+does a `Session` know how to run a `Solution`, or does a `Solution` know how to
+talk to a `Session`? Went with the former. `Session::solve<S: Solution>` builds
+the solution, runs both parts, and validates each answer when asked. `Solution`
+gained an `input()` method so the session can reach the input it needs to post.
+
+Added `Answer`, a value plus an optional `Verdict`, so a part can carry its
+result and what the solver thought of it. It sits in
+`src/lib/session/answer.rs`. A duplicate definition is still sitting in
+`src/bin/solve/utils.rs` and should go.
+
+Left one known bug in place rather than fixing it blind, since it needs a
+signature change: `Session::solve` uses a single `part` argument for both
+validation calls, so part two is validated against the wrong part.
+
+One mechanical fix went in to get the library compiling: `validate_answer` takes
+`answer: impl AsRef<str>` now, so it needed an `as_ref()` before parsing and
+comparing.
+
 ## 2026-08-04
 
 Wrote 2015 day 1. Part one folds over the characters, part two returns early at

@@ -9,6 +9,10 @@ impl Solution for Day01 {
         Ok(Self { input })
     }
 
+    fn input(&self) -> &str {
+        self.input
+    }
+
     fn part_one(&self) -> Option<String> {
         Some(
             self.input

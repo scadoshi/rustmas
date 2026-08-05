@@ -1,6 +1,12 @@
+pub mod answer;
 pub mod verdict;
 
-use crate::{day::Day, part::Part, session::verdict::Verdict};
+use crate::{
+    day::Day,
+    part::Part,
+    session::{answer::Answer, verdict::Verdict},
+    solutions::Solution,
+};
 use anyhow::{Context, bail};
 use reqwest::{Url, blocking::Client};
 use std::fmt::Display;
@@ -116,9 +122,10 @@ impl Session {
         input: impl Display,
         day: &Day,
         part: Part,
-        answer: &str,
+        answer: impl AsRef<str>,
     ) -> anyhow::Result<Verdict> {
         let input = input.to_string();
+        let answer = answer.as_ref();
         let path = format!(
             "/solve/{}/{}/{}",
             day.year(),
@@ -171,5 +178,34 @@ impl Session {
             day.year(),
             day.value()
         );
+    }
+
+    pub fn solve<S: Solution>(
+        &self,
+        input: &'static str,
+        day: &Day,
+        validate: bool,
+    ) -> anyhow::Result<(Option<Answer>, Option<Answer>)> {
+        let s = S::new(input)?;
+
+        let answer_one = s.part_one();
+        let mut verdict_one: Option<Verdict> = None;
+        if let Some(a) = &answer_one {
+            if validate {
+                verdict_one = Some(self.validate_answer(input, day, Part::One, a)?)
+            }
+        }
+        let answer_one = answer_one.map(|a| Answer::new(a, verdict_one));
+
+        let answer_two = s.part_two();
+        let mut verdict_two: Option<Verdict> = None;
+        if let Some(a) = &answer_two {
+            if validate {
+                verdict_two = Some(self.validate_answer(input, day, Part::Two, a)?)
+            }
+        }
+        let answer_two = answer_two.map(|a| Answer::new(a, verdict_two));
+
+        Ok((answer_one, answer_two))
     }
 }

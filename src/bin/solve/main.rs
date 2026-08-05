@@ -1,6 +1,6 @@
 pub mod utils;
 
-use crate::utils::{Args, solve};
+use crate::utils::{Answer, Args, solve};
 use clap::Parser;
 use rustmas::{day::days_in_year, solutions::year_2015::day_01::Day01};
 
@@ -11,7 +11,7 @@ macro_rules! solutions {
         // Days are written zero-padded so `stringify!` builds the right filename.
         #[allow(clippy::zero_prefixed_literal)]
         fn dispatch(year: u32, day: u32)
-            -> Option<anyhow::Result<(Option<String>, Option<String>)>>
+            -> Option<anyhow::Result<(Option<Answer>, Option<Answer>)>>
         {
             match (year, day) {
                 $(($y, $d) => Some(
