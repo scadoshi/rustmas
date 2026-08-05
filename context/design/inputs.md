@@ -16,12 +16,14 @@ before `solve` will compile.
 This was chosen deliberately over reading files at runtime. The tradeoff is
 known and accepted for a personal repo.
 
-`build.rs` warns when `inputs/` is missing or empty, pointing at `init`. It
-warns rather than panicking because a build script gates the whole package, so
-failing would also block `init`, the binary you need to fix the problem. It
-checks only that the directory has something in it, since the days actually
-embedded are the ones registered in `solutions!`, a list the build script cannot
-see without parsing `main.rs`.
+A `build.rs` that warned about a missing `inputs/` was tried and removed. It
+worked, but it earned very little: `include_str!` already names the missing path
+in its error. Two things learned while it existed, worth keeping in mind if the
+idea comes back. A build script gates the whole package, so panicking would also
+block `init`, the binary you need to fix the problem. And it could only check
+that the directory was non-empty, since the days actually embedded are the ones
+registered in `solutions!`, a list a build script cannot see without parsing
+`main.rs`.
 
 ## Rejected: a build script that fetches
 
