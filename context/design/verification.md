@@ -52,10 +52,21 @@ than the solver itself.
 exactly where `days_in_year` does. It becomes reachable during a live event,
 when a day is published and solved locally before the solver catches up.
 
+## Wiring it into solve
+
+Checking is opt-in, behind `-c`/`--check`, defaulting to off. Two reasons.
+Solving offline is the common case and should stay fast, and a run-all with
+checking on is roughly 500 requests against a hobby project's free tier. Making
+it opt-out would turn that into the accident you have to remember to prevent.
+
+Once verdicts are cached, defaulting to on becomes reasonable, because a
+confirmed part would cost nothing to re-check.
+
 ## Open
 
-The verifier does not exist yet, only `check_answer`. `submit_answer` is
-`todo!()`.
+The verifier does not exist yet, only `check_answer`, and nothing calls it.
+`solve` prints answers without finding out whether they are right.
+`submit_answer` is `todo!()`.
 
 Caching verdicts is not built. It matters for two reasons: a full run-all is
 roughly 500 requests against a hobby project's free tier, and AOC's one-shot

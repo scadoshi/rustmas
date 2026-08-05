@@ -29,6 +29,26 @@ coverage stops at exactly the same day our `days_in_year` does.
 Recorded the solver contract in [`../references.md`](../references.md), verified
 against its source rather than guessed from responses.
 
+Tried a `build.rs` that warned when `inputs/` was missing, then removed it.
+`include_str!` already names the missing path, so it added little. Two things
+came out of the attempt worth keeping: a build script gates the whole package,
+so panicking would have blocked `init`, which is the binary you need to fix the
+problem; and it could only check that the directory was non-empty, since the
+days actually embedded live in the `solutions!` invocation, which a build script
+cannot read without parsing `main.rs`.
+
+Lost `inputs/` during that testing and re-downloaded it. Recovery was
+uneventful, which is the no-clobber caching working as intended.
+
+Verified day 1 end to end. `cargo run --bin solve -- -y 2015 -d 1` gives `280`
+and `1797`, and the solver returns the same for both parts.
+
+Decided how checking gets wired into `solve`, though none of it is written yet.
+See [`../design/verification.md`](../design/verification.md) and
+[`../todo.md`](../todo.md). Short version: opt-in `--check` flag, the check runs
+where the input is already in scope, and the `Session` gets built lazily so
+`solve` does not start demanding a cookie it never uses.
+
 ## 2026-08-03
 
 Reviewed the initial downloader. Found and fixed an existence-check inversion in
