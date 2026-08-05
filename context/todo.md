@@ -29,7 +29,8 @@
 - Revisit the visual-answer case. A part returning `None` while printing from
   inside the solver puts a side effect somewhere awkward to test.
 - Note in the README that a fresh clone must run `init` before `solve` compiles,
-  since `include_str!` needs `inputs/` and that directory is gitignored.
+  since `include_str!` needs `inputs/` and that directory is gitignored. The
+  build script warns about this, but the README should say it too.
 
 ## Done
 

@@ -16,6 +16,13 @@ before `solve` will compile.
 This was chosen deliberately over reading files at runtime. The tradeoff is
 known and accepted for a personal repo.
 
+`build.rs` warns when `inputs/` is missing or empty, pointing at `init`. It
+warns rather than panicking because a build script gates the whole package, so
+failing would also block `init`, the binary you need to fix the problem. It
+checks only that the directory has something in it, since the days actually
+embedded are the ones registered in `solutions!`, a list the build script cannot
+see without parsing `main.rs`.
+
 ## Rejected: a build script that fetches
 
 A `build.rs` that downloaded missing inputs before compiling would remove the
@@ -25,8 +32,13 @@ for rust-analyzer, which would put the network and the session cookie in the
 path of every keystroke. Compiling would fail offline, and an expired cookie
 would surface as a compile error rather than a run error.
 
-If a build script is ever added, generating the dispatch table is the use worth
-having. That is hermetic and needs no network.
+A later idea, to have the build script run `init` when files are missing, has
+the same flaw wearing a conditional. Running `init` means downloading, so
+`cargo check` against an empty `inputs/` would quietly start pulling every
+puzzle. Checking and reporting is fine, fixing is not.
+
+Generating the dispatch table is the build-script use still worth having. That
+is hermetic and needs no network.
 
 ## Caching and no-clobber
 
