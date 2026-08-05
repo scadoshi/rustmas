@@ -15,7 +15,7 @@ check. The third-party solver is idempotent but cannot award anything. See
 Brought `Part` back, as a plain enum this time rather than the struct that was
 deleted the day before, since submitting needs to name a part.
 
-Built `check_answer` against the solver. First attempt keyed `Unsupported` off a
+Built `validate_answer` against the solver. First attempt keyed `Unsupported` off a
 404, which was wrong: probing showed the API returns 400 for every failure and
 puts the reason in the body. Rewrote it to read the body before classifying,
 which also meant dropping `error_for_status()`, since that consumes the body.
@@ -43,11 +43,16 @@ uneventful, which is the no-clobber caching working as intended.
 Verified day 1 end to end. `cargo run --bin solve -- -y 2015 -d 1` gives `280`
 and `1797`, and the solver returns the same for both parts.
 
-Decided how checking gets wired into `solve`, though none of it is written yet.
-See [`../design/verification.md`](../design/verification.md) and
-[`../todo.md`](../todo.md). Short version: opt-in `--check` flag, the check runs
-where the input is already in scope, and the `Session` gets built lazily so
-`solve` does not start demanding a cookie it never uses.
+Decided how validation gets wired into `solve`, though the wiring itself is not
+written. See [`../design/verification.md`](../design/verification.md) and
+[`../todo.md`](../todo.md). Short version: opt-in `-v`/`--validate` flag, the
+call happens where the input is already in scope, and the `Session` gets built
+lazily so `solve` does not start demanding a cookie it never uses.
+
+Settled the name at the end of the session. `check_answer` became
+`validate_answer` and the flag is `--validate`, because `cargo check` already
+means "compile without producing a binary" and `--check` reads like a build-only
+flag. The flag is declared but inert; nothing calls `validate_answer` yet.
 
 ## 2026-08-03
 

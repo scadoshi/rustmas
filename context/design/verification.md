@@ -32,7 +32,7 @@ adds a cooldown case.
 Too high and too low are real signals from both sources and worth keeping rather
 than flattening into a bool.
 
-## check_answer
+## validate_answer
 
 Posts the input to `/solve/<year>/<day>/<part>` and compares. Numeric answers
 compare as numbers so a mismatch can report a direction, anything else compares
@@ -54,17 +54,23 @@ when a day is published and solved locally before the solver catches up.
 
 ## Wiring it into solve
 
-Checking is opt-in, behind `-c`/`--check`, defaulting to off. Two reasons.
+Validation is opt-in, behind `-v`/`--validate`, defaulting to off. Two reasons.
 Solving offline is the common case and should stay fast, and a run-all with
-checking on is roughly 500 requests against a hobby project's free tier. Making
-it opt-out would turn that into the accident you have to remember to prevent.
+validation on is roughly 500 requests against a hobby project's free tier.
+Making it opt-out would turn that into the accident you have to remember to
+prevent.
+
+The word is `validate` rather than `check` because `cargo check` already means
+"compile without producing a binary", so `--check` could plausibly read as a
+build-only flag. `-V` is taken by `--version`, which leaves `-v` free for this,
+one shift key apart and doing something else entirely.
 
 Once verdicts are cached, defaulting to on becomes reasonable, because a
 confirmed part would cost nothing to re-check.
 
 ## Open
 
-The verifier does not exist yet, only `check_answer`, and nothing calls it.
+The verifier does not exist yet, only `validate_answer`, and nothing calls it.
 `solve` prints answers without finding out whether they are right.
 `submit_answer` is `todo!()`.
 

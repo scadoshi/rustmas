@@ -11,6 +11,9 @@ pub struct Args {
     /// Day to run (omit for all)
     #[arg(short, long)]
     pub day: Option<u32>,
+    /// Check answers against the third-party solver (one request per part)
+    #[arg(short, long)]
+    pub validate: bool,
 }
 
 pub fn solve<S: Solution>(input: &'static str) -> anyhow::Result<(Option<String>, Option<String>)> {

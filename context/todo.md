@@ -2,23 +2,22 @@
 
 ## Next
 
-Wire `check_answer` into `solve`. Nothing calls it today, so `solve` prints
+Wire `validate_answer` into `solve`. Nothing calls it today, so `solve` prints
 answers without ever finding out whether they are right. Decided design, not yet
 written:
 
-- Add a `-c`/`--check` bool to `Args`, opt-in rather than opt-out. Default off
-  keeps the common case fast and offline, and a bare run-all with checking on
-  would be roughly 500 requests to a hobby project's free tier. Opt-out would
-  make that the accident you have to remember to prevent.
-- `check_answer` needs the puzzle input, but `dispatch` currently returns only
-  the answers. Either dispatch hands the input back too, or the check happens
-  inside the generated match arm where `include_str!` is already in scope. The
-  second is less plumbing.
-- Build the `Session` lazily, only when `--check` is set, or `solve` starts
-  failing without a `.env` even when nothing is being checked. Worth noting that
-  `check_answer` never touches the cookie, only `get_input` and `submit_answer`
-  do, so pulling the client off `Session` is another way out.
-- Skip the call when a part returns `None`. Nothing to check.
+The `-v`/`--validate` flag is declared on `Args` but does nothing yet. What is
+left:
+
+- `validate_answer` needs the puzzle input, but `dispatch` returns only the
+  answers. Either dispatch hands the input back too, or the check happens inside
+  the generated match arm where `include_str!` is already in scope. The second
+  is less plumbing.
+- Build the `Session` lazily, only when the flag is set, or `solve` starts
+  failing without a `.env` even when nothing is being validated. Worth noting
+  that `validate_answer` never touches the cookie, only `get_input` and
+  `submit_answer` do, so pulling the client off `Session` is another way out.
+- Skip the call when a part returns `None`. Nothing to validate.
 
 Then:
 
@@ -54,7 +53,7 @@ Then:
 ## Done
 
 - 2015 day 1, verified end to end. `280` and `1797`, both matching the solver.
-- `check_answer` against the third-party solver, all branches driven live.
+- `validate_answer` against the third-party solver, all branches driven live.
 - Solver contract recorded and verified against its source.
 - `init` downloading inputs with no-clobber caching.
 - Solution trait, dispatch macro, clap arguments.

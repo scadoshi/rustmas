@@ -111,7 +111,7 @@ impl Session {
     /// Only transport failures and 5xx responses fall through to the next host,
     /// since all three run the same solver and would reject a bad request
     /// identically. Errors if every host fails.
-    pub fn check_answer(
+    pub fn validate_answer(
         &self,
         input: impl Display,
         day: &Day,

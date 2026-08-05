@@ -8,7 +8,7 @@ rely on, when it was last verified, and how to check it again.
 - Source: `https://github.com/fornwall/advent-of-code.git`
 - Cloned locally at `~/Work/advent-of-code`
 - Last checked: 2026-08-04, at commit `b5d0e717` (authored 2026-07-03)
-- Used by: `Session::check_answer` in `src/lib/session/mod.rs`
+- Used by: `Session::validate_answer` in `src/lib/session/mod.rs`
 
 Hosts, all running the same WASM solver. Listed in `AOC_SOLVER_BASE_URLS`:
 
