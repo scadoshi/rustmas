@@ -1,6 +1,22 @@
 # Journal
 
-Newest first.
+Newest first. Names in older entries were updated when things got renamed, so
+they read consistently rather than historically.
+
+## 2026-08-06 (later)
+
+Renamed the `init` binary to `fetch`. `init` implied one-time setup, but with
+year and day filters coming it becomes something you run repeatedly for a single
+puzzle. `sync` was the other candidate, since it matches the gap-filling
+caching, but `fetch` says what it does.
+
+Renamed `src/lib/utils.rs` to `calendar.rs`, which holds `FIRST_YEAR` and
+`latest_year()`. Both binaries keep their own local `utils.rs` for CLI bits.
+
+Trimmed doc comments across the repo. The `Solution` trait and `validate_answer`
+were the worst, both roughly a third of their old length now. Accessors that
+restated their own signature lost their docs entirely. Documented the consts
+that carry non-obvious meaning, and `Part` and `Verdict`, which had none.
 
 ## 2026-08-06
 
@@ -79,7 +95,7 @@ against its source rather than guessed from responses.
 Tried a `build.rs` that warned when `inputs/` was missing, then removed it.
 `include_str!` already names the missing path, so it added little. Two things
 came out of the attempt worth keeping: a build script gates the whole package,
-so panicking would have blocked `init`, which is the binary you need to fix the
+so panicking would have blocked `fetch`, which is the binary you need to fix the
 problem; and it could only check that the directory was non-empty, since the
 days actually embedded live in the `solutions!` invocation, which a build script
 cannot read without parsing `main.rs`.
@@ -112,7 +128,7 @@ Reframed the force-overwrite helpers as no-clobber `ensure_*` helpers, since
 neither inputs (immutable, remote-owned) nor source files (ours, accumulating
 work) should ever be truncated by a re-run.
 
-Scoped `init` to inputs only. Scaffolding solution modules has a different
+Scoped `fetch` to inputs only. Scaffolding solution modules has a different
 trigger and would have dragged `mod.rs` generation and parent-module wiring into
 a tool that just downloads files.
 

@@ -1,4 +1,5 @@
 use anyhow::{Context, bail};
+use clap::Parser;
 use rustmas::{day::Day, session::Session};
 use std::{fs::create_dir_all, path::Path};
 
@@ -39,4 +40,16 @@ pub fn download_input(session: &Session, day: &Day, path: &Path) -> anyhow::Resu
         .with_context(|| format!("failed to write input: {}", path.display()))?;
     println!("downloaded input: {}", path.display());
     Ok(())
+}
+
+#[derive(Parser)]
+#[command(about = "Advent of Code inputs fetcher")]
+#[command(version)]
+pub struct Args {
+    /// Year to fetch inputs for (omit for all)
+    #[arg(short, long)]
+    pub year: Option<i32>,
+    /// Day to fetch inputs for (omit for all)
+    #[arg(short, long)]
+    pub day: Option<i32>,
 }

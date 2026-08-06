@@ -8,8 +8,8 @@ name = "solve"
 path = "src/bin/solve/main.rs"
 
 [[bin]]
-name = "init"
-path = "src/bin/init/main.rs"
+name = "fetch"
+path = "src/bin/fetch/main.rs"
 
 [lib]
 path = "src/lib/lib.rs"

@@ -10,10 +10,10 @@ pub enum Part {
 
 impl Part {
     /// `1` or `2`, wanted by both AOC's `level` field and the solver's path.
-    pub fn to_wire_value(&self) -> u32 {
+    pub fn to_wire_value(&self) -> &str {
         match self {
-            Self::One => 1,
-            Self::Two => 2,
+            Self::One => "1",
+            Self::Two => "2",
         }
     }
 }

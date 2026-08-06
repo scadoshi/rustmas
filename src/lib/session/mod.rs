@@ -3,7 +3,7 @@ pub mod verdict;
 use crate::{day::Day, part::Part, session::verdict::Verdict};
 use anyhow::{Context, bail};
 use reqwest::{Url, blocking::Client};
-use std::fmt::Display;
+use std::{collections::HashMap, fmt::Display};
 
 /// Env var holding the adventofcode.com session cookie.
 const COOKIE_KEY: &str = "COOKIE";
@@ -85,7 +85,17 @@ impl Session {
             })
     }
 
-    pub fn submit_answer(&self, day: &Day, part: Part) -> anyhow::Result<()> {
+    pub fn submit_answer(
+        &self,
+        day: &Day,
+        part: Part,
+        answer: impl AsRef<str>,
+    ) -> anyhow::Result<()> {
+        let path = format!("/{}/day/{}/answer", day.year(), day.value());
+        let url = Url::parse(AOC_BASE_URL)?.join(&path)?;
+        let form_params =
+            HashMap::from([("level", part.to_wire_value()), ("answer", answer.as_ref())]);
+        // let response = self.client.post(url).form(&form_params).send()?;
         todo!()
     }
 

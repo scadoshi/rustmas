@@ -42,7 +42,7 @@ because something got probed or read rather than assumed.
 
 Advent of Code tooling in Rust. Two binaries over one shared library.
 
-`init` downloads every published puzzle input to `inputs/<year>/<NN>.txt`.
+`fetch` downloads every published puzzle input to `inputs/<year>/<NN>.txt`.
 
 `solve` runs the solutions, filtered by optional `-y`/`--year` and `-d`/`--day`.
 Omitting a flag means "all", so both are filters rather than a lookup, and no

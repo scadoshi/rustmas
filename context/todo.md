@@ -18,8 +18,8 @@
 - Distinguish an explicitly requested day with no solution from one skipped
   during a run-all. `dispatch` already returns `None` for both and `main`
   ignores the difference.
-- Decide whether a failed download should abort `init` or log and continue.
-- Give `init` the same `-y`/`--year` and `-d`/`--day` filters `solve` has, so a
+- Decide whether a failed download should abort `fetch` or log and continue.
+- Give `fetch` the same `-y`/`--year` and `-d`/`--day` filters `solve` has, so a
   single puzzle can be downloaded without walking every year. Same treatment:
   clap derive with `Option<u32>` on both, filters rather than a lookup, and the
   two `is_some_and` guards inside the existing loops. Worth doing when a live
@@ -33,7 +33,7 @@
 - More solutions. Each is one line in the `solutions!` invocation plus a module.
 - Revisit the visual-answer case. A part returning `None` while printing from
   inside the solver puts a side effect somewhere awkward to test.
-- Note in the README that a fresh clone must run `init` before `solve` compiles,
+- Note in the README that a fresh clone must run `fetch` before `solve` compiles,
   since `include_str!` needs `inputs/` and that directory is gitignored.
 
 ## Done
@@ -45,6 +45,6 @@
 - 2015 day 1, verified end to end. `280` and `1797`, both matching the solver.
 - `validate_answer` against the third-party solver, all branches driven live.
 - Solver contract recorded and verified against its source.
-- `init` downloading inputs with no-clobber caching.
+- `fetch` downloading inputs with no-clobber caching.
 - Solution trait, dispatch macro, clap arguments.
 - Validated `Year`, `Day`, and `Part` types.

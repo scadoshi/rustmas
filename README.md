@@ -20,22 +20,24 @@ The cookie belongs to your account, so `.env` is gitignored.
 Download every published puzzle input into `inputs/<year>/<NN>.txt`:
 
 ```
-cargo run --bin init
+cargo run --bin fetch
 ```
 
 Re-running is safe. Existing inputs count as cached and are left untouched, so
-`init` only fetches what's missing. Advent of Code asks that you not re-download.
+`fetch` only fetches what's missing. Advent of Code asks that you not re-download.
 
 ## Layout
 
 ```
 src/
   lib/            # shared library
+    calendar.rs   # which events exist
     day.rs        # Year -> Day validated coordinates
-    session.rs    # authenticated adventofcode.com client
+    part.rs       # which of a day's two puzzles
+    session/      # adventofcode.com and solver clients
     solutions/    # one module per puzzle, implementing Solution
   bin/
-    init/         # the input downloader
+    fetch/        # the input downloader
     solve/        # the solution runner
 inputs/           # downloaded puzzle inputs (gitignored)
 ```
