@@ -145,9 +145,34 @@ turning a permanent check into a one-time one, exactly when it matters most.
 Storing the answer makes the entry conditional: the cached verdict applies only
 while the computed answer still matches.
 
+## Submitting from solve
+
+`--submit` on the `solve` binary. It forces validation on regardless of
+`--validate`, because the solver verdict is the gate: a wrong answer to AOC costs
+an escalating cooldown, and the solver check is free protection against firing
+one.
+
+- solver says `Correct`: submit
+- solver says `Incorrect`, `High`, or `Low`: skip, report the direction
+- solver says `Unsupported`: submit anyway, noting it went unchecked
+
+That last case matters. `Unsupported` means the solver has no implementation,
+which happens during a live event when a day is solved before the solver catches
+up, and that is exactly when submitting is worth doing. Gating on it would block
+the one case the feature exists for.
+
+An unfiltered `--submit` walks every year and day, so it prompts first with the
+count, and `--yes` skips the prompt. No short flag for `--yes`: `-y` is taken by
+`--year`, and a guard against hundreds of writes is worth typing out. The prompt
+writes to stderr and treats closed stdin as no, so redirecting output does not
+swallow the question and a script does not hang or accidentally proceed.
+
+The two clients are built independently. Validating alone never needs a cookie,
+since only `AocClient` has one.
+
 ## Open
 
-Nothing calls `submit_answer` yet. It needs a flag on `solve` or its own
-binary.
+Nothing tracks which parts are already solved, so a submit run re-asks AOC and
+gets `AlreadySolved` back. Harmless, and the rejected cache above is why.
 
 

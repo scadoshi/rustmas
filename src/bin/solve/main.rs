@@ -1,11 +1,16 @@
 pub mod args;
+pub mod utils;
 
-use crate::args::Args;
+use crate::{
+    args::Args,
+    utils::{confirm, submit},
+};
 use clap::Parser;
 use rustmas::{
     calendar::{FIRST_YEAR, latest_year},
-    client::SolverClient,
+    client::{AocClient, SolverClient},
     day::{Day, days_in_year},
+    part::Part,
     solutions::{answer::Answer, solution::solve, year_2015::day_01::Day01},
 };
 
@@ -48,6 +53,19 @@ fn run(args: &Args) -> anyhow::Result<()> {
     let validate = args.validate || args.submit;
     let solver = validate.then(SolverClient::new);
 
+    if args.submitting_everything() && !args.yes {
+        let count: usize = (FIRST_YEAR..=latest_year())
+            .map(|year| days_in_year(year) as usize * 2)
+            .sum();
+        if !confirm(count)? {
+            eprintln!("Nothing submitted.");
+            return Ok(());
+        }
+    }
+
+    // Only built when submitting, so validating alone never needs a cookie.
+    let aoc = args.submit.then(AocClient::from_env).transpose()?;
+
     for year in FIRST_YEAR..=latest_year() {
         if args.year.is_some_and(|y| y != year) {
             continue;
@@ -65,6 +83,10 @@ fn run(args: &Args) -> anyhow::Result<()> {
                     println!("{year} day {}", day.value());
                     println!("  part one: {one}");
                     println!("  part two: {two}");
+                    if let Some(aoc) = aoc.as_ref() {
+                        submit(aoc, &day, Part::One, &one)?;
+                        submit(aoc, &day, Part::Two, &two)?;
+                    }
                 }
                 Err(e) => eprintln!("{year} day {} failed: {e:?}", day.value()),
             }

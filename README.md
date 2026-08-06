@@ -39,7 +39,18 @@ cargo run --bin solve -- -y 2015 -d 1 --validate
 ```
 
 `--validate` checks each answer against a third-party solver, one request per
-part. Without it, solving is entirely offline.
+part. Without it, solving is entirely offline, and it needs no session cookie
+since the solver has no accounts.
+
+`--submit` posts answers to Advent of Code. It validates first and only submits
+what the solver agrees with, since a wrong answer earns an escalating cooldown:
+
+```
+cargo run --bin solve -- -y 2015 -d 1 --submit
+```
+
+Run without a year or day it would post every solved part, so it asks first.
+`--yes` skips that prompt.
 
 Solutions embed their input with `include_str!`, so `solve` will not compile
 until `fetch` has downloaded the days it covers. `inputs/` is gitignored, which

@@ -13,7 +13,20 @@ pub struct Args {
     /// Check answers against the third-party solver (one request per part)
     #[arg(short, long)]
     pub validate: bool,
-    /// Submit answers to the official Advent of Code website (one request per part)
+    /// Submit answers to the official Advent of Code website (one request per
+    /// part). Validates first and only submits what the solver agrees with.
     #[arg(short, long)]
     pub submit: bool,
+    /// Skip the confirmation prompt when submitting without a year or day
+    /// filter. No short flag: this one is worth typing out.
+    #[arg(long)]
+    pub yes: bool,
+}
+
+impl Args {
+    /// True when a submit run is unfiltered, and so would post answers for
+    /// every solved day rather than the one being worked on.
+    pub fn submitting_everything(&self) -> bool {
+        self.submit && self.year.is_none() && self.day.is_none()
+    }
 }

@@ -2,15 +2,12 @@
 
 ## Next
 
-- Nothing calls `submit_answer` yet. It needs a flag on `solve`, or its own
-  binary.
-- Route between the two clients on solved state: AOC when unsolved, solver when
-  already solved.
+- More solutions. The pipeline is complete now: fetch, solve, validate, submit.
+  Each new day is one line in the `solutions!` invocation plus a module.
+- Timing per part, split from parse time. Belongs in `solve()` in
+  `src/lib/solutions/solution.rs`, where `new` and the two parts are called.
 
 ## Soon
-
-- Timing per part, split from parse time. Belongs in `solve()` in
-  `src/bin/solve/utils.rs`.
 - Distinguish an explicitly requested day with no solution from one skipped
   during a run-all. `dispatch` already returns `None` for both and `main`
   ignores the difference.
@@ -20,12 +17,14 @@
 
 - Cache puzzle instructions for full offline use. Two passes, since part two's
   text is hidden until part one is solved. Gitignore it.
-- More solutions. Each is one line in the `solutions!` invocation plus a module.
 - Revisit the visual-answer case. A part returning `None` while printing from
   inside the solver puts a side effect somewhere awkward to test.
 
 ## Done
 
+- `--submit` on `solve`, gated on a solver verdict, with a confirmation prompt
+  for unfiltered runs and `--yes` to skip it.
+- Client split into `AocClient` and `SolverClient`.
 - `submit_answer` with the AOC reply parser, all verdicts driven live against a
   scratch account, fixtures kept as unit tests.
 - `--validate` wired end to end. `-y 2015 -d 1 --validate` reports

@@ -5,6 +5,27 @@ they read consistently rather than historically.
 
 ## 2026-08-06 (later)
 
+Wired `--submit` into `solve`, which completes the pipeline: fetch, solve,
+validate, submit. Submitting forces validation on and gates on the solver
+verdict, since a wrong answer to AOC costs an escalating cooldown and the solver
+check is free. `Unsupported` is deliberately let through rather than blocked,
+because that is the live-event case where a day is solved before the solver
+catches up, and it is exactly when submitting matters.
+
+Drove all of it. An already-solved day validates `Correct` then reports
+`already solved` from AOC. Temporarily breaking day 1 to return `999999999`
+produced `High` from the solver and the submission was skipped, so a wrong
+answer never reaches AOC. The unfiltered prompt declines on `n` and on closed
+stdin, and neither path made a request.
+
+`--yes` has no short flag, since `-y` is `--year` and a guard against 524 writes
+is worth typing out. The prompt states the count, writes to stderr, and treats
+EOF as no.
+
+Moved `submit` and `confirm` into `src/bin/solve/utils.rs`, leaving `main.rs` as
+the macro, `run`, and `main`.
+
+
 Split `Session` into `AocClient` and `SolverClient` under `src/lib/client/`,
 files named for who they talk to. `official.rs` was considered and rejected: it
 names a judgment rather than a fact, and would need an `unofficial.rs`
