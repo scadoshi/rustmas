@@ -102,10 +102,7 @@ impl Session {
     ) -> anyhow::Result<Verdict> {
         let path = format!("/{}/day/{}/answer", day.year(), day.value());
         let url = Url::parse(AOC_BASE_URL)?.join(&path)?;
-        let form = [
-            ("level", part.to_wire_value()),
-            ("answer", answer.as_ref()),
-        ];
+        let form = [("level", part.to_wire_value()), ("answer", answer.as_ref())];
 
         let body = self
             .client
@@ -240,7 +237,8 @@ mod tests {
     const LOW: &str = "That's not the right answer; your answer is too low.  If you're stuck, make sure you're using the full input data";
     const WRONG: &str = "That's not the right answer.  If you're stuck, make sure you're using the full input data; there are also some general tips";
     const COOLDOWN: &str = "You gave an answer too recently; you have to wait after submitting an answer before trying again.  You have 1m 0s left to wait.";
-    const SOLVED: &str = "You don't seem to be solving the right level.  Did you already complete it?";
+    const SOLVED: &str =
+        "You don't seem to be solving the right level.  Did you already complete it?";
 
     #[test]
     fn classifies_replies() {

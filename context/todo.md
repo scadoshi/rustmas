@@ -2,12 +2,10 @@
 
 ## Next
 
-- Local answer cache, persisted to the project root as JSON, no TTL. Trust what
-  is stored. Flat map keyed `"2015/1/1"` holding the answer and verdict, since
-  lookups are always by exact coordinate. Required rather than nice: AOC
-  confirms a correct answer exactly once, so the cache is the only durable
-  record. `Verdict::AlreadySolved` is the signal that the site knows a part is
-  done when local state does not.
+- Local answer cache. JSON at the project root, no TTL, trusted on read. Flat map
+  keyed `"2015/1/1"`, storing the answer plus `solved` and `solver_agrees`.
+  Required rather than nice, since AOC grades each part exactly once. See
+  `design/verification.md` for what counts as solved and the re-check rule.
 - Nothing calls `submit_answer` yet. It needs a flag on `solve`, or its own
   binary.
 - Route between the two clients on solved state: AOC when unsolved, solver when
