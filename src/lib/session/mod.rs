@@ -7,9 +7,19 @@ use std::fmt::Display;
 
 /// Env var holding the adventofcode.com session cookie.
 const COOKIE_KEY: &str = "COOKIE";
+/// Env var holding an address AOC can reach you at, folded into the
+/// `User-Agent`. Optional. Kept out of the source so a fork identifies its own
+/// owner rather than this repo's.
+const CONTACT_KEY: &str = "CONTACT";
+/// Env var naming the repo reported in the `User-Agent`. Optional, and with no
+/// default, so an unset value never attributes traffic to someone else's repo.
+const REPO_URL_KEY: &str = "REPO_URL";
+
 const AOC_BASE_URL: &str = "https://adventofcode.com";
-/// Sent as `User-Agent`. AOC asks automated clients to identify themselves.
-const REPO_GITHUB_URL: &str = "https://github.com/scadoshi/rustmas";
+/// Names the tool when neither `REPO_URL` nor `CONTACT` is set. Deliberately
+/// points at nobody: a default naming this repo's author would make them the
+/// contact for a stranger's traffic.
+const UNCONFIGURED_USER_AGENT: &str = "rustmas (unconfigured; set CONTACT in .env)";
 /// Three deployments of the same third-party solver, tried in order. See
 /// `context/references.md`.
 const AOC_SOLVER_BASE_URLS: [&str; 3] = [
@@ -22,6 +32,7 @@ const AOC_SOLVER_BASE_URLS: [&str; 3] = [
 /// across requests. Build one with [`Session::from_env`].
 pub struct Session {
     cookie: String,
+    user_agent: String,
     client: Client,
 }
 
@@ -34,14 +45,35 @@ impl Session {
         &self.client
     }
 
-    /// Reads the cookie from the `COOKIE` env var, loading `.env` if present.
-    /// Errors if it is missing.
+    /// How this tool identifies itself to AOC, which asks automated clients to
+    /// be reachable. Built from `REPO_URL` and `CONTACT`.
+    pub fn user_agent(&self) -> &str {
+        &self.user_agent
+    }
+
+    /// Reads configuration from the environment, loading `.env` if present.
+    ///
+    /// `COOKIE` is required. `REPO_URL` and `CONTACT` are optional and only
+    /// shape the `User-Agent`, so a fresh clone still runs without them.
     pub fn from_env() -> anyhow::Result<Self> {
-        // `.env` is optional: the cookie may already live in the real environment.
+        // `.env` is optional: values may already live in the real environment.
         dotenvy::dotenv().ok();
+
+        let set = |key| match std::env::var(key) {
+            Ok(value) if !value.trim().is_empty() => Some(value.trim().to_string()),
+            _ => None,
+        };
+        let user_agent = match (set(REPO_URL_KEY), set(CONTACT_KEY)) {
+            (Some(repo), Some(contact)) => format!("{repo} by {contact}"),
+            (Some(repo), None) => repo,
+            (None, Some(contact)) => format!("rustmas by {contact}"),
+            (None, None) => UNCONFIGURED_USER_AGENT.to_string(),
+        };
+
         Ok(Self {
             cookie: std::env::var(COOKIE_KEY)
-                .with_context(|| format!("failed to get {}", COOKIE_KEY))?,
+                .with_context(|| format!("failed to get {COOKIE_KEY}"))?,
+            user_agent,
             client: Client::new(),
         })
     }
@@ -57,7 +89,7 @@ impl Session {
                 day.year(),
                 day.value()
             ))?)
-            .header("User-Agent", REPO_GITHUB_URL)
+            .header("User-Agent", self.user_agent())
             .header("Cookie", format!("session={}", self.cookie()))
             .send()
             .with_context(|| {
@@ -107,7 +139,7 @@ impl Session {
         let body = self
             .client
             .post(url)
-            .header("User-Agent", REPO_GITHUB_URL)
+            .header("User-Agent", self.user_agent())
             .header("Cookie", format!("session={}", self.cookie()))
             .form(&form)
             .send()

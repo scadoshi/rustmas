@@ -18,9 +18,8 @@ is what a regression check needs. It knows nothing about your account and cannot
 award stars.
 
 The plan is to route on solved state: submit to AOC when a part is unsolved, and
-fall back to the solver once it is. The local cache is the first source for that
-state, with an AOC response able to correct it when they disagree, such as when
-a puzzle was solved on the website or from another machine.
+fall back to the solver once it is. AOC itself holds that state, and reports it
+as `AlreadySolved`, so nothing needs to be tracked locally.
 
 ## Verdict
 
@@ -40,8 +39,8 @@ is two enums sharing a core, or one enum plus a source tag.
 Tagging the source inside `Verdict`, as in nested `Official` and `Unofficial`
 variants, was considered and rejected. The caller already knows which client it
 called, so the tag restates known information while pushing every match two
-levels deep. Where the source genuinely matters is the cache, because a stored
-verdict outlives the call that produced it, so that is where it gets recorded.
+levels deep. It would matter for a stored verdict, which outlives the call that
+produced it, but nothing is stored (see the rejected cache below).
 
 `Cooldown` holds a string because AOC phrases the remaining wait as prose
 (`1m 0s`). It reports and moves on rather than sleeping: the wait escalates well
@@ -81,8 +80,9 @@ The word is `validate` rather than `check` because `cargo check` already means
 build-only flag. `-V` is taken by `--version`, which leaves `-v` free for this,
 one shift key apart and doing something else entirely.
 
-Once verdicts are cached, defaulting to on becomes reasonable, because a
-confirmed part would cost nothing to re-check.
+Every run pays for what it validates, since nothing is cached. That is the
+point: the solver is idempotent, so re-running is a regression check rather
+than waste.
 
 ## submit_answer
 
@@ -107,34 +107,34 @@ That matters because AOC grades each part exactly once. Unless you were the
 first to submit, you can never obtain its sign-off on a specific string again, so
 a rule like "re-check until AOC confirms this answer" would loop forever.
 
-The cache therefore records two booleans rather than one notion of official:
+## Rejected: a local answer cache
 
-- `solved`, from `Correct` or `AlreadySolved`
-- `solver_agrees`, from the third-party solver matching the stored answer
+A JSON cache of confirmed answers was designed in some detail and then dropped
+without being built.
 
-Both true is treated as officially solved. That is an inference, not AOC's word:
-it means the site says the part is done and an independent implementation
-produced the same answer. For it to be wrong, the solver and our code would have
-to share a bug producing identical output while some different answer earned the
-star. Not worth designing around.
+The argument for it was that AOC grades each part exactly once, so a cache
+looked like the only durable record of a correct submission. That was wrong.
+AOC is itself stateful, and `AlreadySolved` is the durable record. The site
+remembers your stars whether or not anything is written down, so the fact called
+irreplaceable was always one request away.
 
-The re-check rule falls out of it:
+What remained was an optimisation worth very little. Validation is opt-in and
+usually aimed at the single day being worked on, so the saving is one request
+per part. Against that sat a file format, read and write paths, key parsing,
+staleness rules, and an invalidation problem: answers are tied to one account's
+input, so changing `COOKIE` silently invalidates every entry.
 
-- `solved && solver_agrees`: done, never touch the network again
-- `solved && !solver_agrees`: the star exists but the stored answer is unproven,
-  ask the solver once
-- `!solved`: submit
+One detail is worth keeping if it ever comes back. An entry would have to store
+the answer, not just the coordinate. The solver's value is that it is
+repeatable, which makes it a regression check for refactors. A cache keyed only
+on year, day, and part would report a refactored solution as still validated,
+turning a permanent check into a one-time one, exactly when it matters most.
+Storing the answer makes the entry conditional: the cached verdict applies only
+while the computed answer still matches.
 
 ## Open
 
 Nothing calls `submit_answer` yet. It needs a flag on `solve` or its own
 binary.
 
-The cache is not built. It matters for two reasons: a full run-all is roughly
-500 requests against a hobby project's free tier, and AOC's one-shot answer means
-the cache is the only durable record of a correct submission. Planned as JSON at the project root, no TTL,
-trusted on read. A flat map keyed `"2015/1/1"`, since lookups are always by exact
-coordinate. JSON over a binary format because at a few hundred entries the speed
-difference is irrelevant, while being able to read, grep, and hand-fix the file
-matters: a corrupted cache cannot be re-earned once AOC has spent its one
-grading.
+

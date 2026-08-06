@@ -2,10 +2,6 @@
 
 ## Next
 
-- Local answer cache. JSON at the project root, no TTL, trusted on read. Flat map
-  keyed `"2015/1/1"`, storing the answer plus `solved` and `solver_agrees`.
-  Required rather than nice, since AOC grades each part exactly once. See
-  `design/verification.md` for what counts as solved and the re-check rule.
 - Nothing calls `submit_answer` yet. It needs a flag on `solve`, or its own
   binary.
 - Route between the two clients on solved state: AOC when unsolved, solver when

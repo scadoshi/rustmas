@@ -5,6 +5,30 @@ they read consistently rather than historically.
 
 ## 2026-08-06 (later)
 
+Designed a local answer cache in detail, then dropped it before writing it.
+The case for it rested on AOC grading each part exactly once, which made a cache
+look like the only durable record of a correct answer. That was wrong: AOC is
+stateful and `AlreadySolved` is the record. The supposedly irreplaceable fact
+was one request away.
+
+What was left was worth very little against a file format, key parsing,
+staleness rules, and an invalidation problem, since answers are tied to one
+account's input and changing `COOKIE` invalidates everything. Reasoning kept in
+[`../design/verification.md`](../design/verification.md), including the one
+detail worth remembering: an entry would need to store the answer, not just the
+coordinate, or a refactor would still read as validated and the regression check
+would quietly become a one-time check.
+
+Removed `src/lib/cache/`, and `serde` and `serde_json` with it, since nothing
+else used them.
+
+Moved the `User-Agent` into configuration. `CONTACT` and `REPO_URL` are optional
+env vars, and there is deliberately no default naming this repo's author: a fork
+that left them unset would otherwise report Scotty as the contact for a
+stranger's traffic. Unset falls back to naming the tool alone. Added
+`.env.template` so the shape is visible without a `.env`.
+
+
 Built `submit_answer` and probed AOC's real replies using a scratch account
 Scotty set up, submitting to 2015 day 1 deliberately wrong before deliberately
 right, since AOC grades each part only once.

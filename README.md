@@ -13,7 +13,10 @@ root:
 COOKIE=<your session cookie>
 ```
 
-The cookie belongs to your account, so `.env` is gitignored.
+The cookie belongs to your account, so `.env` is gitignored. Copy
+[`.env.template`](.env.template) to get started; it also documents two optional
+variables, `CONTACT` and `REPO_URL`, which shape the `User-Agent` sent to Advent
+of Code. The site asks automated clients to be reachable.
 
 ## Usage
 
