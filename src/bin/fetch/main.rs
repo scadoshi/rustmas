@@ -27,11 +27,13 @@ fn run(args: &Args) -> anyhow::Result<()> {
             continue;
         }
         let year_path = input_path.join(year.to_string());
-        ensure_dir(&format!("year {year}"), &year_path)?;
         for day in 1..=days_in_year(year) {
             if args.day.is_some_and(|d| d != day) {
                 continue;
             }
+            // Made here rather than per year, so a filter that matches nothing
+            // in this year leaves no empty directory behind.
+            ensure_dir(&format!("year {year}"), &year_path)?;
             let day = Day::new(day, year)?;
             let day_path = year_path.join(format!("{:02}.txt", day.value()));
             download_input(&session, &day, &day_path)?;

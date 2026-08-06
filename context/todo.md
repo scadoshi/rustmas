@@ -19,8 +19,6 @@
   during a run-all. `dispatch` already returns `None` for both and `main`
   ignores the difference.
 - Decide whether a failed download should abort `fetch` or log and continue.
-- `fetch` creates an empty year directory when a filter means nothing in that
-  year gets downloaded, since `ensure_dir` runs before the day loop. Cosmetic.
 
 ## Later
 
