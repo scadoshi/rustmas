@@ -22,10 +22,53 @@ the size of an erased return type. Since dispatch is a match that already knows
 each concrete type, monomorphized generics cover everything and erasure buys
 nothing.
 
-`Option<String>` as the return covers the cases where there is nothing to
-submit: a part whose answer is ASCII art you read in the terminal, and day 25
-part two, which is free. Note that if a visual part prints from inside the
-solver, the side effect lives in the solver, which makes it harder to test.
+Parts return `Answer`, which says what kind of result it is:
+
+```rust
+pub enum Answer {
+    Value { value: String, verdict: Option<Verdict> },
+    Visual(String),
+    None,
+}
+```
+
+This replaced `Option<String>`, which conflated two different absences and left
+a visual part unable to hand back its grid at all, since any `Some` would have
+been sent off for validation. So visual parts printed from inside the solver,
+putting a side effect somewhere awkward to test. Now the solution returns the
+art and the caller prints it.
+
+The verdict sits inside the `Value` variant rather than beside the enum, so a
+visual answer carrying a verdict is unrepresentable rather than merely unused.
+Same move as `Day` wrapping `Year`. `Answer::solved(value)` is the constructor a
+day uses, and `with_verdict` attaches a verdict afterwards, landing only on
+`Value`.
+
+An alternative was a separate `is_visual(part)` method on the trait. Rejected
+because it is a second source of truth that can disagree with what the part
+actually returned, and it leaves the grid trapped inside the solver.
+
+## Running a solution
+
+`solve` is a free function in `src/lib/solutions/mod.rs`, not a method on
+`Session`:
+
+```rust
+pub fn solve<S: Solution>(
+    session: Option<&Session>,
+    input: &'static str,
+    day: &Day,
+) -> anyhow::Result<(Answer, Answer)>
+```
+
+It briefly lived on `Session`, which put application logic inside what is
+otherwise an HTTP adapter. `Session` never needs its cookie or client to run a
+solution, it only delegates.
+
+`Option<&Session>` doubles as the validate flag, since "no session" and "do not
+validate" are the same condition. That removed a `bool` parameter and made the
+lazy-session question answer itself: `main` builds the session only when
+`--validate` is set, so solving offline never needs a cookie.
 
 ## Dispatch
 
@@ -72,5 +115,10 @@ skipping it during a run-all. `dispatch` returns `None` in both cases and `main`
 does not distinguish them.
 
 Timing is planned but not built. It belongs in `solve()` in
-`src/bin/solve/utils.rs`, where `new` and the two parts are actually called, so
-parse time can be reported separately from solve time.
+`src/lib/solutions/mod.rs`, where `new` and the two parts are actually called,
+so parse time can be reported separately from solve time.
+
+`Solution::input()` exists but nothing calls it now that `solve` already holds
+the input it was given. Worth deleting unless something needs it.
+
+No day returns `Answer::Visual` yet, so that path is written but unexercised.

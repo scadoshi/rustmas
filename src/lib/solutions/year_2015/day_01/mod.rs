@@ -1,4 +1,4 @@
-use crate::solutions::Solution;
+use crate::solutions::{Answer, Solution};
 
 pub struct Day01 {
     input: &'static str,
@@ -13,8 +13,8 @@ impl Solution for Day01 {
         self.input
     }
 
-    fn part_one(&self) -> Option<String> {
-        Some(
+    fn part_one(&self) -> Answer {
+        Answer::solved(
             self.input
                 .chars()
                 .fold(0, |acc, c| {
@@ -30,7 +30,7 @@ impl Solution for Day01 {
         )
     }
 
-    fn part_two(&self) -> Option<String> {
+    fn part_two(&self) -> Answer {
         let mut acc = 0;
         for (i, c) in self.input.chars().enumerate() {
             if c == '(' {
@@ -39,9 +39,9 @@ impl Solution for Day01 {
                 acc -= 1;
             }
             if acc == -1 {
-                return Some((i + 1).to_string());
+                return Answer::solved((i + 1).to_string());
             }
         }
-        None
+        Answer::None
     }
 }

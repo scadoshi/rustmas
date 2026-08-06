@@ -1,5 +1,4 @@
 use clap::Parser;
-use rustmas::{session::verdict::Verdict, solutions::Solution};
 
 #[derive(Parser)]
 #[command(about = "Advent of Code solution runner")]
@@ -14,10 +13,4 @@ pub struct Args {
     /// Check answers against the third-party solver (one request per part)
     #[arg(short, long)]
     pub validate: bool,
-}
-
-#[derive(Debug)]
-pub struct Answer {
-    value: String,
-    verdict: Option<Verdict>,
 }

@@ -2,53 +2,6 @@
 
 ## Next
 
-Wire `validate_answer` into `solve`. Nothing calls it today, so `solve` prints
-answers without ever finding out whether they are right. Decided design, not yet
-written:
-
-**Mid-migration as of 2026-08-05. The `solve` binary does not compile.** The
-library does. Pick this up before anything else.
-
-What moved: `solve` went from a free function in `src/bin/solve/utils.rs` to
-`Session::solve<S: Solution>`, because validating needs the session and the
-input together. `Solution` gained an `input()` method so the session can reach
-the input while checking. `Answer` (a value plus an optional `Verdict`) is new,
-in `src/lib/session/answer.rs`.
-
-To make it build again:
-
-- `main.rs` still imports `solve` and `Answer` from `crate::utils`. Both are
-  gone from there. `Answer` now lives at `rustmas::session::answer::Answer`.
-- `utils.rs` still holds a duplicate `Answer` definition. Delete it, the real
-  one is in the library.
-- The macro still calls `solve::<$t>(input)` with the old one-argument shape.
-  `Session::solve` now wants `(input, day, validate)` and is a method, so
-  `dispatch` needs a `&Session` and the validate flag threaded in from `main`.
-- Building the `Session` in `main` has to stay lazy, or `solve` starts requiring
-  a cookie even when not validating.
-- `Answer` has no accessors and `main` prints with `{:?}`. Fine for now, worth
-  a `Display` later.
-
-**Known bug, not yet fixed.** `Session::solve` takes one `part` and passes it to
-both validation calls, so part two gets validated against whatever part was
-handed in. The parameter should not exist: `solve` runs both parts, so it can
-use `Part::One` and `Part::Two` internally and drop `part` from the signature.
-
-The `-v`/`--validate` flag is declared on `Args` but does nothing yet. What is
-left:
-
-- `validate_answer` needs the puzzle input, but `dispatch` returns only the
-  answers. Either dispatch hands the input back too, or the check happens inside
-  the generated match arm where `include_str!` is already in scope. The second
-  is less plumbing.
-- Build the `Session` lazily, only when the flag is set, or `solve` starts
-  failing without a `.env` even when nothing is being validated. Worth noting
-  that `validate_answer` never touches the cookie, only `get_input` and
-  `submit_answer` do, so pulling the client off `Session` is another way out.
-- Skip the call when a part returns `None`. Nothing to validate.
-
-Then:
-
 - `submit_answer` is `todo!()`. Needs the POST to `/answer` with `level`, plus
   parsing AOC's HTML reply into a `Verdict`. Substring matching is enough, no
   HTML parser needed. Capture the cooldown message rather than discarding it.
@@ -85,6 +38,10 @@ Then:
 
 ## Done
 
+- `--validate` wired end to end. `-y 2015 -d 1 --validate` reports
+  `280 (Correct)` and `1797 (Correct)`.
+- `Answer` enum with the verdict folded into the submittable variant.
+- `solve` as a free function taking `Option<&Session>`.
 - 2015 day 1, verified end to end. `280` and `1797`, both matching the solver.
 - `validate_answer` against the third-party solver, all branches driven live.
 - Solver contract recorded and verified against its source.

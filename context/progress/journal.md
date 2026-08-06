@@ -2,6 +2,29 @@
 
 Newest first.
 
+## 2026-08-06
+
+Finished the migration left half-done yesterday. `--validate` works end to end:
+`-y 2015 -d 1 --validate` gives `280 (Correct)` and `1797 (Correct)`, and
+without the flag it solves offline and never builds a `Session`.
+
+`Output` became `Answer`, with the verdict folded into the submittable variant
+so a visual answer cannot carry one. A day writes `Answer::solved(value)` and
+the runner attaches a verdict afterwards. That also let visual answers be
+returned rather than printed from inside the solver, which closes the
+side-effect problem that had been open since the trait was designed.
+
+Moved `solve` off `Session` and made it a free function taking
+`Option<&Session>`. The session was doing two jobs, HTTP adapter and
+orchestration, and it never needed its own cookie or client to run a solution.
+Passing `Option<&Session>` also deleted the `validate` bool, since "no session"
+and "do not validate" are the same thing, and it made the lazy-construction
+question answer itself.
+
+Deleted the duplicate `Answer` in `src/bin/solve/utils.rs` and the stale
+`src/lib/session/answer.rs`. Gave `Answer` a `Display` impl so `main` prints
+readable output instead of `{:?}`.
+
 ## 2026-08-05
 
 Short session, stopped mid-change. The library compiles, the `solve` binary does
