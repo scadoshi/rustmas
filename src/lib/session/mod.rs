@@ -5,41 +5,37 @@ use anyhow::{Context, bail};
 use reqwest::{Url, blocking::Client};
 use std::fmt::Display;
 
+/// Env var holding the adventofcode.com session cookie.
 const COOKIE_KEY: &str = "COOKIE";
 const AOC_BASE_URL: &str = "https://adventofcode.com";
+/// Sent as `User-Agent`. AOC asks automated clients to identify themselves.
 const REPO_GITHUB_URL: &str = "https://github.com/scadoshi/rustmas";
+/// Three deployments of the same third-party solver, tried in order. See
+/// `context/references.md`.
 const AOC_SOLVER_BASE_URLS: [&str; 3] = [
     "https://advent.fly.dev",
     "https://aoc.fornwall.workers.dev",
     "https://mystifying-blackwell-9e705f.netlify.app",
 ];
 
-/// An authenticated handle to adventofcode.com.
-///
-/// Bundles the session cookie, the site base URL, and a reusable HTTP client so
-/// that input requests share one connection pool. Build one with
-/// [`Session::from_env`].
+/// An authenticated handle to adventofcode.com, with a pooled client shared
+/// across requests. Build one with [`Session::from_env`].
 pub struct Session {
     cookie: String,
     client: Client,
 }
 
 impl Session {
-    /// Returns the session cookie value used to authenticate requests.
     pub fn cookie(&self) -> &str {
         &self.cookie
     }
 
-    /// Returns the shared HTTP client backing this session.
     pub fn client(&self) -> &Client {
         &self.client
     }
 
-    /// Builds a [`Session`] from the environment.
-    ///
-    /// Loads a `.env` file if present (optional; the cookie may already be set
-    /// in the real environment) and reads the cookie from `COOKIE`. Errors if
-    /// that variable is missing or the base URL fails to parse.
+    /// Reads the cookie from the `COOKIE` env var, loading `.env` if present.
+    /// Errors if it is missing.
     pub fn from_env() -> anyhow::Result<Self> {
         // `.env` is optional: the cookie may already live in the real environment.
         dotenvy::dotenv().ok();
@@ -50,12 +46,10 @@ impl Session {
         })
     }
 
-    /// Fetches the raw puzzle input for `day` from adventofcode.com.
+    /// Fetches the raw puzzle input for `day`, verbatim.
     ///
-    /// Sends an authenticated GET to `/<year>/day/<day>/input` and returns the
-    /// response body verbatim. Errors if the request fails to send, the server
-    /// returns a non-success status (e.g. a bad cookie or an unreleased day),
-    /// or the body cannot be read.
+    /// Errors on a non-success status, which usually means a bad cookie or an
+    /// unreleased day.
     pub fn get_input(&self, day: &Day) -> anyhow::Result<String> {
         self.client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!(
@@ -95,22 +89,14 @@ impl Session {
         todo!()
     }
 
-    /// Checks `answer` against the third-party Advent of Code solver.
+    /// Checks `answer` against the third-party solver.
     ///
-    /// Posts the puzzle input to `/solve/<year>/<day>/<part>` and compares the
-    /// solver's answer to yours. Numeric answers compare as numbers, so a
-    /// mismatch reports [`Verdict::TooLow`] or [`Verdict::TooHigh`]. Anything
-    /// else compares as text.
+    /// Numeric answers compare as numbers, so a mismatch reports a direction.
+    /// Anything else compares as text.
     ///
-    /// The solver signals every failure with a 400 plus a message body, so the
-    /// status alone can't classify a response. A body beginning with
-    /// `Unsupported` means it has no implementation for that puzzle, which is
-    /// [`Verdict::Unsupported`]. Any other 4xx is a fault on our side, such as
-    /// an input the solver couldn't parse, and errors.
-    ///
-    /// Only transport failures and 5xx responses fall through to the next host,
-    /// since all three run the same solver and would reject a bad request
-    /// identically. Errors if every host fails.
+    /// The solver returns 400 for every failure with the reason in the body, so
+    /// classification reads the body rather than the status. Only transport
+    /// failures and 5xx retry the next host, since all three run the same code.
     pub fn validate_answer(
         &self,
         day: &Day,

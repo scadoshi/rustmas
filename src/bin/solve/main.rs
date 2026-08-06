@@ -6,7 +6,7 @@ use rustmas::{
     day::{Day, days_in_year},
     session::Session,
     solutions::{answer::Answer, solution::solve, year_2015::day_01::Day01},
-    utils::{FIRST_YEAR, latest_year},
+    calendar::{FIRST_YEAR, latest_year},
 };
 
 /// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete

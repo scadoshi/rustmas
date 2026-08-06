@@ -2,11 +2,10 @@ use anyhow::{Context, bail};
 use rustmas::{day::Day, session::Session};
 use std::{fs::create_dir_all, path::Path};
 
-/// Ensures a directory exists at `path`, creating parents as needed.
+/// Creates `path` and its parents, no-opping if it already exists.
 ///
-/// Idempotent: no-ops if the directory already exists. Errors (rather than
-/// clobbering) if a non-directory already sits at `path`. `name` is used only
-/// for narration.
+/// Errors rather than clobbering when a non-directory is in the way. `name` is
+/// for narration only.
 pub fn ensure_dir(name: &str, path: &Path) -> anyhow::Result<()> {
     if path.is_dir() {
         println!("{name} dir already exists: {}", path.display());
@@ -21,11 +20,10 @@ pub fn ensure_dir(name: &str, path: &Path) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Downloads the puzzle input for `day` to `path`, unless it is already there.
+/// Downloads the input for `day` to `path`, unless it is already there.
 ///
-/// Inputs never change once published, so an existing file is treated as a
-/// cached download and no request is made (AOC asks that you not re-download).
-/// Errors (rather than clobbering) if a non-file already sits at `path`.
+/// Inputs never change, so an existing file skips the request entirely. AOC
+/// asks that you not re-download.
 pub fn download_input(session: &Session, day: &Day, path: &Path) -> anyhow::Result<()> {
     if path.is_file() {
         println!("input already cached: {}", path.display());

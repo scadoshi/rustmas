@@ -2,58 +2,28 @@ use crate::{day::Day, part::Part, session::Session, solutions::answer::Answer};
 
 /// One day's puzzle, parsed and ready to answer both parts.
 ///
-/// Implementors hold whatever parsed form the puzzle needs. [`Solution::new`]
-/// does the parsing once, so `part_one` and `part_two` are reads over that
-/// rather than two passes over the raw text.
-///
-/// The trait is [`Sized`] and therefore not object safe, which is deliberate.
-/// `new` returns `Self`, so it could never go through a vtable: there is no
-/// receiver to find the vtable from, and an erased return type has no known
-/// size. Nothing needs `dyn` here, because dispatch is a match that already
-/// knows each concrete type (see the `solutions!` macro in
-/// `src/bin/solve/main.rs`), and monomorphized generics cover it.
-///
-/// A day looks like this:
-///
-/// ```ignore
-/// impl Solution for Day01 {
-///     fn new(input: &'static str) -> anyhow::Result<Self> {
-///         Ok(Self { input })
-///     }
-///     fn input(&self) -> &str { self.input }
-///     fn part_one(&self) -> Answer { Answer::solved(count.to_string()) }
-///     fn part_two(&self) -> Answer { Answer::None }
-/// }
-/// ```
+/// [`Sized`], so not object safe. That is deliberate: `new` returns `Self` and
+/// could never go through a vtable, and nothing needs `dyn` because dispatch is
+/// a match that already knows each concrete type.
 pub trait Solution: Sized {
-    /// Parses `input` into whatever form both parts need.
-    ///
-    /// Called once per run. Errors if the input doesn't parse, which surfaces
-    /// as a failure for that day rather than a panic.
+    /// Parses `input` once, so both parts are reads over the result.
     fn new(input: &'static str) -> anyhow::Result<Self>;
 
-    /// Returns the raw puzzle input this was built from.
+    /// The raw input this was built from.
     fn input(&self) -> &str;
 
-    /// Solves the first part.
-    ///
-    /// Return [`Answer::solved`] for a submittable value, [`Answer::Visual`]
-    /// for art the reader interprets, or [`Answer::None`] when there is
-    /// nothing to produce.
+    /// [`Answer::solved`] for a submittable value, [`Answer::Visual`] for art,
+    /// [`Answer::None`] for nothing.
     fn part_one(&self) -> Answer;
 
-    /// Solves the second part.
-    ///
-    /// Same contract as [`Solution::part_one`]. Day 25 has no second puzzle, so
-    /// it returns [`Answer::None`].
+    /// Same contract as [`Solution::part_one`]. Day 25 has no second puzzle.
     fn part_two(&self) -> Answer;
 }
 
-/// Runs both parts of a solution, validating each answer when given a session.
+/// Runs both parts, validating each answer when given a session.
 ///
-/// `session` doubles as the validate flag: `None` means solve offline and skip
-/// the network entirely. Only [`Answer::Value`] is ever validated, since a
-/// visual or absent answer has nothing to check.
+/// `session` doubles as the validate flag: `None` solves offline. Only
+/// [`Answer::Value`] is validated, since nothing else has anything to check.
 pub fn solve<S: Solution>(
     session: Option<&Session>,
     input: &'static str,

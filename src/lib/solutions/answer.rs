@@ -3,9 +3,8 @@ use std::fmt::Display;
 
 /// What one part of a puzzle produced.
 ///
-/// A verdict only makes sense for a value that could be submitted, so it lives
-/// on that variant rather than alongside the enum. A visual answer carrying a
-/// verdict is unrepresentable.
+/// The verdict sits on the submittable variant rather than beside the enum, so
+/// a visual answer carrying one is unrepresentable.
 #[derive(Debug)]
 pub enum Answer {
     /// A submittable answer, plus what a checker made of it if asked.
@@ -13,15 +12,15 @@ pub enum Answer {
         value: String,
         verdict: Option<Verdict>,
     },
-    /// Something you read rather than submit, such as ASCII art. The solution
-    /// hands it back instead of printing it, so solving stays free of IO.
+    /// Art you read rather than submit. Handed back rather than printed, so
+    /// solving stays free of IO.
     Visual(String),
     /// Nothing to produce. Day 25 part two is the usual case.
     None,
 }
 
 impl Answer {
-    /// A submittable answer, not yet checked. This is what a day returns.
+    /// A submittable answer, not yet checked. What a day returns.
     pub fn solved(value: impl Into<String>) -> Self {
         Self::Value {
             value: value.into(),
@@ -29,7 +28,7 @@ impl Answer {
         }
     }
 
-    /// Attaches a verdict, which only lands on [`Answer::Value`].
+    /// Attaches a verdict. Only lands on [`Answer::Value`].
     pub fn with_verdict(self, verdict: Verdict) -> Self {
         match self {
             Self::Value { value, .. } => Self::Value {

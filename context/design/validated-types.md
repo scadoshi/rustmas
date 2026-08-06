@@ -1,17 +1,17 @@
 # Validated types
 
-`src/lib/day.rs`, `src/lib/part.rs`
+`src/lib/day.rs`, `src/lib/part.rs`, `src/lib/calendar.rs`
 
-`Year` and `Day` are newtypes over `u32`. `Day` wraps a `Year`, constructors are
+`Year` and `Day` are newtypes over `i32`. `Day` wraps a `Year`, constructors are
 the only way in, and fields are private. That makes several states
-unrepresentable: a year before 2015 or after the current one, a day outside the
+unrepresentable: a year outside the published events, a day outside the
 range its year actually published, and a day with no year attached.
 
 `days_in_year()` is the single source of truth for how long an event ran. 2025
 was a 12-day event, everything else is 25. Both `Day::new` and the `solve` loop
 read it, so they cannot drift apart.
 
-`FIRST_YEAR` and `latest_year()` live in `src/lib/utils.rs`, shared by both
+`FIRST_YEAR` and `latest_year()` live in `src/lib/calendar.rs`, shared by both
 binaries and by `Year::new`. `latest_year()` is the latest *published* event,
 not the current calendar year: AOC drops a new one each December, so before
 December the current year has nothing in it. `Year::new` bounds on that rather

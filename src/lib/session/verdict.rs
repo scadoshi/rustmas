@@ -1,5 +1,6 @@
 use std::{cmp::Ordering, fmt::Display};
 
+/// What a checker made of an answer.
 #[derive(Debug)]
 pub enum Verdict {
     Correct,
