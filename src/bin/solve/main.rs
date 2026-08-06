@@ -5,7 +5,7 @@ use clap::Parser;
 use rustmas::{
     day::{Day, days_in_year},
     session::Session,
-    solutions::{Answer, solve, year_2015::day_01::Day01},
+    solutions::{answer::Answer, solution::solve, year_2015::day_01::Day01},
 };
 
 /// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete

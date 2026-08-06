@@ -1,4 +1,4 @@
-use crate::solutions::{Answer, Solution};
+use crate::solutions::{answer::Answer, solution::Solution};
 
 pub struct Day01 {
     input: &'static str,
