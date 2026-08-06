@@ -1,6 +1,7 @@
 pub mod utils;
 
-use crate::utils::{download_input, ensure_dir};
+use crate::utils::{Args, download_input, ensure_dir};
+use clap::Parser;
 use rustmas::{
     calendar::{FIRST_YEAR, latest_year},
     day::{Day, days_in_year},
@@ -10,20 +11,27 @@ use std::path::PathBuf;
 
 const INPUT_PATH: &str = "inputs";
 
-/// Downloads every published puzzle input into `inputs/<year>/<NN>.txt`.
+/// Downloads published puzzle inputs into `inputs/<year>/<NN>.txt`.
 ///
-/// Existing files count as cached, so re-running only fills gaps. One failed
-/// download aborts the rest.
-fn run() -> anyhow::Result<()> {
+/// `--year` and `--day` are filters, so omitting one means all of them. Existing
+/// files count as cached, so re-running only fills gaps. One failed download
+/// aborts the rest.
+fn run(args: &Args) -> anyhow::Result<()> {
     let project_path = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
     let input_path = project_path.join(INPUT_PATH);
     ensure_dir("inputs", &input_path)?;
 
     let session = Session::from_env()?;
     for year in FIRST_YEAR..=latest_year() {
+        if args.year.is_some_and(|y| y != year) {
+            continue;
+        }
         let year_path = input_path.join(year.to_string());
         ensure_dir(&format!("year {year}"), &year_path)?;
         for day in 1..=days_in_year(year) {
+            if args.day.is_some_and(|d| d != day) {
+                continue;
+            }
             let day = Day::new(day, year)?;
             let day_path = year_path.join(format!("{:02}.txt", day.value()));
             download_input(&session, &day, &day_path)?;
@@ -33,7 +41,7 @@ fn run() -> anyhow::Result<()> {
 }
 
 fn main() {
-    if let Err(e) = run() {
+    if let Err(e) = run(&Args::parse()) {
         eprintln!("Error: {e:?}");
     }
 }

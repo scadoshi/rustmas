@@ -19,12 +19,8 @@
   during a run-all. `dispatch` already returns `None` for both and `main`
   ignores the difference.
 - Decide whether a failed download should abort `fetch` or log and continue.
-- Give `fetch` the same `-y`/`--year` and `-d`/`--day` filters `solve` has, so a
-  single puzzle can be downloaded without walking every year. Same treatment:
-  clap derive with `Option<u32>` on both, filters rather than a lookup, and the
-  two `is_some_and` guards inside the existing loops. Worth doing when a live
-  event starts and only the newest day is missing, and it would have made
-  recovering the deleted `inputs/` a one-day fetch instead of all 262.
+- `fetch` creates an empty year directory when a filter means nothing in that
+  year gets downloaded, since `ensure_dir` runs before the day loop. Cosmetic.
 
 ## Later
 
@@ -33,8 +29,6 @@
 - More solutions. Each is one line in the `solutions!` invocation plus a module.
 - Revisit the visual-answer case. A part returning `None` while printing from
   inside the solver puts a side effect somewhere awkward to test.
-- Note in the README that a fresh clone must run `fetch` before `solve` compiles,
-  since `include_str!` needs `inputs/` and that directory is gitignored.
 
 ## Done
 
@@ -45,6 +39,7 @@
 - 2015 day 1, verified end to end. `280` and `1797`, both matching the solver.
 - `validate_answer` against the third-party solver, all branches driven live.
 - Solver contract recorded and verified against its source.
+- `fetch` year and day filtering, same shape as `solve`.
 - `fetch` downloading inputs with no-clobber caching.
 - Solution trait, dispatch macro, clap arguments.
 - Validated `Year`, `Day`, and `Part` types.

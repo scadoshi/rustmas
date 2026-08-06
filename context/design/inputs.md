@@ -57,8 +57,6 @@ disk and cached as though it were real input.
 One failed download aborts the whole run. The alternative is log-and-continue,
 which is more resilient but would let a bad cookie fail quietly.
 
-`fetch` has no year or day filtering, unlike `solve`.
-
 Caching puzzle instructions alongside inputs would make the repo fully offline.
 The day page is a plain GET, but part two's text is absent until part one is
 solved, so a complete cache needs two passes. Gitignore it like inputs, since

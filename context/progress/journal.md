@@ -5,6 +5,12 @@ they read consistently rather than historically.
 
 ## 2026-08-06 (later)
 
+Gave `fetch` the same `-y`/`--year` and `-d`/`--day` filters `solve` has, so a
+single puzzle can be pulled without walking every year. Verified live: `-y 2015
+-d 1` made one request, a re-run skipped it as cached, and `-d 25` fetched ten
+files rather than eleven, correctly passing over 2025 because that event only
+ran twelve days.
+
 Renamed the `init` binary to `fetch`. `init` implied one-time setup, but with
 year and day filters coming it becomes something you run repeatedly for a single
 puzzle. `sync` was the other candidate, since it matches the gap-filling
