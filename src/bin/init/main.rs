@@ -2,9 +2,9 @@ pub mod utils;
 
 use crate::utils::{download_input, ensure_dir};
 use rustmas::{
+    calendar::{FIRST_YEAR, latest_year},
     day::{Day, days_in_year},
     session::Session,
-    calendar::{FIRST_YEAR, latest_year},
 };
 use std::path::PathBuf;
 
@@ -14,7 +14,7 @@ const INPUT_PATH: &str = "inputs";
 ///
 /// Existing files count as cached, so re-running only fills gaps. One failed
 /// download aborts the rest.
-fn init() -> anyhow::Result<()> {
+fn run() -> anyhow::Result<()> {
     let project_path = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
     let input_path = project_path.join(INPUT_PATH);
     ensure_dir("inputs", &input_path)?;
@@ -33,7 +33,7 @@ fn init() -> anyhow::Result<()> {
 }
 
 fn main() {
-    if let Err(e) = init() {
+    if let Err(e) = run() {
         eprintln!("Error: {e:?}");
     }
 }
