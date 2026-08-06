@@ -1,24 +1,14 @@
 pub mod utils;
 
-use chrono::{Datelike, Utc};
+use crate::utils::{download_input, ensure_dir};
 use rustmas::{
     day::{Day, days_in_year},
     session::Session,
+    utils::{FIRST_YEAR, latest_year},
 };
 use std::path::PathBuf;
 
-use crate::utils::{download_input, ensure_dir};
-
 const INPUT_PATH: &str = "inputs";
-const FIRST_YEAR: u32 = 2015;
-
-/// Latest year with published puzzles. AOC drops a new event each December, so
-/// before December the current calendar year has nothing to download yet.
-fn latest_year() -> u32 {
-    let now = Utc::now();
-    let year = u32::try_from(now.year()).unwrap_or(u32::MAX);
-    if now.month() == 12 { year } else { year - 1 }
-}
 
 /// Downloads every published puzzle input into `inputs/<year>/<NN>.txt`.
 ///

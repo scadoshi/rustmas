@@ -11,6 +11,13 @@ range its year actually published, and a day with no year attached.
 was a 12-day event, everything else is 25. Both `Day::new` and the `solve` loop
 read it, so they cannot drift apart.
 
+`FIRST_YEAR` and `latest_year()` live in `src/lib/utils.rs`, shared by both
+binaries and by `Year::new`. `latest_year()` is the latest *published* event,
+not the current calendar year: AOC drops a new one each December, so before
+December the current year has nothing in it. `Year::new` bounds on that rather
+than on `Utc::now().year()`, which previously let `Day::new(1, 2026)` validate
+against an event that did not exist.
+
 `Part` is a fieldless enum with `to_wire_value()` returning 1 or 2. It exists so
 call sites read `submit(&day, Part::One, answer)` rather than passing a bare `1`
 that is indistinguishable from a day number. Both the AOC submit form (`level=`)

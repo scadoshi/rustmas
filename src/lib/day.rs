@@ -6,29 +6,31 @@
 //! without a year. Fields stay private: once you hold a [`Day`], downstream
 //! code can trust it points at a real puzzle without re-validating.
 
-use chrono::{Datelike, Utc};
 use thiserror::Error;
+
+use crate::utils::{FIRST_YEAR, latest_year};
 
 /// Returned when a year or day falls outside the bounds AOC supports.
 #[derive(Debug, Error)]
 #[error("out of range")]
 pub struct OutOfRange;
 
-/// A validated AOC event year (`2015..=` the current year).
+/// A validated AOC event year, from the first AOC through the latest event
+/// that has actually been published (see [`latest_year`]).
 #[derive(Debug)]
-pub struct Year(u32);
+pub struct Year(i32);
 
 impl Year {
     /// Returns the inner year value.
-    pub fn value(&self) -> u32 {
+    pub fn value(&self) -> i32 {
         self.0
     }
 
-    /// Constructs a [`Year`], rejecting anything before 2015 (the first AOC) or
-    /// after the current calendar year.
-    pub fn new(year: u32) -> Result<Self, OutOfRange> {
-        let this_year = u32::try_from(Utc::now().year()).unwrap_or(u32::MAX);
-        if year > this_year || year < 2015 {
+    /// Constructs a [`Year`], rejecting anything before [`FIRST_YEAR`] or after
+    /// [`latest_year`]. Note the upper bound is the latest *published* event,
+    /// not the current calendar year, so before December those differ.
+    pub fn new(year: i32) -> Result<Self, OutOfRange> {
+        if year > latest_year() || year < FIRST_YEAR {
             return Err(OutOfRange);
         }
         Ok(Self(year))
@@ -38,7 +40,7 @@ impl Year {
 /// Number of puzzle days published for `year`.
 ///
 /// Most years run the full 1..=25. 2025 was a shorter, 12-day event.
-pub fn days_in_year(year: u32) -> u32 {
+pub fn days_in_year(year: i32) -> i32 {
     match year {
         2025 => 12,
         _ => 25,
@@ -51,24 +53,24 @@ pub fn days_in_year(year: u32) -> u32 {
 /// day the year doesn't have.
 #[derive(Debug)]
 pub struct Day {
-    value: u32,
+    value: i32,
     year: Year,
 }
 
 impl Day {
     /// Returns the inner day value.
-    pub fn value(&self) -> u32 {
+    pub fn value(&self) -> i32 {
         self.value
     }
 
     /// Returns the value of the year this day belongs to.
-    pub fn year(&self) -> u32 {
+    pub fn year(&self) -> i32 {
         self.year.value()
     }
 
     /// Constructs a [`Day`], first validating `year`, then rejecting any day
     /// outside `1..=` [`days_in_year`] for that year.
-    pub fn new(day: u32, year: u32) -> Result<Self, OutOfRange> {
+    pub fn new(day: i32, year: i32) -> Result<Self, OutOfRange> {
         let year = Year::new(year)?;
         if !(1..=days_in_year(year.value())).contains(&day) {
             return Err(OutOfRange);

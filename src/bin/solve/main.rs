@@ -6,6 +6,7 @@ use rustmas::{
     day::{Day, days_in_year},
     session::Session,
     solutions::{answer::Answer, solution::solve, year_2015::day_01::Day01},
+    utils::{FIRST_YEAR, latest_year},
 };
 
 /// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete
@@ -46,7 +47,7 @@ fn run(args: &Args) -> anyhow::Result<()> {
     // Only built when validating, so solving offline never needs a cookie.
     let session = args.validate.then(Session::from_env).transpose()?;
 
-    for year in 2015..=2025 {
+    for year in FIRST_YEAR..=latest_year() {
         if args.year.is_some_and(|y| y != year) {
             continue;
         }
