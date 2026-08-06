@@ -2,12 +2,14 @@
 
 ## Next
 
-- `submit_answer` is `todo!()`. Needs the POST to `/answer` with `level`, plus
-  parsing AOC's HTML reply into a `Verdict`. Substring matching is enough, no
-  HTML parser needed. Capture the cooldown message rather than discarding it.
-- Cache verdicts to disk. Required rather than optional, because AOC confirms a
-  correct answer exactly once and the cache becomes the only durable record.
-  Also keeps a run-all from firing hundreds of requests at a hobby project.
+- Local answer cache, persisted to the project root as JSON, no TTL. Trust what
+  is stored. Flat map keyed `"2015/1/1"` holding the answer and verdict, since
+  lookups are always by exact coordinate. Required rather than nice: AOC
+  confirms a correct answer exactly once, so the cache is the only durable
+  record. `Verdict::AlreadySolved` is the signal that the site knows a part is
+  done when local state does not.
+- Nothing calls `submit_answer` yet. It needs a flag on `solve`, or its own
+  binary.
 - Route between the two clients on solved state: AOC when unsolved, solver when
   already solved.
 
@@ -30,6 +32,8 @@
 
 ## Done
 
+- `submit_answer` with the AOC reply parser, all verdicts driven live against a
+  scratch account, fixtures kept as unit tests.
 - `--validate` wired end to end. `-y 2015 -d 1 --validate` reports
   `280 (Correct)` and `1797 (Correct)`.
 - `Answer` enum with the verdict folded into the submittable variant.

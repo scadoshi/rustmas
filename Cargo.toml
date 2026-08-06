@@ -19,5 +19,5 @@ anyhow = "1.0.104"
 chrono = "0.4.45"
 clap = { version = "4.6.5", features = ["derive"] }
 dotenvy = "0.15.7"
-reqwest = { version = "0.13.4", features = ["blocking"] }
+reqwest = { version = "0.13.4", features = ["blocking", "form"] }
 thiserror = "2.0.19"

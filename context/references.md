@@ -61,10 +61,46 @@ about.
 
 - Input endpoint: `GET /<year>/day/<day>/input`, authenticated by a `session`
   cookie read from `COOKIE`
-- Submit endpoint: `POST /<year>/day/<day>/answer`, form field `level` taking 1
-  or 2, not yet implemented
+- Submit endpoint: `POST /<year>/day/<day>/answer`, form-encoded, fields `level`
+  (1 or 2) and `answer`
 - A `User-Agent` identifying this repo is sent on request, which the site asks
   automated clients to do
 
 Etiquette that shapes the design: do not re-download inputs, do not republish
 puzzle text, and expect an escalating cooldown after wrong answers.
+
+### Submit contract
+
+Verified live on 2026-08-06 against 2015 day 1, using a scratch account with no
+stars. Every reply is **HTTP 200**, wrong answers included, so the verdict comes
+entirely from the body. The message sits in `<article><p>`.
+
+| Body contains | Verdict |
+| --- | --- |
+| `That's the right answer` | `Correct` |
+| `your answer is too high` | `High` |
+| `your answer is too low` | `Low` |
+| `That's not the right answer` with no direction | `Incorrect` |
+| `You gave an answer too recently` | `Cooldown`, with `You have <wait> left to wait` |
+| `You don't seem to be solving the right level` | `AlreadySolved` |
+
+Order matters when matching. A directional reply reads "That's not the right
+answer; your answer is too high", so it contains the generic phrase too. Check
+direction first or every directional miss classifies as generic.
+
+The direction hint is optional and we could not force it. Guessing `1` against
+`138`, and `5` against `1771`, both returned the generic wrong answer, while
+`999999999` returned too high. The `too low` string is therefore inferred by
+symmetry rather than observed, and it is the one row in the table above that has
+not been seen in the wild.
+
+Cooldown is one minute after a wrong answer and escalates with repeats. The
+remaining time is prose (`1m 0s`, `5s`), which is why `Verdict::Cooldown` holds a
+string rather than a `Duration`.
+
+Submitting a correct answer a second time gives `AlreadySolved`, not another
+confirmation. That is the whole reason a local answer cache is needed rather
+than merely nice.
+
+Fixtures for these strings live in the tests at the bottom of
+`src/lib/session/mod.rs`.

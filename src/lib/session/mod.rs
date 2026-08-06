@@ -3,7 +3,7 @@ pub mod verdict;
 use crate::{day::Day, part::Part, session::verdict::Verdict};
 use anyhow::{Context, bail};
 use reqwest::{Url, blocking::Client};
-use std::{collections::HashMap, fmt::Display};
+use std::fmt::Display;
 
 /// Env var holding the adventofcode.com session cookie.
 const COOKIE_KEY: &str = "COOKIE";
@@ -85,18 +85,42 @@ impl Session {
             })
     }
 
+    /// Submits `answer` to adventofcode.com and reads the graded reply.
+    ///
+    /// AOC answers 200 for everything, wrong answers included, so the verdict
+    /// comes entirely from the body. It also grades a part only once: after that
+    /// it returns [`Verdict::AlreadySolved`] rather than confirming again, which
+    /// is why a correct answer is worth caching.
+    ///
+    /// A direction hint is optional. A wrong answer may come back as
+    /// [`Verdict::High`] or [`Verdict::Low`], or just [`Verdict::Incorrect`].
     pub fn submit_answer(
         &self,
         day: &Day,
         part: Part,
         answer: impl AsRef<str>,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<Verdict> {
         let path = format!("/{}/day/{}/answer", day.year(), day.value());
         let url = Url::parse(AOC_BASE_URL)?.join(&path)?;
-        let form_params =
-            HashMap::from([("level", part.to_wire_value()), ("answer", answer.as_ref())]);
-        // let response = self.client.post(url).form(&form_params).send()?;
-        todo!()
+        let form = [
+            ("level", part.to_wire_value()),
+            ("answer", answer.as_ref()),
+        ];
+
+        let body = self
+            .client
+            .post(url)
+            .header("User-Agent", REPO_GITHUB_URL)
+            .header("Cookie", format!("session={}", self.cookie()))
+            .form(&form)
+            .send()
+            .with_context(|| format!("failed to reach AOC for {day:?}"))?
+            .error_for_status()
+            .with_context(|| format!("bad response status for {day:?}"))?
+            .text()
+            .with_context(|| format!("failed to read submit body for {day:?}"))?;
+
+        Ok(verdict_from(&body))
     }
 
     /// Checks `answer` against the third-party solver.
@@ -168,5 +192,76 @@ impl Session {
             day.year(),
             day.value()
         );
+    }
+}
+
+/// Classifies AOC's HTML reply to a submission.
+///
+/// Every reply is a 200, so the body is the only signal. Direction is checked
+/// before the generic wrong-answer phrase, since "too high" replies contain
+/// that phrase too. Strings verified live against 2015 day 1 on a scratch
+/// account; see `context/references.md`.
+fn verdict_from(body: &str) -> Verdict {
+    if body.contains("That's the right answer") {
+        return Verdict::Correct;
+    }
+    if body.contains("your answer is too high") {
+        return Verdict::High;
+    }
+    if body.contains("your answer is too low") {
+        return Verdict::Low;
+    }
+    if body.contains("You don't seem to be solving the right level") {
+        return Verdict::AlreadySolved;
+    }
+    if body.contains("You gave an answer too recently") {
+        return Verdict::Cooldown(wait_from(body));
+    }
+    Verdict::Incorrect
+}
+
+/// Pulls the remaining wait out of a cooldown reply, e.g. `1m 0s`.
+fn wait_from(body: &str) -> String {
+    body.split_once("You have ")
+        .and_then(|(_, rest)| rest.split_once(" left to wait"))
+        .map(|(wait, _)| wait.trim().to_string())
+        .unwrap_or_else(|| "unknown".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{verdict_from, wait_from};
+    use crate::session::verdict::Verdict;
+
+    // Fixtures are the real replies AOC gave for 2015 day 1 on a scratch
+    // account, trimmed to the sentence that carries the verdict.
+    const CORRECT: &str = "That's the right answer!  You are <span class=\"day-success\">one gold star</span> closer to powering the weather machine.";
+    const HIGH: &str = "That's not the right answer; your answer is too high.  If you're stuck, make sure you're using the full input data";
+    const LOW: &str = "That's not the right answer; your answer is too low.  If you're stuck, make sure you're using the full input data";
+    const WRONG: &str = "That's not the right answer.  If you're stuck, make sure you're using the full input data; there are also some general tips";
+    const COOLDOWN: &str = "You gave an answer too recently; you have to wait after submitting an answer before trying again.  You have 1m 0s left to wait.";
+    const SOLVED: &str = "You don't seem to be solving the right level.  Did you already complete it?";
+
+    #[test]
+    fn classifies_replies() {
+        assert!(matches!(verdict_from(CORRECT), Verdict::Correct));
+        assert!(matches!(verdict_from(HIGH), Verdict::High));
+        assert!(matches!(verdict_from(LOW), Verdict::Low));
+        assert!(matches!(verdict_from(WRONG), Verdict::Incorrect));
+        assert!(matches!(verdict_from(SOLVED), Verdict::AlreadySolved));
+        assert!(matches!(verdict_from(COOLDOWN), Verdict::Cooldown(_)));
+    }
+
+    /// A directional reply also contains the generic phrase, so order matters.
+    #[test]
+    fn direction_beats_generic() {
+        assert!(HIGH.contains("That\'s not the right answer"));
+        assert!(matches!(verdict_from(HIGH), Verdict::High));
+    }
+
+    #[test]
+    fn extracts_wait() {
+        assert_eq!(wait_from(COOLDOWN), "1m 0s");
+        assert_eq!(wait_from("nothing here"), "unknown");
     }
 }

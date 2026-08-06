@@ -5,6 +5,30 @@ they read consistently rather than historically.
 
 ## 2026-08-06 (later)
 
+Built `submit_answer` and probed AOC's real replies using a scratch account
+Scotty set up, submitting to 2015 day 1 deliberately wrong before deliberately
+right, since AOC grades each part only once.
+
+Every reply is HTTP 200, wrong answers included, so the verdict is entirely in
+the body. Same shape as the solver client but for the opposite reason: that one
+returns 400 for everything. Full table in
+[`../references.md`](../references.md), with fixtures as unit tests.
+
+Two things the probing settled that guessing would not have. A directional reply
+contains the generic wrong-answer phrase as a prefix, so direction has to be
+matched first or every miss reads as generic. And the direction hint is
+optional: guessing 1 against 138 gave no hint at all, while 999999999 gave "too
+high". `too low` was never triggered and stays inferred.
+
+Added `Verdict::Cooldown(String)` and `Verdict::AlreadySolved`. Cooldown reports
+and moves on rather than sleeping, since the wait escalates past a minute and a
+CLI that silently blocks looks hung. It holds a string because AOC phrases the
+remaining time as prose.
+
+`AlreadySolved` is the cache-correction signal: it means the site knows a part is
+done when local state did not.
+
+
 Gave `fetch` the same `-y`/`--year` and `-d`/`--day` filters `solve` has, so a
 single puzzle can be pulled without walking every year. Verified live: `-y 2015
 -d 1` made one request, a re-run skipped it as cached, and `-d 25` fetched ten
