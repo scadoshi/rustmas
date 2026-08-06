@@ -170,6 +170,21 @@ swallow the question and a script does not hang or accidentally proceed.
 The two clients are built independently. Validating alone never needs a cookie,
 since only `AocClient` has one.
 
+Submission happens before printing, so each part is one line carrying what both
+checkers said. `Answer::Value` holds two optional verdicts, `verdict` from the
+solver and `submission` from AOC, and `Display` merges them into one set of
+parentheses.
+
+AOC's word supersedes the solver's when both exist, since repeating that the
+solver agreed adds nothing once the star is confirmed. `Correct` from a
+submission reads as `new star` and `AlreadySolved` as `starred`, which keeps the
+distinction that matters in the moment while collapsing both to the same fact:
+you have it.
+
+An answer the solver rejected comes back from `submit` untouched, so it prints
+the solver's objection and says nothing about a submission that never
+happened.
+
 ## Open
 
 Nothing tracks which parts are already solved, so a submit run re-asks AOC and

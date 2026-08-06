@@ -79,16 +79,18 @@ fn run(args: &Args) -> anyhow::Result<()> {
                 continue;
             };
             match result {
-                Ok((one, two)) => {
-                    println!("{year} day {}", day.value());
+                Ok((mut one, mut two)) => {
+                    // Submit before printing, so each part reports what both
+                    // checkers said on one line.
+                    if let Some(aoc) = aoc.as_ref() {
+                        one = submit(aoc, &day, Part::One, one)?;
+                        two = submit(aoc, &day, Part::Two, two)?;
+                    }
+                    println!("year {year} day {}", day.value());
                     println!("  part one: {one}");
                     println!("  part two: {two}");
-                    if let Some(aoc) = aoc.as_ref() {
-                        submit(aoc, &day, Part::One, &one)?;
-                        submit(aoc, &day, Part::Two, &two)?;
-                    }
                 }
-                Err(e) => eprintln!("{year} day {} failed: {e:?}", day.value()),
+                Err(e) => eprintln!("year {year} day {} failed: {e:?}", day.value()),
             }
         }
     }

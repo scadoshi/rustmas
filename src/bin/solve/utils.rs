@@ -6,35 +6,29 @@ use rustmas::{
 };
 use std::io::{self, Write};
 
-/// Submits `answer` if the solver backed it, and reports either way.
+/// Submits `answer` if the solver backed it, returning it with whatever AOC
+/// said attached.
 ///
 /// A wrong answer costs an escalating cooldown, so a solver verdict is the gate.
 /// [`Verdict::Unsupported`] is let through: that means the solver has no
 /// implementation, which happens during a live event when a day is solved before
 /// the solver catches up, and is exactly when submitting matters most.
-pub fn submit(aoc: &AocClient, day: &Day, part: Part, answer: &Answer) -> anyhow::Result<()> {
+///
+/// Answers the solver rejected come back untouched, so printing shows the
+/// solver's objection and nothing about a submission that never happened.
+pub fn submit(aoc: &AocClient, day: &Day, part: Part, answer: Answer) -> anyhow::Result<Answer> {
     let Some(value) = answer.value() else {
-        return Ok(());
+        return Ok(answer);
     };
-    let label = format!("  part {} submit", part.to_wire_value());
-
-    match answer.verdict() {
-        Some(Verdict::Correct) => {}
-        Some(Verdict::Unsupported) => {
-            println!("{label}: solver has no answer to check against, submitting anyway");
-        }
-        Some(other) => {
-            println!("{label}: skipped, solver says {other}");
-            return Ok(());
-        }
-        None => {
-            println!("{label}: skipped, no solver verdict");
-            return Ok(());
-        }
+    if !matches!(
+        answer.verdict(),
+        Some(Verdict::Correct) | Some(Verdict::Unsupported)
+    ) {
+        return Ok(answer);
     }
 
-    println!("{label}: {}", aoc.submit_answer(day, part, value)?);
-    Ok(())
+    let verdict = aoc.submit_answer(day, part, value)?;
+    Ok(answer.with_submission(verdict))
 }
 
 /// Asks before an unfiltered submit run, which would post every solved day.

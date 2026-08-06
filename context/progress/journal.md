@@ -25,6 +25,20 @@ EOF as no.
 Moved `submit` and `confirm` into `src/bin/solve/utils.rs`, leaving `main.rs` as
 the macro, `run`, and `main`.
 
+Then tidied the output, which had drifted. It printed two lines per part, one
+for solving and one for submitting, and rendered verdicts with `{:?}` rather
+than the `Display` impl written for them. `Answer::Value` now carries both
+verdicts and merges them, `submit` returns the answer rather than printing, and
+`run` submits before printing so a part is always one line. Also `year 2015 day
+1` rather than `2015 day 1`.
+
+    year 2015 day 1
+      part one: 138 (starred)
+      part two: 1771 (starred)
+
+A rejected answer shows the solver's objection and nothing else, since no
+submission happened: `999999999 (high)`.
+
 
 Split `Session` into `AocClient` and `SolverClient` under `src/lib/client/`,
 files named for who they talk to. `official.rs` was considered and rejected: it
