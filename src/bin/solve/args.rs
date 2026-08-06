@@ -13,4 +13,7 @@ pub struct Args {
     /// Check answers against the third-party solver (one request per part)
     #[arg(short, long)]
     pub validate: bool,
+    /// Submit answers to the official Advent of Code website (one request per part)
+    #[arg(short, long)]
+    pub submit: bool,
 }

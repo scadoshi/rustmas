@@ -1,12 +1,12 @@
-pub mod utils;
+pub mod args;
 
-use crate::utils::Args;
+use crate::args::Args;
 use clap::Parser;
 use rustmas::{
-    day::{Day, days_in_year},
-    session::Session,
-    solutions::{answer::Answer, solution::solve, year_2015::day_01::Day01},
     calendar::{FIRST_YEAR, latest_year},
+    client::SolverClient,
+    day::{Day, days_in_year},
+    solutions::{answer::Answer, solution::solve, year_2015::day_01::Day01},
 };
 
 /// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete
@@ -16,12 +16,12 @@ macro_rules! solutions {
         // Days are written zero-padded so `stringify!` builds the right filename.
         #[allow(clippy::zero_prefixed_literal)]
         fn dispatch(
-            session: Option<&Session>,
+            client: Option<&SolverClient>,
             day: &Day,
         ) -> Option<anyhow::Result<(Answer, Answer)>> {
             match (day.year(), day.value()) {
                 $(($y, $d) => Some(solve::<$t>(
-                    session,
+                    client,
                     include_str!(
                         concat!(
                             "../../../inputs/",
@@ -44,8 +44,9 @@ solutions! {
 }
 
 fn run(args: &Args) -> anyhow::Result<()> {
-    // Only built when validating, so solving offline never needs a cookie.
-    let session = args.validate.then(Session::from_env).transpose()?;
+    // Submitting gates on a solver verdict, so it validates too.
+    let validate = args.validate || args.submit;
+    let solver = validate.then(SolverClient::new);
 
     for year in FIRST_YEAR..=latest_year() {
         if args.year.is_some_and(|y| y != year) {
@@ -56,7 +57,7 @@ fn run(args: &Args) -> anyhow::Result<()> {
                 continue;
             }
             let day = Day::new(day, year)?;
-            let Some(result) = dispatch(session.as_ref(), &day) else {
+            let Some(result) = dispatch(solver.as_ref(), &day) else {
                 continue;
             };
             match result {

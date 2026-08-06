@@ -1,11 +1,12 @@
+pub mod args;
 pub mod utils;
 
 use crate::utils::{Args, download_input, ensure_dir};
 use clap::Parser;
 use rustmas::{
     calendar::{FIRST_YEAR, latest_year},
+    client::AocClient,
     day::{Day, days_in_year},
-    session::Session,
 };
 use std::path::PathBuf;
 
@@ -21,7 +22,7 @@ fn run(args: &Args) -> anyhow::Result<()> {
     let input_path = project_path.join(INPUT_PATH);
     ensure_dir("inputs", &input_path)?;
 
-    let session = Session::from_env()?;
+    let client = AocClient::from_env()?;
     for year in FIRST_YEAR..=latest_year() {
         if args.year.is_some_and(|y| y != year) {
             continue;
@@ -36,7 +37,7 @@ fn run(args: &Args) -> anyhow::Result<()> {
             ensure_dir(&format!("year {year}"), &year_path)?;
             let day = Day::new(day, year)?;
             let day_path = year_path.join(format!("{:02}.txt", day.value()));
-            download_input(&session, &day, &day_path)?;
+            download_input(&client, &day, &day_path)?;
         }
     }
     Ok(())

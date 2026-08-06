@@ -5,6 +5,25 @@ they read consistently rather than historically.
 
 ## 2026-08-06 (later)
 
+Split `Session` into `AocClient` and `SolverClient` under `src/lib/client/`,
+files named for who they talk to. `official.rs` was considered and rejected: it
+names a judgment rather than a fact, and would need an `unofficial.rs`
+counterpart saying even less.
+
+Keeping one struct was defensible, since "AoC" reads as the puzzle domain rather
+than the hostname, and it nearly stayed. What settled it was scope: the two
+differ in auth, contract, and failure semantics, and splitting made the cookie's
+reach obvious. `--validate` now needs no cookie at all, which was not true while
+one struct owned both.
+
+They share only the `User-Agent` builder, which moved to `client/mod.rs`. If
+they ever need to share a connection pool, `reqwest::Client` is reference
+counted internally, so cloning is enough and no wrapper struct is needed.
+
+`solve` in the library now takes `Option<&SolverClient>`, which reads better
+than before: the thing it optionally needs is a checker, not a session.
+
+
 Designed a local answer cache in detail, then dropped it before writing it.
 The case for it rested on AOC grading each part exactly once, which made a cache
 look like the only durable record of a correct answer. That was wrong: AOC is
@@ -92,7 +111,7 @@ and "do not validate" are the same thing, and it made the lazy-construction
 question answer itself.
 
 Deleted the duplicate `Answer` in `src/bin/solve/utils.rs` and the stale
-`src/lib/session/answer.rs`. Gave `Answer` a `Display` impl so `main` prints
+`src/lib/solutions/answer.rs`. Gave `Answer` a `Display` impl so `main` prints
 readable output instead of `{:?}`.
 
 ## 2026-08-05
@@ -108,7 +127,7 @@ gained an `input()` method so the session can reach the input it needs to post.
 
 Added `Answer`, a value plus an optional `Verdict`, so a part can carry its
 result and what the solver thought of it. It sits in
-`src/lib/session/answer.rs`. A duplicate definition is still sitting in
+`src/lib/solutions/answer.rs`. A duplicate definition is still sitting in
 `src/bin/solve/utils.rs` and should go.
 
 Left one known bug in place rather than fixing it blind, since it needs a

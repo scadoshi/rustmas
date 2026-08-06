@@ -8,7 +8,7 @@ rely on, when it was last verified, and how to check it again.
 - Source: `https://github.com/fornwall/advent-of-code.git`
 - Cloned locally at `~/Work/advent-of-code`
 - Last checked: 2026-08-04, at commit `b5d0e717` (authored 2026-07-03)
-- Used by: `Session::validate_answer` in `src/lib/session/mod.rs`
+- Used by: `SolverClient::validate_answer` in `src/lib/client/solver.rs`
 
 Hosts, all running the same WASM solver. Listed in `AOC_SOLVER_BASE_URLS`:
 
@@ -103,4 +103,4 @@ confirmation. That is the whole reason a local answer cache is needed rather
 than merely nice.
 
 Fixtures for these strings live in the tests at the bottom of
-`src/lib/session/mod.rs`.
+`src/lib/client/aoc.rs`.

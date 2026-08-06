@@ -1,6 +1,6 @@
 use anyhow::{Context, bail};
 use clap::Parser;
-use rustmas::{day::Day, session::Session};
+use rustmas::{client::AocClient, day::Day};
 use std::{fs::create_dir_all, path::Path};
 
 /// Creates `path` and its parents, no-opping if it already exists.
@@ -25,7 +25,7 @@ pub fn ensure_dir(name: &str, path: &Path) -> anyhow::Result<()> {
 ///
 /// Inputs never change, so an existing file skips the request entirely. AOC
 /// asks that you not re-download.
-pub fn download_input(session: &Session, day: &Day, path: &Path) -> anyhow::Result<()> {
+pub fn download_input(client: &AocClient, day: &Day, path: &Path) -> anyhow::Result<()> {
     if path.is_file() {
         println!("input already cached: {}", path.display());
         return Ok(());
@@ -33,7 +33,7 @@ pub fn download_input(session: &Session, day: &Day, path: &Path) -> anyhow::Resu
     if path.exists() {
         bail!("input path exists but is not a file: {}", path.display());
     }
-    let input = session
+    let input = client
         .get_input(day)
         .with_context(|| format!("failed to download input: {}", path.display()))?;
     std::fs::write(path, input)

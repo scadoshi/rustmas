@@ -1,4 +1,4 @@
-use crate::{day::Day, part::Part, session::Session, solutions::answer::Answer};
+use crate::{client::SolverClient, day::Day, part::Part, solutions::answer::Answer};
 
 /// One day's puzzle, parsed and ready to answer both parts.
 ///
@@ -20,12 +20,12 @@ pub trait Solution: Sized {
     fn part_two(&self) -> Answer;
 }
 
-/// Runs both parts, validating each answer when given a session.
+/// Runs both parts, validating each answer when given a client.
 ///
 /// `session` doubles as the validate flag: `None` solves offline. Only
 /// [`Answer::Value`] is validated, since nothing else has anything to check.
 pub fn solve<S: Solution>(
-    session: Option<&Session>,
+    client: Option<&SolverClient>,
     input: &'static str,
     day: &Day,
 ) -> anyhow::Result<(Answer, Answer)> {
@@ -34,13 +34,13 @@ pub fn solve<S: Solution>(
     let mut one = solution.part_one();
     let mut two = solution.part_two();
 
-    if let Some(session) = session {
+    if let Some(client) = client {
         if let Some(value) = one.value() {
-            let verdict = session.validate_answer(day, input, Part::One, value)?;
+            let verdict = client.validate_answer(day, input, Part::One, value)?;
             one = one.with_verdict(verdict);
         }
         if let Some(value) = two.value() {
-            let verdict = session.validate_answer(day, input, Part::Two, value)?;
+            let verdict = client.validate_answer(day, input, Part::Two, value)?;
             two = two.with_verdict(verdict);
         }
     }

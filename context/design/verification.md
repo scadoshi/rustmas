@@ -1,8 +1,21 @@
 # Answer verification
 
-`src/lib/session/`
+`src/lib/client/`
 
-Two different things, deliberately kept apart.
+Two different things, deliberately kept apart, and since 2026-08-06 that
+separation is structural: `AocClient` (`aoc.rs`) holds `get_input` and
+`submit_answer`, `SolverClient` (`solver.rs`) holds `validate_answer`. They
+share only the `User-Agent` builder in `mod.rs`.
+
+Naming them for who they talk to beat naming them for a property. `official.rs`
+would have described a judgment rather than a fact, and needed a counterpart
+called `unofficial.rs` that said even less.
+
+A single `AocClient` covering both was defensible, reading "AoC" as the puzzle
+domain rather than the hostname, and was nearly kept. Splitting won because the
+two differ in auth, contract, and failure semantics, and the split makes the
+cookie's scope obvious: `--validate` needs no cookie at all, which was not true
+while one struct owned both.
 
 ## Why two clients
 
@@ -23,7 +36,7 @@ as `AlreadySolved`, so nothing needs to be tracked locally.
 
 ## Verdict
 
-`src/lib/session/verdict.rs`. `Correct`, `Incorrect`, `Low`, `High`,
+`src/lib/client/verdict.rs`. `Correct`, `Incorrect`, `Low`, `High`,
 `Unsupported`, `Cooldown(String)`, `AlreadySolved`. Built via `From<Ordering>`
 for numeric comparisons and `From<bool>` for text.
 
@@ -89,7 +102,7 @@ than waste.
 Form-encodes `level` and `answer` to `/<year>/day/<day>/answer`. AOC returns 200
 for everything including wrong answers, so the verdict comes entirely from the
 body. Strings and match ordering are in [`../references.md`](../references.md),
-with fixtures kept as unit tests at the bottom of `src/lib/session/mod.rs`.
+with fixtures kept as unit tests at the bottom of `src/lib/client/aoc.rs`.
 
 ## What counts as solved
 

@@ -1,4 +1,4 @@
-use crate::session::verdict::Verdict;
+use crate::client::verdict::Verdict;
 use std::fmt::Display;
 
 /// What one part of a puzzle produced.
@@ -43,6 +43,14 @@ impl Answer {
     pub fn value(&self) -> Option<&str> {
         match self {
             Self::Value { value, .. } => Some(value),
+            _ => None,
+        }
+    }
+
+    /// The verdict from the answer's validation, if there is any
+    pub fn verdict(&self) -> Option<&Verdict> {
+        match self {
+            Self::Value { verdict, .. } => verdict.as_ref(),
             _ => None,
         }
     }
