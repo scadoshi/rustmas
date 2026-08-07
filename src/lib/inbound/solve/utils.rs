@@ -4,16 +4,14 @@ use crate::{
 };
 use std::io::{self, Write};
 
-/// Submits `answer` if the solver backed it, returning it with whatever AOC
-/// said attached.
+/// Submits `answer` if the solver backed it, returning it with AOC's reply
+/// attached.
 ///
-/// A wrong answer costs an escalating cooldown, so a solver verdict is the gate.
-/// [`Verdict::Unsupported`] is let through: that means the solver has no
-/// implementation, which happens during a live event when a day is solved before
-/// the solver catches up, and is exactly when submitting matters most.
+/// A wrong answer costs an escalating cooldown, so the solver verdict gates the
+/// send. [`Verdict::Unsupported`] goes through anyway, since an unimplemented
+/// puzzle is one the solver cannot judge either way.
 ///
-/// Answers the solver rejected come back untouched, so printing shows the
-/// solver's objection and nothing about a submission that never happened.
+/// Rejected answers come back untouched, carrying only the solver's objection.
 pub fn submit(aoc: &AocClient, day: &Day, part: Part, answer: Answer) -> anyhow::Result<Answer> {
     let Some(value) = answer.value() else {
         return Ok(answer);
@@ -31,9 +29,8 @@ pub fn submit(aoc: &AocClient, day: &Day, part: Part, answer: Answer) -> anyhow:
 
 /// Asks before an unfiltered submit run, which would post every solved day.
 ///
-/// Reads stdin and writes the question to stderr, so redirecting output doesn't
-/// swallow it. A closed stdin counts as no, since the point is to stop an
-/// accident rather than to block a script.
+/// The question goes to stderr so redirecting output doesn't swallow it. Closed
+/// stdin counts as no.
 pub fn confirm(count: usize) -> anyhow::Result<bool> {
     eprintln!(
         "About to submit up to {count} answers to adventofcode.com, across every \

@@ -1,6 +1,5 @@
-use anyhow::{Context, bail};
-use clap::Parser;
 use crate::{domain::address::Day, outbound::client::AocClient};
+use anyhow::{Context, bail};
 use std::{fs::create_dir_all, path::Path};
 
 /// Creates `path` and its parents, no-opping if it already exists.
@@ -40,16 +39,4 @@ pub fn download_input(client: &AocClient, day: &Day, path: &Path) -> anyhow::Res
         .with_context(|| format!("failed to write input: {}", path.display()))?;
     println!("downloaded input: {}", path.display());
     Ok(())
-}
-
-#[derive(Parser)]
-#[command(about = "Advent of Code inputs fetcher")]
-#[command(version)]
-pub struct Args {
-    /// Year to fetch inputs for (omit for all)
-    #[arg(short, long)]
-    pub year: Option<i32>,
-    /// Day to fetch inputs for (omit for all)
-    #[arg(short, long)]
-    pub day: Option<i32>,
 }

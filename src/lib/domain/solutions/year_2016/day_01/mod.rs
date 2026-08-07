@@ -1,16 +1,18 @@
 use crate::domain::solutions::{answer::Answer, solution::Solution};
 
 pub struct Puzzle {
-    input: &'static str,
+    input: String,
 }
 
 impl Solution for Puzzle {
-    fn new(input: &'static str) -> anyhow::Result<Self> {
-        Ok(Self { input })
+    fn new(input: impl Into<String>) -> anyhow::Result<Self> {
+        Ok(Self {
+            input: input.into(),
+        })
     }
 
     fn input(&self) -> &str {
-        self.input
+        &self.input
     }
 
     fn part_one(&self) -> Answer {

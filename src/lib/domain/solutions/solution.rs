@@ -1,5 +1,8 @@
 use crate::{
-    domain::{address::{Day, Part}, solutions::answer::Answer},
+    domain::{
+        address::{Day, Part},
+        solutions::answer::Answer,
+    },
     outbound::client::SolverClient,
 };
 
@@ -10,7 +13,7 @@ use crate::{
 /// a match that already knows each concrete type.
 pub trait Solution: Sized {
     /// Parses `input` once, so both parts are reads over the result.
-    fn new(input: &'static str) -> anyhow::Result<Self>;
+    fn new(input: impl Into<String>) -> anyhow::Result<Self>;
 
     /// The raw input this was built from.
     fn input(&self) -> &str;
@@ -25,11 +28,11 @@ pub trait Solution: Sized {
 
 /// Runs both parts, validating each answer when given a client.
 ///
-/// `session` doubles as the validate flag: `None` solves offline. Only
+/// `client` doubles as the validate flag: `None` solves offline. Only
 /// [`Answer::Value`] is validated, since nothing else has anything to check.
 pub fn solve<S: Solution>(
     client: Option<&SolverClient>,
-    input: &'static str,
+    input: &str,
     day: &Day,
 ) -> anyhow::Result<(Answer, Answer)> {
     let solution = S::new(input)?;

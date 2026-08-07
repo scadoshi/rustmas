@@ -4,11 +4,9 @@ use crate::{
         args::FetchArgs,
         utils::{download_input, ensure_dir},
     },
-    outbound::client::AocClient,
+    outbound::{client::AocClient, store::INPUT_PATH},
 };
 use std::path::PathBuf;
-
-const INPUT_PATH: &str = "inputs";
 
 /// Downloads published puzzle inputs into `inputs/<year>/<NN>.txt`.
 ///

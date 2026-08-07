@@ -15,8 +15,8 @@ pub enum Answer {
         /// From adventofcode.com. Says whether the star exists.
         submission: Option<Verdict>,
     },
-    /// Art you read rather than submit. Handed back rather than printed, so
-    /// solving stays free of IO.
+    /// Art you read rather than submit. Returned instead of printed, so
+    /// solving does no IO.
     Visual(String),
     /// Nothing to produce. Day 25 part two is the usual case.
     None,

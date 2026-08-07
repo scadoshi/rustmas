@@ -7,42 +7,26 @@ use crate::{
         args::SolveArgs,
         utils::{confirm, submit},
     },
-    outbound::client::{AocClient, SolverClient},
+    outbound::{
+        client::{AocClient, SolverClient},
+        store,
+    },
 };
 
-/// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete
-/// type that solves it. Returns `None` when no solution is registered.
-macro_rules! solutions {
-    ($(($y:literal, $d:literal) => $t:ty),* $(,)?) => {
-        // Days are written zero-padded so `stringify!` builds the right filename.
-        #[allow(clippy::zero_prefixed_literal)]
-        fn dispatch(
-            client: Option<&SolverClient>,
-            day: &Day,
-        ) -> Option<anyhow::Result<(Answer, Answer)>> {
-            match (day.year(), day.value()) {
-                $(($y, $d) => Some(solve::<$t>(
-                    client,
-                    include_str!(
-                        concat!(
-                            "../../../../inputs/",
-                            stringify!($y),
-                            "/",
-                            stringify!($d),
-                            ".txt"
-                        )
-                    ),
-                    day,
-                )),)*
-                _ => None,
-            }
-        }
-    };
-}
-
-solutions! {
-    (2015, 01) => year_2015::day_01::Puzzle,
-    (2016, 01) => year_2016::day_01::Puzzle,
+/// Maps a runtime `(year, day)` to the type that solves it.
+///
+/// `None` means no solution is registered, which is how a run over every year
+/// skips the days not written yet.
+fn dispatch(
+    client: Option<&SolverClient>,
+    day: &Day,
+    input: &str,
+) -> Option<anyhow::Result<(Answer, Answer)>> {
+    Some(match (day.year(), day.value()) {
+        (2015, 1) => solve::<year_2015::day_01::Puzzle>(client, input, day),
+        (2016, 1) => solve::<year_2016::day_01::Puzzle>(client, input, day),
+        _ => return None,
+    })
 }
 
 pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
@@ -72,7 +56,10 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 continue;
             }
             let day = Day::new(day, year)?;
-            let Some(result) = dispatch(solver.as_ref(), &day) else {
+            let Some(input) = store::read_input(&day)? else {
+                continue;
+            };
+            let Some(result) = dispatch(solver.as_ref(), &day, &input) else {
                 continue;
             };
             match result {
@@ -93,4 +80,3 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     }
     Ok(())
 }
-
