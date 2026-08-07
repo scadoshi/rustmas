@@ -1,7 +1,10 @@
 use crate::{
     domain::{
         address::{self, Part},
-        solutions::solution::Solved,
+        solutions::{
+            solution::{Solved, solve},
+            year_2015, year_2016,
+        },
     },
     inbound::{
         input::ensure_entry,
@@ -24,16 +27,12 @@ type Solver = fn(&SolverClient, bool, &str, &address::Day) -> anyhow::Result<Sol
 /// count what it is about to send.
 ///
 /// One line per day. This is the only list of what has been solved.
-// Empty until the first day is written, so the match has one arm.
-#[allow(clippy::match_single_binding)]
 fn solver_for(year: i32, day: i32) -> Option<Solver> {
-    match (year, day) {
-        // One arm per day. Import the year module and `solve` at the top of this
-        // file, then:
-        //
-        //     (2015, 1) => Some(solve::<year_2015::day_01::Puzzle>),
-        _ => None,
-    }
+    Some(match (year, day) {
+        (2015, 1) => solve::<year_2015::day_01::Puzzle>,
+        (2016, 1) => solve::<year_2016::day_01::Puzzle>,
+        _ => return None,
+    })
 }
 
 /// How many parts a run over these filters would touch.

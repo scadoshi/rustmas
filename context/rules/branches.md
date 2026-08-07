@@ -18,13 +18,34 @@ git checkout scadoshi
 git merge main
 ```
 
-A change to the tool lands on `main` first, then merges down. Nothing is ever
-deleted to produce a branch, so there is no drift to catch, no force push, and
-nobody who cloned `main` gets their history rewritten.
+A change to the tool lands on `main` first, then merges down. Nothing is deleted
+to produce a branch, so there is no drift to catch, no force push, and nobody who
+cloned `main` gets their history rewritten.
+
+Check what a merge did before trusting it:
+
+```
+git diff main scadoshi --name-status
+```
+
+It should list the solutions as added, plus `README.md`, `context/README.md`,
+`context/progress/`, `context/todo.md`, and this file. If the solutions are
+missing from that list, the merge removed them.
 
 The cost is discipline: a tool fix noticed while writing a day belongs on `main`,
 not here. Committing it here means merging it up later or living with the
 divergence.
+
+### The one merge that misbehaved
+
+`main` was originally carved out of this branch by deleting things, so its
+history contains those deletions. The first `git merge main` replayed them and
+took the solutions and the owner-specific parts of `context/README.md` with it.
+
+That was fixed by restoring both from the pre-merge commit inside the merge
+itself. It cannot happen again: the merge commit is now the shared base, so a
+later merge only carries what `main` has changed since. This is worth knowing
+only if the branches are ever re-cut, which would reintroduce it.
 
 ### Why not the other way
 

@@ -1,0 +1,25 @@
+use crate::domain::solutions::{answer::Answer, solution::Solution};
+
+pub struct Puzzle {
+    input: String,
+}
+
+impl Solution for Puzzle {
+    fn new(input: impl Into<String>) -> anyhow::Result<Self> {
+        Ok(Self {
+            input: input.into(),
+        })
+    }
+
+    fn input(&self) -> &str {
+        &self.input
+    }
+
+    fn part_one(&self) -> Answer {
+        Answer::None
+    }
+
+    fn part_two(&self) -> Answer {
+        Answer::None
+    }
+}
