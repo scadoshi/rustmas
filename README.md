@@ -1,8 +1,12 @@
-# rustmas
+# rustmas (template)
 
 Rust tooling for Advent of Code. Downloads your puzzle inputs, runs your
 solutions, checks the answers against an independent solver, and submits them
 for stars.
+
+This branch has no solutions in it. Clone it, add your `.env`, and write your
+first day. The `master` branch is the same tool with scadoshi's solutions
+attached, if you want to see worked examples.
 
 ## Setup
 
@@ -192,8 +196,7 @@ src/
         answer.rs            # what a part produced
         outcome.rs           # that answer, plus timing and verdicts
         solution.rs          # the Solution trait and the runner
-        year_2015/           # one dir per day, each with a Puzzle
-        year_2016/
+        year_<year>/         # your days go here, one dir each
     inbound/                 # ways in
       cli.rs                 # the command line and its subcommands
       input.rs               # read the cache, fetch what is missing

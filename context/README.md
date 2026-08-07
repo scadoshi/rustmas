@@ -2,6 +2,11 @@
 
 Hand this dir to any AI assistant to resume work on `rustmas` with full context.
 
+This is the `template` branch, which is `master` with the solutions removed. The
+design notes and journal describe how the tool got its shape and are worth
+keeping. The journal is scadoshi's log rather than yours, so start a fresh entry
+rather than continuing his.
+
 ## Where things are
 
 - [`todo.md`](todo.md) is what is coming next and what is already done.
