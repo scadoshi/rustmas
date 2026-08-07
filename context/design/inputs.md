@@ -1,26 +1,57 @@
-# Puzzle inputs
+# Puzzle inputs and instructions
 
 `src/lib/outbound/store/`, `src/lib/inbound/input.rs`, `inputs/`
 
-Inputs live at `inputs/<year>/<NN>.txt`, zero padded. The directory is
-gitignored because inputs are tied to a personal AOC account.
+Each day is one JSON file at `inputs/<year>/<NN>.json`, zero padded, holding the
+input, the session that fetched it, and the puzzle text:
 
-`outbound/store` owns the path and the reading and writing. `read_input` returns
-`Option<String>`, so a missing file is an ordinary answer rather than an error.
+```rust
+struct Entry { input: Input, instructions: Instructions }
+struct Input { hash: String, data: String }
+struct Instructions { part_one: String, part_two: Option<String> }
+```
+
+The directory is gitignored, since inputs are tied to a personal account and AOC
+asks that puzzle text not be republished.
+
+One file per day rather than raw inputs plus a manifest of hashes. A manifest
+means two places to keep in step, and instructions were always going to need a
+home anyway.
+
+## Session fingerprinting
+
+`Input` holds a SHA-256 of the cookie that fetched it, generated in the
+constructor so it cannot be set to something that disagrees with the data.
+`is_from(cookie)` answers whether an input belongs to the current session.
+
+This exists because swapping `COOKIE` silently invalidates every input, and
+nothing caught it: `2015/01` answered `280` one day and `138` the next, and only
+the changed answers gave it away.
+
+A mismatch refetches the input and keeps the instructions, since puzzle text is
+identical for everyone. `read_entry` returns whatever is on disk and leaves that
+judgement to the caller, so the two lifecycles stay separate inside one file.
+
+With no cookie configured at all, a cached entry is used as-is. Being unable to
+verify should not make an input unusable.
 
 ## Fetch on demand
 
-`ensure_input` reads from disk and downloads only when the file is absent, so
-both subcommands share one path to an input. `fetch` calls it and discards the
-text, `solve` calls it and solves.
+`ensure_entry` reads from disk and downloads what is missing, so both
+subcommands share one path. `fetch` calls it and discards the result, `solve`
+calls it and solves. Nothing cached means both the input and the page are
+fetched, so a day always arrives complete.
 
 The `AocClient` is built on first download rather than up front, which keeps a
 run over cached inputs entirely offline and cookie-free. `--submit` is the one
 exception: it builds the client immediately so a bad cookie fails before any
 solving happens rather than partway through.
 
-Solving matches the day against the registry before calling `ensure_input`, so
-a run over every year never downloads an input for a day with no solution.
+Solving matches the day against the registry before calling `ensure_entry`, so
+a run over every year never downloads anything for a day with no solution.
+
+`cookie_from_env` sits apart from `AocClient::from_env` so a hash check never
+forces a client into existence.
 
 ## Rejected: compile-time embedding
 
@@ -54,18 +85,25 @@ when the wrong kind of thing sits in the way.
 `get_input` calls `error_for_status()` so an error page cannot be written to
 disk and cached as though it were real input.
 
-## Planned change
+## Instructions
 
-No-clobber gets an exception. Inputs will carry a hash of the session cookie
-that fetched them, and a mismatch will overwrite rather than skip, because an
-input from another account is wrong rather than cached. See `../todo.md`.
+The day page holds one `<article class="day-desc">` per unlocked part, so two
+articles means part two is available and one means it is still behind the first
+star. That makes completeness structural rather than a flag that could disagree
+with the text beside it.
+
+`html2text` renders each article at width 80. The client does the split and the
+rendering, so the store never sees a tag and stays unaware of where its data
+came from, the same way `verdict_from` keeps AOC's reply parsing inside the
+client.
 
 ## Open
 
 One failed download aborts the whole run. The alternative is log-and-continue,
 which is more resilient but would let a bad cookie fail quietly.
 
-Caching puzzle instructions alongside inputs would make the repo fully offline.
-The day page is a plain GET, but part two's text is absent until part one is
-solved, so a complete cache needs two passes. Gitignore it like inputs, since
-AOC asks people not to republish puzzle text.
+Part two's text is only cached if the day was fetched after part one was
+starred. Refetching the page on a `Correct` submission would fill that in, and
+is not built yet.
+
+Nothing displays the instructions. They are stored and unread.

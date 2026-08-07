@@ -4,7 +4,7 @@ use crate::{
         solutions::{answer::Answer, solution::solve, year_2015, year_2016},
     },
     inbound::{
-        input::ensure_input,
+        input::ensure_entry,
         solve::{
             args::SolveArgs,
             utils::{confirm, submit},
@@ -44,8 +44,9 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
             _ => continue,
         };
 
-        let input = ensure_input(&mut aoc, &day)?;
-        match solver_fn(&solver, validate, &input, &day) {
+        let entry = ensure_entry(&mut aoc, &day)?;
+        let input = entry.input.data();
+        match solver_fn(&solver, validate, input, &day) {
             Ok((mut one, mut two)) => {
                 // Submit before printing, so each part reports what both
                 // checkers said on one line.

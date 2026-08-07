@@ -8,7 +8,21 @@ use reqwest::{Url, blocking::Client};
 /// Env var holding the adventofcode.com session cookie.
 const COOKIE_KEY: &str = "COOKIE";
 
+/// Marks the start of a puzzle part on a day page. Two of them means part two
+/// is unlocked, one means it is still hidden behind the first star.
+const ARTICLE: &str = r#"<article class="day-desc">"#;
+
 const AOC_BASE_URL: &str = "https://adventofcode.com";
+
+/// Reads the session cookie without building a client.
+///
+/// Checking which session an input came from needs the cookie but no requests,
+/// so it stays separate from [`AocClient::from_env`].
+pub fn cookie_from_env() -> anyhow::Result<String> {
+    // `.env` is optional: values may already live in the real environment.
+    dotenvy::dotenv().ok();
+    std::env::var(COOKIE_KEY).with_context(|| format!("failed to get {COOKIE_KEY}"))
+}
 
 /// An authenticated handle to adventofcode.com, with a pooled client shared
 /// across requests. Build one with [`Session::from_env`].
@@ -38,15 +52,9 @@ impl AocClient {
     /// `COOKIE` is required. `REPO_URL` and `CONTACT` are optional and only
     /// shape the `User-Agent`, so a fresh clone still runs without them.
     pub fn from_env() -> anyhow::Result<Self> {
-        // `.env` is optional: values may already live in the real environment.
-        dotenvy::dotenv().ok();
-
-        let user_agent = super::user_agent_from_env();
-
         Ok(Self {
-            cookie: std::env::var(COOKIE_KEY)
-                .with_context(|| format!("failed to get {COOKIE_KEY}"))?,
-            user_agent,
+            cookie: cookie_from_env()?,
+            user_agent: super::user_agent_from_env(),
             client: Client::new(),
         })
     }
@@ -55,6 +63,36 @@ impl AocClient {
     ///
     /// Errors on a non-success status, which usually means a bad cookie or an
     /// unreleased day.
+    /// Fetches `day`'s puzzle text, rendered from HTML into readable text.
+    ///
+    /// Part two is absent until part one is solved, so it comes back `None`
+    /// until then.
+    pub fn get_instructions(&self, day: &Day) -> anyhow::Result<(String, Option<String>)> {
+        let html = self
+            .client
+            .get(Url::parse(AOC_BASE_URL)?.join(&format!("{}/day/{}", day.year(), day.value()))?)
+            .header("User-Agent", self.user_agent())
+            .header("Cookie", format!("session={}", self.cookie()))
+            .send()
+            .with_context(|| format!("failed to reach AOC for {day:?}"))?
+            .error_for_status()
+            .with_context(|| format!("bad response status for {day:?}"))?
+            .text()
+            .with_context(|| format!("failed to read page body for {day:?}"))?;
+
+        let mut parts = html.split(ARTICLE).skip(1).map(|part| {
+            let body = part.split("</article>").next().unwrap_or_default();
+            html2text::from_read(body.as_bytes(), 80)
+                .with_context(|| format!("failed to render instructions for {day:?}"))
+        });
+
+        let one = parts
+            .next()
+            .with_context(|| format!("no puzzle text found for {day:?}"))??;
+        let two = parts.next().transpose()?;
+        Ok((one, two))
+    }
+
     pub fn get_input(&self, day: &Day) -> anyhow::Result<String> {
         self.client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!(

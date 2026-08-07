@@ -39,7 +39,7 @@ This is the big one. Consequences:
 - Solving now needs a cookie in the case where the input is missing, which was
   previously never. Offline solving still works when the file is already there.
 
-### 3. Session fingerprinting on inputs
+### 3. Session fingerprinting on inputs (done, 2026-08-07)
 
 Inputs are tied to an account, so swapping `COOKIE` silently invalidates them.
 We hit exactly this: `inputs/2015/01.txt` answered `280` one day and `138` the
@@ -63,7 +63,7 @@ Notes:
 - One file per input or a single manifest keyed by coordinate. A manifest is
   fewer files and easier to inspect.
 
-### 4. Fetch instructions alongside inputs
+### 4. Fetch instructions alongside inputs (done, 2026-08-07)
 
 Fetch pulls the puzzle text as well as the input, always, with no flag. There is
 no reason to want one without the other.

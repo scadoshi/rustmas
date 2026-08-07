@@ -1,6 +1,8 @@
 //! Where downloaded things live on disk.
 
-use crate::domain::address::Day;
+pub mod cache;
+
+use crate::{domain::address::Day, outbound::store::cache::Entry};
 use anyhow::{Context, bail};
 use std::{
     fs::{create_dir_all, read_to_string, write},
@@ -16,32 +18,40 @@ pub fn project_root() -> anyhow::Result<PathBuf> {
     )?))
 }
 
-/// Where `day`'s input lives: `inputs/<year>/<NN>.txt`, zero padded.
-pub fn input_path(day: &Day) -> anyhow::Result<PathBuf> {
+/// Where `day`'s cached input and instructions live, zero padded.
+pub fn entry_path(day: &Day) -> anyhow::Result<PathBuf> {
     Ok(project_root()?
         .join(INPUT_PATH)
         .join(day.year().to_string())
-        .join(format!("{:02}.txt", day.value())))
+        .join(format!("{:02}.json", day.value())))
 }
 
-/// Reads `day`'s input, or `None` when it has not been downloaded.
-pub fn read_input(day: &Day) -> anyhow::Result<Option<String>> {
-    let path = input_path(day)?;
+/// Reads `day`'s cache entry, or `None` when nothing has been downloaded.
+///
+/// Returns what is on disk whatever session it came from. Deciding whether the
+/// input still belongs to you is [`Entry::input`] and `is_from`, so instructions
+/// stay usable across a cookie change.
+pub fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
+    let path = entry_path(day)?;
     if !path.is_file() {
         return Ok(None);
     }
-    read_to_string(&path)
+    let json = read_to_string(&path)
+        .with_context(|| format!("failed to read entry: {}", path.display()))?;
+    serde_json::from_str(&json)
         .map(Some)
-        .with_context(|| format!("failed to read input: {}", path.display()))
+        .with_context(|| format!("failed to parse entry: {}", path.display()))
 }
 
-/// Writes `day`'s input, creating the year directory if needed.
-pub fn write_input(day: &Day, input: &str) -> anyhow::Result<()> {
-    let path = input_path(day)?;
+/// Writes `day`'s cache entry, creating the year directory if needed.
+pub fn write_entry(day: &Day, entry: &Entry) -> anyhow::Result<()> {
+    let path = entry_path(day)?;
     if let Some(parent) = path.parent() {
         ensure_dir(parent)?;
     }
-    write(&path, input).with_context(|| format!("failed to write input: {}", path.display()))
+    let json = serde_json::to_string_pretty(entry)
+        .with_context(|| format!("failed to serialise entry: {}", path.display()))?;
+    write(&path, json).with_context(|| format!("failed to write entry: {}", path.display()))
 }
 
 /// Creates `path` and its parents, no-opping if it already exists. Errors

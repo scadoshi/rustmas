@@ -1,6 +1,6 @@
 use crate::{
     domain::address,
-    inbound::{fetch::args::FetchArgs, input::ensure_input},
+    inbound::{fetch::args::FetchArgs, input::ensure_entry},
 };
 
 /// Downloads puzzle inputs into `inputs/<year>/<NN>.txt`.
@@ -12,7 +12,7 @@ pub fn run(args: &FetchArgs) -> anyhow::Result<()> {
     let mut client = None;
 
     for day in address::each(args.year, args.day) {
-        ensure_input(&mut client, &day?)?;
+        ensure_entry(&mut client, &day?)?;
     }
     Ok(())
 }
