@@ -32,7 +32,7 @@ nothing in it. `Year::new` bounds on that rather than on `Utc::now().year()`,
 which previously let a 2026 day validate against an event that did not
 exist.
 
-`Part` is a fieldless enum with `to_wire_value()` returning 1 or 2. It exists so
+`Part` is a fieldless enum with `wire_value()` returning 1 or 2. It exists so
 call sites read `submit(&day, Part::One, answer)` rather than passing a bare `1`
 that is indistinguishable from a day number. Both the AOC submit form (`level=`)
 and the solver API path want the number, so one type covers both renderings.
