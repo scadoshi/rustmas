@@ -77,10 +77,24 @@ a single `dispatch` function whose arms map a runtime `(year, day)` to a
 concrete type:
 
 ```rust
+use rustmas::solutions::{year_2015, year_2016};
+
 solutions! {
-    (2015, 01) => Day01,
+    (2015, 01) => year_2015::day_01::Puzzle,
+    (2016, 01) => year_2016::day_01::Puzzle,
 }
 ```
+
+Every day's type is named `Puzzle`, with the module path carrying the
+coordinate, so `day_01::Day01` stops repeating itself. `Solver` was the first
+choice and was rejected: `SolverClient` already means the third-party service
+throughout this repo, and a local `Solver` would blur that. `Solution` is the
+trait and `Day` is the coordinate type, which left `Puzzle`.
+
+Importing the year modules rather than the types is what avoids aliasing. Two
+years both exporting `Puzzle` would collide as imports, but the path
+disambiguates them, and the import list grows by one per year rather than one
+per day.
 
 The input path is built at expansion with `concat!` and `stringify!`, which is
 why days are written zero-padded. `stringify!(01)` gives `"01"`, and `01` is a

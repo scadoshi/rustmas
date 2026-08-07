@@ -1,10 +1,10 @@
 use crate::solutions::{answer::Answer, solution::Solution};
 
-pub struct Day01 {
+pub struct Puzzle {
     input: &'static str,
 }
 
-impl Solution for Day01 {
+impl Solution for Puzzle {
     fn new(input: &'static str) -> anyhow::Result<Self> {
         Ok(Self { input })
     }

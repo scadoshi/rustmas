@@ -2,6 +2,24 @@
 
 ## Next
 
+- **Write 2016 day 1.** `src/lib/solutions/year_2016/day_01/mod.rs` is a stub
+  returning `Answer::None` from both parts. Its input is already fetched and it
+  is already registered in the `solutions!` macro, so it only needs the two
+  parts filled in.
+
+  It exists to drive the one output branch never seen live: `new star`, the
+  `Display` for a submission that AOC graded `Correct` rather than
+  `AlreadySolved`. Both parts of 2015 day 1 are already solved on the scratch
+  account, so nothing there can produce it. Once written:
+
+  ```
+  cargo run --bin solve -- -y 2016 -d 1 --submit
+  ```
+
+  should print `(new star)` for each part. The puzzle is "No Time for a Taxicab":
+  follow `R2, L3` style turns on a grid, part one is the Manhattan distance to
+  the end, part two is the first location visited twice.
+
 - More solutions. The pipeline is complete now: fetch, solve, validate, submit.
   Each new day is one line in the `solutions!` invocation plus a module.
 - Timing per part, split from parse time. Belongs in `solve()` in

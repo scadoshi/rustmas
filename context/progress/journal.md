@@ -39,6 +39,17 @@ verdicts and merges them, `submit` returns the answer rather than printing, and
 A rejected answer shows the solver's objection and nothing else, since no
 submission happened: `999999999 (high)`.
 
+Added a 2016 day 1 stub and hit the first two-year collision. Both days would
+have been `Day01`, so every day's type is now `Puzzle` and the module path
+carries the coordinate. `Solver` was considered first and dropped, since
+`SolverClient` already means the third-party service here. Importing the year
+modules rather than the types is what avoids aliases.
+
+The stub returns `Answer::None` from both parts and is left for Scotty to
+write. It exists to drive `new star`, the one output branch never seen live,
+since both parts of 2015 day 1 are already solved on the scratch account. See
+[`../todo.md`](../todo.md).
+
 
 Split `Session` into `AocClient` and `SolverClient` under `src/lib/client/`,
 files named for who they talk to. `official.rs` was considered and rejected: it

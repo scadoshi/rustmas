@@ -11,7 +11,7 @@ use rustmas::{
     client::{AocClient, SolverClient},
     day::{Day, days_in_year},
     part::Part,
-    solutions::{answer::Answer, solution::solve, year_2015::day_01::Day01},
+    solutions::{answer::Answer, solution::solve, year_2015, year_2016},
 };
 
 /// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete
@@ -45,7 +45,8 @@ macro_rules! solutions {
 }
 
 solutions! {
-    (2015, 01) => Day01,
+    (2015, 01) => year_2015::day_01::Puzzle,
+    (2016, 01) => year_2016::day_01::Puzzle,
 }
 
 fn run(args: &Args) -> anyhow::Result<()> {
