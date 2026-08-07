@@ -6,8 +6,8 @@
 //! differ in auth, contract, and failure semantics.
 
 pub mod aoc;
-pub mod solver;
 pub mod aoc_verdict;
+pub mod solver;
 pub mod solver_verdict;
 
 pub use aoc::AocClient;

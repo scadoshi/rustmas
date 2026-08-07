@@ -22,7 +22,10 @@ impl Day {
     ///
     /// `None` means all of them, so `each(None, None)` walks every day of every
     /// event and `each(Some(2015), Some(1))` yields one.
-    pub fn each(year: Option<i32>, day: Option<i32>) -> impl Iterator<Item = Result<Day, OutOfRange>> {
+    pub fn each(
+        year: Option<i32>,
+        day: Option<i32>,
+    ) -> impl Iterator<Item = Result<Day, OutOfRange>> {
         (FIRST_YEAR..=Year::latest())
             // Every year in that range is valid by construction, so the filter only
             // drops what cannot happen.
@@ -38,7 +41,7 @@ impl Day {
     /// Validates `year`, then rejects any day outside [`Year::days_in`].
     pub fn new(day: i32, year: i32) -> Result<Self, OutOfRange> {
         let year = Year::new(year)?;
-        if !(1..=year.days_in()).contains(&day) {
+        if day < 1 || day > year.days_in() {
             return Err(OutOfRange);
         }
         Ok(Self { value: day, year })
