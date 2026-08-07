@@ -4,8 +4,8 @@ use chrono::{Datelike, Utc};
 /// The first Advent of Code.
 pub const FIRST_YEAR: i32 = 2015;
 
-/// A validated event year, from [`FIRST_YEAR`] through [`latest_year`].
-#[derive(Debug)]
+/// A validated event year, from [`FIRST_YEAR`] through [`Year::latest`].
+#[derive(Debug, Clone, Copy)]
 pub struct Year(i32);
 
 impl Year {

@@ -3,7 +3,10 @@
 `src/lib/domain/address/`
 
 `Year` and `Day` are newtypes over `i32`. `Day` wraps a `Year`, constructors are
-the only way in, and fields are private. That makes several states
+the only way in, and fields are private. `Day::new` takes a built `Year` rather
+than a raw number, so a day cannot be made without one having been validated
+first, and `Day::each` stops rebuilding the year it is already holding. `Year` is
+`Copy`, being one integer, so passing it around costs nothing. That makes several states
 unrepresentable: a year outside the published events, a day outside the
 range its year actually published, and a day with no year attached.
 
@@ -26,7 +29,7 @@ Everything a year knows lives on `Year`: `FIRST_YEAR`, `Year::latest()`, and
 `Year::latest()` is the latest *published* event, not the current calendar year:
 AOC drops a new one each December, so before December the current year has
 nothing in it. `Year::new` bounds on that rather than on `Utc::now().year()`,
-which previously let `Day::new(1, 2026)` validate against an event that did not
+which previously let a 2026 day validate against an event that did not
 exist.
 
 `Part` is a fieldless enum with `to_wire_value()` returning 1 or 2. It exists so

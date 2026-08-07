@@ -25,7 +25,7 @@ pub fn cookie_from_env() -> anyhow::Result<String> {
 }
 
 /// An authenticated handle to adventofcode.com, with a pooled client shared
-/// across requests. Build one with [`Session::from_env`].
+/// across requests. Build one with [`AocClient::from_env`].
 pub struct AocClient {
     cookie: String,
     user_agent: String,
