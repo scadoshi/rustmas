@@ -3,6 +3,29 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-06 (end of day)
+
+Planned a rework, wrote none of it. Five changes in
+[`../todo.md`](../todo.md), and two of them undo decisions made earlier this
+week for reasons that no longer hold.
+
+Splitting `fetch` and `solve` into separate binaries was organisational, and
+nothing here is deployed separately, so the split only bought `--bin` on every
+command. They collapse into subcommands.
+
+Dropping `include_str!` is the larger reversal. Compile-time embedding was
+chosen deliberately and the build-ordering cost was accepted, but the goal now
+is for `solve` to fetch a missing input itself, and that cannot happen at
+compile time. Runtime reading removes the caveat entirely and simplifies the
+dispatch macro on the way out.
+
+Session fingerprinting comes from a real incident rather than a hypothetical:
+`inputs/2015/01.txt` gave `280` one day and `138` the next after the cookie
+changed, and nothing caught it except the answers moving. Hashing the cookie
+next to each input makes that detectable, and it changes the no-clobber rule
+that has held since the first session, since a session mismatch should
+overwrite.
+
 ## 2026-08-06 (later)
 
 Wired `--submit` into `solve`, which completes the pipeline: fetch, solve,

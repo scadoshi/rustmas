@@ -52,6 +52,19 @@ AOC asks that inputs not be re-downloaded.
 `get_input` calls `error_for_status()` so an error page cannot be written to
 disk and cached as though it were real input.
 
+## Planned changes
+
+Two decisions here are being reversed. See `../todo.md`.
+
+Compile-time embedding goes away. `solve` should fetch a missing input itself,
+which cannot happen at compile time, so inputs move to runtime reading. That
+also retires the build-ordering caveat and the reason days are written
+zero-padded in the macro.
+
+No-clobber gets an exception. Inputs will carry a hash of the session cookie
+that fetched them, and a mismatch will overwrite rather than skip, because an
+input from another account is wrong rather than cached.
+
 ## Open
 
 One failed download aborts the whole run. The alternative is log-and-continue,
