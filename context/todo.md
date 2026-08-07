@@ -2,7 +2,7 @@
 
 ## Planned rework (2026-08-06)
 
-Five changes, decided but not started. Doing them in this order matters: the
+Six changes, decided but not started. Doing them in this order matters: the
 first two reshape everything the rest sits on.
 
 ### 1. One binary, two modes
@@ -55,9 +55,11 @@ Notes:
 
 - Never persist the cookie itself, only the hash. Gitignore the store either
   way.
-- Do not use `std::hash::DefaultHasher` for this. Its output is not guaranteed
-  stable across Rust versions, so a persisted value could stop matching after a
-  toolchain bump. Use `sha2` or similar.
+- `std::hash::DefaultHasher` is not guaranteed stable across Rust versions, so a
+  persisted value could stop matching after a toolchain bump. The consequence is
+  benign in itself, every hash mismatches once and everything refetches, but
+  that refetch is a few hundred requests at AOC, which is the one thing they ask
+  you not to do. `sha2` avoids it for one dependency.
 - This changes the no-clobber rule that has held since day one. Existing inputs
   are still cached, but a session mismatch now overwrites. Worth updating
   `design/inputs.md`, which currently says inputs are never overwritten.
@@ -77,7 +79,22 @@ no reason to want one without the other.
 - Gitignore it. AOC asks that puzzle text not be republished. No session hash
   needed, since the text is the same for everyone.
 
-### 5. Timing
+### 5. Refetch instructions after starring part one
+
+Part two's text is not in the HTML until part one is solved, so the moment a
+submission comes back `Correct` for part one is exactly when that day's
+instructions should be pulled again.
+
+That makes the flow within a single `solve --submit` run: solve part one,
+validate, submit, and if it earned a star, refetch the day page so part two's
+text lands before you go looking for it.
+
+Worth deciding whether a day's cached instructions record which parts they
+contain, so a later run knows the file is half complete rather than assuming a
+present file is a finished one. Same shape of problem as the session hash: a
+file existing does not mean it is the file you want.
+
+### 6. Timing
 
 Report how long a solution took. Already listed below, kept here because it
 lands with this work.
