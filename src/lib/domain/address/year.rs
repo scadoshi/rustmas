@@ -4,16 +4,6 @@ use chrono::{Datelike, Utc};
 /// The first Advent of Code.
 pub const FIRST_YEAR: i32 = 2015;
 
-/// The latest event that has actually been published.
-///
-/// A new event drops each December, so before then the current calendar year
-/// has nothing in it yet.
-pub fn latest_year() -> i32 {
-    let now = Utc::now();
-    let year = now.year();
-    if now.month() == 12 { year } else { year - 1 }
-}
-
 /// A validated event year, from [`FIRST_YEAR`] through [`latest_year`].
 #[derive(Debug)]
 pub struct Year(i32);
@@ -27,9 +17,50 @@ impl Year {
     /// The upper bound is the latest *published* event, not the current
     /// calendar year, so outside December those differ.
     pub fn new(year: i32) -> Result<Self, OutOfRange> {
-        if year > latest_year() || year < FIRST_YEAR {
+        if year > Self::latest() || year < FIRST_YEAR {
             return Err(OutOfRange);
         }
         Ok(Self(year))
+    }
+
+    /// The latest event that has actually been published.
+    ///
+    /// A new event drops each December, so before then the current calendar year
+    /// has nothing in it yet.
+    pub fn latest() -> i32 {
+        let now = Utc::now();
+        if now.month() == 12 {
+            now.year()
+        } else {
+            now.year() - 1
+        }
+    }
+
+    /// Days published for `year`. Usually 25; 2025 was a 12-day event.
+    pub fn days_in(&self) -> i32 {
+        match self.0 {
+            2025 => 12,
+            _ => 25,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rejects_years_outside_published_events() {
+        assert!(Year::new(FIRST_YEAR - 1).is_err());
+        assert!(Year::new(Year::latest() + 1).is_err());
+        assert!(Year::new(FIRST_YEAR).is_ok());
+        assert!(Year::new(Year::latest()).is_ok());
+    }
+
+    /// 2025 ran twelve days rather than the usual twenty five.
+    #[test]
+    fn knows_how_long_each_event_ran() {
+        assert_eq!(Year::new(2025).unwrap().days_in(), 12);
+        assert_eq!(Year::new(2015).unwrap().days_in(), 25);
     }
 }

@@ -42,7 +42,7 @@ Because failures are all 400, the reason lives in the body:
 
 The `Unsupported` string is generated at `crates/core/src/lib.rs:364`, the
 catch-all arm of a hand-written `match (year, day)`. Coverage on `main` runs
-through 2025 day 12, which is exactly where our `days_in_year` stops, so
+through 2025 day 12, which is exactly where our `Year::days_in` stops, so
 `Unsupported` cannot currently be triggered by a `Day` we can construct.
 
 ### How this was verified

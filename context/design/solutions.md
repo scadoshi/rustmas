@@ -135,10 +135,15 @@ not exist, where a missing match arm is at least visible where you would look.
 
 ## Walking the days
 
-`address::each(year, day)` yields every published day, narrowed by the filters.
-Both subcommands use it, so the year and day loops exist once rather than being
+`Day::each(year, day)` yields every published day, narrowed by the filters. Both
+subcommands use it, so the year and day loops exist once rather than being
 duplicated with slightly different guards. `None` means all of them, so the four
 flag combinations need no matching.
+
+It sits on `Day` because a `Day` already carries its `Year`, so enumerating days
+is enumerating the pairs. It iterates validated `Year`s rather than raw integers,
+which is why `days_in` can stay a method rather than a loose function taking an
+unchecked number.
 
 ## Timing
 

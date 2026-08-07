@@ -77,7 +77,7 @@ request just wastes round trips. 5xx comes from the hosting platforms rather
 than the solver itself.
 
 `Unsupported` is currently unreachable, because the solver's coverage ends
-exactly where `days_in_year` does. It becomes reachable during a live event,
+exactly where `Year::days_in` does. It becomes reachable during a live event,
 when a day is published and solved locally before the solver catches up.
 
 ## Wiring it into solve
