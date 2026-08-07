@@ -1,4 +1,4 @@
-use crate::solutions::{answer::Answer, solution::Solution};
+use crate::domain::solutions::{answer::Answer, solution::Solution};
 
 pub struct Puzzle {
     input: &'static str,

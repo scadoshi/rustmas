@@ -1,4 +1,7 @@
-use crate::{client::verdict::Verdict, day::Day, part::Part};
+use crate::{
+    domain::{day::Day, part::Part},
+    outbound::client::verdict::Verdict,
+};
 use anyhow::Context;
 use reqwest::{Url, blocking::Client};
 
@@ -159,7 +162,7 @@ fn wait_from(body: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::{verdict_from, wait_from};
-    use crate::client::verdict::Verdict;
+    use crate::outbound::client::verdict::Verdict;
 
     // Fixtures are the real replies AOC gave for 2015 day 1 on a scratch
     // account, trimmed to the sentence that carries the verdict.

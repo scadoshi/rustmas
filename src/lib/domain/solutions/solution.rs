@@ -1,4 +1,7 @@
-use crate::{client::SolverClient, day::Day, part::Part, solutions::answer::Answer};
+use crate::{
+    domain::{day::Day, part::Part, solutions::answer::Answer},
+    outbound::client::SolverClient,
+};
 
 /// One day's puzzle, parsed and ready to answer both parts.
 ///

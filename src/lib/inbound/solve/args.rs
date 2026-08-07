@@ -1,9 +1,7 @@
-use clap::Parser;
+use clap::Args;
 
-#[derive(Parser)]
-#[command(about = "Advent of Code solution runner")]
-#[command(version)]
-pub struct Args {
+#[derive(Args)]
+pub struct SolveArgs {
     /// Year to run (omit for all)
     #[arg(short, long)]
     pub year: Option<i32>,
@@ -23,7 +21,7 @@ pub struct Args {
     pub yes: bool,
 }
 
-impl Args {
+impl SolveArgs {
     /// True when a submit run is unfiltered, and so would post answers for
     /// every solved day rather than the one being worked on.
     pub fn submitting_everything(&self) -> bool {

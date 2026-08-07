@@ -1,6 +1,6 @@
 use anyhow::{Context, bail};
 use clap::Parser;
-use rustmas::{client::AocClient, day::Day};
+use crate::{domain::day::Day, outbound::client::AocClient};
 use std::{fs::create_dir_all, path::Path};
 
 /// Creates `path` and its parents, no-opping if it already exists.

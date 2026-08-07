@@ -1,17 +1,15 @@
-pub mod args;
-pub mod utils;
-
 use crate::{
-    args::Args,
-    utils::{confirm, submit},
-};
-use clap::Parser;
-use rustmas::{
-    calendar::{FIRST_YEAR, latest_year},
-    client::{AocClient, SolverClient},
-    day::{Day, days_in_year},
-    part::Part,
-    solutions::{answer::Answer, solution::solve, year_2015, year_2016},
+    domain::{
+        calendar::{FIRST_YEAR, latest_year},
+        day::{Day, days_in_year},
+        part::Part,
+        solutions::{answer::Answer, solution::solve, year_2015, year_2016},
+    },
+    inbound::solve::{
+        args::SolveArgs,
+        utils::{confirm, submit},
+    },
+    outbound::client::{AocClient, SolverClient},
 };
 
 /// Generates `dispatch`, which maps a runtime `(year, day)` to the concrete
@@ -29,7 +27,7 @@ macro_rules! solutions {
                     client,
                     include_str!(
                         concat!(
-                            "../../../inputs/",
+                            "../../../../inputs/",
                             stringify!($y),
                             "/",
                             stringify!($d),
@@ -49,7 +47,7 @@ solutions! {
     (2016, 01) => year_2016::day_01::Puzzle,
 }
 
-fn run(args: &Args) -> anyhow::Result<()> {
+pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
     let validate = args.validate || args.submit;
     let solver = validate.then(SolverClient::new);
@@ -98,8 +96,3 @@ fn run(args: &Args) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn main() {
-    if let Err(e) = run(&Args::parse()) {
-        eprintln!("Error: {e:?}");
-    }
-}

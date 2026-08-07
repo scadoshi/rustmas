@@ -5,20 +5,19 @@
 Six changes, decided but not started. Doing them in this order matters: the
 first two reshape everything the rest sits on.
 
-### 1. One binary, two modes
+### 1. One binary, two modes (done, 2026-08-07)
 
-`fetch` and `solve` become subcommands of a single binary rather than two
-`[[bin]]` targets, so `--bin` stops being part of every invocation. They were
-split for organisation, and nothing is deployed separately, so the split buys
-nothing.
+`fetch` and `solve` are subcommands of one binary. `src/bin/main.rs` parses a
+`Cli` and calls `Command::run`, which dispatches to `inbound::fetch::run::run`
+or `inbound::solve::run::run`.
 
-```
-cargo run -- fetch -y 2015 -d 1
-cargo run -- solve -y 2015 -d 1 --submit
-```
+The library moved to ports and adapters at the same time: `domain` for puzzle
+types that know nothing about IO, `inbound` for the CLI, `outbound` for the two
+HTTP clients.
 
-clap derive handles this with an enum and `#[command(subcommand)]`. The two
-`args.rs` files become variants, and the two `main.rs` files become functions.
+Subcommand variants hold types deriving `clap::Args` rather than `Parser`, and
+`#[command(version)]` moved up to `Cli`, since a subcommand does not carry its
+own version.
 
 ### 2. Inputs at runtime, and solve fetches what it needs
 
@@ -110,7 +109,7 @@ lands with this work.
   account, so nothing there can produce it. Once written:
 
   ```
-  cargo run --bin solve -- -y 2016 -d 1 --submit
+  cargo run -- solve -y 2016 -d 1 --submit
   ```
 
   should print `(new star)` for each part. The puzzle is "No Time for a Taxicab":

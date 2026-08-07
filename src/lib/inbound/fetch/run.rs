@@ -1,12 +1,13 @@
-pub mod args;
-pub mod utils;
-
-use crate::utils::{Args, download_input, ensure_dir};
-use clap::Parser;
-use rustmas::{
-    calendar::{FIRST_YEAR, latest_year},
-    client::AocClient,
-    day::{Day, days_in_year},
+use crate::{
+    domain::{
+        calendar::{FIRST_YEAR, latest_year},
+        day::{Day, days_in_year},
+    },
+    inbound::fetch::{
+        args::FetchArgs,
+        utils::{download_input, ensure_dir},
+    },
+    outbound::client::AocClient,
 };
 use std::path::PathBuf;
 
@@ -17,7 +18,7 @@ const INPUT_PATH: &str = "inputs";
 /// `--year` and `--day` are filters, so omitting one means all of them. Existing
 /// files count as cached, so re-running only fills gaps. One failed download
 /// aborts the rest.
-fn run(args: &Args) -> anyhow::Result<()> {
+pub fn run(args: &FetchArgs) -> anyhow::Result<()> {
     let project_path = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
     let input_path = project_path.join(INPUT_PATH);
     ensure_dir("inputs", &input_path)?;
@@ -41,10 +42,4 @@ fn run(args: &Args) -> anyhow::Result<()> {
         }
     }
     Ok(())
-}
-
-fn main() {
-    if let Err(e) = run(&Args::parse()) {
-        eprintln!("Error: {e:?}");
-    }
 }

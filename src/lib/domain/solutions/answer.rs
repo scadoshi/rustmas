@@ -1,4 +1,4 @@
-use crate::client::verdict::Verdict;
+use crate::outbound::client::verdict::Verdict;
 use std::fmt::Display;
 
 /// What one part of a puzzle produced.

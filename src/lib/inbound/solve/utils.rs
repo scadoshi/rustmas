@@ -1,8 +1,6 @@
-use rustmas::{
-    client::{AocClient, verdict::Verdict},
-    day::Day,
-    part::Part,
-    solutions::answer::Answer,
+use crate::{
+    domain::{day::Day, part::Part, solutions::answer::Answer},
+    outbound::client::{AocClient, verdict::Verdict},
 };
 use std::io::{self, Write};
 

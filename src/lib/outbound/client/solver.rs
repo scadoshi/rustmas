@@ -1,4 +1,7 @@
-use crate::{client::verdict::Verdict, day::Day, part::Part};
+use crate::{
+    domain::{day::Day, part::Part},
+    outbound::client::verdict::Verdict,
+};
 use anyhow::bail;
 use reqwest::{Url, blocking::Client};
 use std::fmt::Display;

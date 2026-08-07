@@ -28,10 +28,10 @@ so leaving them blank identifies the tool and nobody else.
 Downloads published puzzle inputs into `inputs/<year>/<NN>.txt`.
 
 ```
-cargo run --bin fetch                  # everything
-cargo run --bin fetch -- -y 2015       # one year
-cargo run --bin fetch -- -d 1          # day 1 of every year
-cargo run --bin fetch -- -y 2015 -d 1  # one puzzle
+cargo run -- fetch                 # everything
+cargo run -- fetch -y 2015         # one year
+cargo run -- fetch -d 1            # day 1 of every year
+cargo run -- fetch -y 2015 -d 1    # one puzzle
 ```
 
 | Flag | Meaning |
@@ -49,9 +49,9 @@ re-download.
 Runs your solutions, with the same filters.
 
 ```
-cargo run --bin solve -- -y 2015 -d 1             # offline
-cargo run --bin solve -- -y 2015 -d 1 --validate  # check the answers
-cargo run --bin solve -- -y 2015 -d 1 --submit    # check, then send for stars
+cargo run -- solve -y 2015 -d 1              # offline
+cargo run -- solve -y 2015 -d 1 --validate   # check the answers
+cargo run -- solve -y 2015 -d 1 --submit     # check, then send for stars
 ```
 
 | Flag | Meaning |
@@ -121,25 +121,34 @@ solving free of IO.
 
 ```
 src/
+  bin/main.rs       # entry point, nothing else
   lib/
-    calendar.rs     # which events exist
-    day.rs          # Year -> Day validated coordinates
-    part.rs         # which of a day's two puzzles
-    client/
-      aoc.rs        # adventofcode.com: inputs and submissions
-      solver.rs     # third-party solver: repeatable answer checks
-      verdict.rs    # what a checker made of an answer
-    solutions/
-      answer.rs     # what a part produced
-      solution.rs   # the Solution trait and the runner
-      year_2015/    # one dir per day, each with a Puzzle
-      year_2016/
-  bin/
-    fetch/          # the input downloader
-    solve/          # the solution runner
+    domain/         # puzzles, with no idea HTTP or files exist
+      calendar.rs   # which events exist
+      day.rs        # Year -> Day validated coordinates
+      part.rs       # which of a day's two puzzles
+      solutions/
+        answer.rs   # what a part produced
+        solution.rs # the Solution trait and the runner
+        year_2015/  # one dir per day, each with a Puzzle
+        year_2016/
+    inbound/        # ways in
+      cli.rs        # the command line
+      command.rs    # which subcommand was asked for
+      fetch/        # the input downloader
+      solve/        # the solution runner
+    outbound/       # ways out
+      client/
+        aoc.rs      # adventofcode.com: inputs and submissions
+        solver.rs   # third-party solver: repeatable answer checks
+        verdict.rs  # what a checker made of an answer
 inputs/             # downloaded puzzle inputs (gitignored)
 context/            # design notes, journal, and todo
 ```
+
+The library is arranged as ports and adapters. `domain` holds the puzzle types
+and knows nothing about the network, the filesystem, or the command line.
+`inbound` is how a request arrives, `outbound` is how it leaves.
 
 Solutions embed their input with `include_str!`, so `solve` will not compile
 until `fetch` has downloaded the days it covers. `inputs/` is gitignored, which

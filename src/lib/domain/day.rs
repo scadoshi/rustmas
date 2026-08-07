@@ -5,7 +5,7 @@
 
 use thiserror::Error;
 
-use crate::calendar::{FIRST_YEAR, latest_year};
+use crate::domain::calendar::{FIRST_YEAR, latest_year};
 
 /// Returned when a year or day falls outside the bounds AOC supports.
 #[derive(Debug, Error)]

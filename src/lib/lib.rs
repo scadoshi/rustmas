@@ -1,5 +1,3 @@
-pub mod calendar;
-pub mod client;
-pub mod day;
-pub mod part;
-pub mod solutions;
+pub mod domain;
+pub mod inbound;
+pub mod outbound;

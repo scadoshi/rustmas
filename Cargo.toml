@@ -4,12 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [[bin]]
-name = "solve"
-path = "src/bin/solve/main.rs"
+name = "rustmas"
+path = "src/bin/main.rs"
 
-[[bin]]
-name = "fetch"
-path = "src/bin/fetch/main.rs"
 
 [lib]
 path = "src/lib/lib.rs"
