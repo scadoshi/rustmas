@@ -1,4 +1,4 @@
-use crate::domain::calendar::OutOfRange;
+use crate::domain::address::OutOfRange;
 use chrono::{Datelike, Utc};
 
 /// The first Advent of Code.

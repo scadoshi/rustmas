@@ -144,8 +144,7 @@ src/
   bin/main.rs       # entry point, nothing else
   lib/
     domain/         # puzzles, with no idea HTTP or files exist
-      calendar/     # which events exist, and Year -> Day coordinates
-      part.rs       # which of a day's two puzzles
+      address/      # which puzzle: Year, Day, Part
       solutions/
         answer.rs   # what a part produced
         solution.rs # the Solution trait and the runner

@@ -1,7 +1,6 @@
 use crate::{
     domain::{
-        calendar::{Day, FIRST_YEAR, days_in_year, latest_year},
-        part::Part,
+        address::{Day, FIRST_YEAR, Part, days_in_year, latest_year},
         solutions::{answer::Answer, solution::solve, year_2015, year_2016},
     },
     inbound::solve::{

@@ -1,5 +1,5 @@
 use crate::{
-    domain::{calendar::day::Day, part::Part, solutions::answer::Answer},
+    domain::{address::{Day, Part}, solutions::answer::Answer},
     outbound::client::SolverClient,
 };
 

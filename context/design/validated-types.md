@@ -1,6 +1,6 @@
 # Validated types
 
-`src/lib/domain/calendar/`, `src/lib/domain/part.rs`
+`src/lib/domain/address/`
 
 `Year` and `Day` are newtypes over `i32`. `Day` wraps a `Year`, constructors are
 the only way in, and fields are private. That makes several states
@@ -11,18 +11,24 @@ range its year actually published, and a day with no year attached.
 was a 12-day event, everything else is 25. Both `Day::new` and the `solve` loop
 read it, so they cannot drift apart.
 
-`FIRST_YEAR` and `latest_year()` live in `calendar/year.rs` beside `Year`, the
-same way `days_in_year()` sits in `calendar/day.rs` beside `Day`. `calendar/mod.rs`
-re-exports all of it, so callers write `domain::calendar::Day` rather than
+`Year`, `Day`, and `Part` live together in `address/`, named for the job they
+do rather than what they resemble. The three together name one puzzle, and
+`calendar` was the earlier name, which grouped year and day nicely but left
+`Part` sitting outside a module about dates. The same address becomes a URL
+path (`/2015/day/1`) and a file path (`inputs/2015/01.txt`). `path` was
+considered for that reason and dropped, since `std::path` is already imported
+in the same files.
+
+`FIRST_YEAR` and `latest_year()` live in `address/year.rs` beside `Year`, the
+same way `days_in_year()` sits in `address/day.rs` beside `Day`. `address/mod.rs`
+re-exports all of it, so callers write `domain::address::Day` rather than
 reaching a level deeper. `latest_year()` is the latest *published* event,
 not the current calendar year: AOC drops a new one each December, so before
 December the current year has nothing in it. `Year::new` bounds on that rather
 than on `Utc::now().year()`, which previously let `Day::new(1, 2026)` validate
 against an event that did not exist.
 
-`Part` sits beside `calendar/` rather than inside it, since a part is a fact
-about how a puzzle is built rather than a date. It is a fieldless enum with
-`to_wire_value()` returning 1 or 2. It exists so
+`Part` is a fieldless enum with `to_wire_value()` returning 1 or 2. It exists so
 call sites read `submit(&day, Part::One, answer)` rather than passing a bare `1`
 that is indistinguishable from a day number. Both the AOC submit form (`level=`)
 and the solver API path want the number, so one type covers both renderings.

@@ -1,5 +1,5 @@
 use crate::{
-    domain::{calendar::Day, part::Part},
+    domain::address::{Day, Part},
     outbound::client::verdict::Verdict,
 };
 use anyhow::bail;

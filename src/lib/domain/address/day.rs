@@ -1,4 +1,4 @@
-use crate::domain::calendar::{OutOfRange, year::Year};
+use crate::domain::address::{OutOfRange, year::Year};
 
 /// Days published for `year`. Usually 25; 2025 was a 12-day event.
 pub fn days_in_year(year: i32) -> i32 {

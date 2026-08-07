@@ -1,5 +1,5 @@
 use crate::{
-    domain::calendar::{Day, FIRST_YEAR, days_in_year, latest_year},
+    domain::address::{Day, FIRST_YEAR, days_in_year, latest_year},
     inbound::fetch::{
         args::FetchArgs,
         utils::{download_input, ensure_dir},
