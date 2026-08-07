@@ -33,7 +33,11 @@ pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result
             instructions: entry.instructions,
         };
         store::write_entry(day, &entry)?;
-        println!("refetched input for year {} day {}", day.year(), day.value());
+        println!(
+            "refetched input for year {} day {}",
+            day.year(),
+            day.value()
+        );
         return Ok(entry);
     }
 
