@@ -55,11 +55,9 @@ Notes:
 
 - Never persist the cookie itself, only the hash. Gitignore the store either
   way.
-- `std::hash::DefaultHasher` is not guaranteed stable across Rust versions, so a
-  persisted value could stop matching after a toolchain bump. The consequence is
-  benign in itself, every hash mismatches once and everything refetches, but
-  that refetch is a few hundred requests at AOC, which is the one thing they ask
-  you not to do. `sha2` avoids it for one dependency.
+- Use `sha2`. Decided. `std::hash::DefaultHasher` would mostly work, and a
+  mismatch only costs a refetch, but that refetch is a few hundred requests at
+  AOC after any toolchain bump, and they ask you not to re-download.
 - This changes the no-clobber rule that has held since day one. Existing inputs
   are still cached, but a session mismatch now overwrites. Worth updating
   `design/inputs.md`, which currently says inputs are never overwritten.
