@@ -4,6 +4,10 @@ Rust tooling for Advent of Code. Downloads your puzzle inputs, runs your
 solutions, checks the answers against an independent solver, and submits them
 for stars.
 
+This is scadoshi's working branch, with his solutions attached. The `main`
+branch is the same tool with no solutions, which is the one to clone if you want
+a starting point.
+
 ## Setup
 
 You need your Advent of Code session cookie. Log in at
@@ -217,6 +221,21 @@ and knows nothing about the network, the filesystem, or the command line.
 Inputs are read at runtime, so a fresh clone compiles with `cache/` empty.
 `solve` downloads what it needs, which means `fetch` is for pulling things ahead
 of time rather than a prerequisite.
+
+## Credits
+
+`--validate` and `--submit` both lean on
+[fornwall/advent-of-code](https://github.com/fornwall/advent-of-code), an
+independent solver by [Fredrik Fornwall](https://fornwall.net/) covering the
+published puzzles. It answers the same question as many times as you ask,
+which is what makes it usable as a regression check and as a guard before
+spending a submission. Its API is documented at
+[aoc.fornwall.net/api](https://aoc.fornwall.net/api/).
+
+Advent of Code itself is by [Eric Wastl](https://was.tl/). Please read the
+[about page](https://adventofcode.com/about) on how to treat the site kindly:
+this tool caches inputs rather than re-downloading them, keeps puzzle text out
+of git, and identifies itself in its `User-Agent`.
 
 ## License
 
