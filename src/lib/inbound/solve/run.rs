@@ -19,13 +19,38 @@ use crate::{
 /// A day's solver, once its concrete type is known.
 type Solver = fn(&SolverClient, bool, &str, &address::Day) -> anyhow::Result<Solved>;
 
+/// The solver for a day, or `None` when nobody has written one.
+///
+/// Returning a function pointer rather than calling means the registry can be
+/// asked whether a day exists without holding its input, which is what lets a
+/// run skip unwritten days before downloading anything and lets `--submit`
+/// count what it is about to send.
+///
+/// One line per day. This is the only list of what has been solved.
+fn solver_for(year: i32, day: i32) -> Option<Solver> {
+    Some(match (year, day) {
+        (2015, 1) => solve::<year_2015::day_01::Puzzle>,
+        (2016, 1) => solve::<year_2016::day_01::Puzzle>,
+        _ => return None,
+    })
+}
+
+/// How many parts a run over these filters would touch.
+fn part_count(year: Option<i32>, day: Option<i32>) -> usize {
+    address::each(year, day)
+        .filter_map(Result::ok)
+        .filter(|day| solver_for(day.year(), day.value()).is_some())
+        .count()
+        * 2
+}
+
 pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
     let validate = args.validate || args.submit;
     let solver = SolverClient::new();
 
     if args.submitting_everything() && !args.yes {
-        let count = address::each(None, None).count() * 2;
+        let count = part_count(args.year, args.day);
         if !confirm(count)? {
             eprintln!("Nothing submitted.");
             return Ok(());
@@ -39,12 +64,13 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     for day in address::each(args.year, args.day) {
         let day = day?;
 
-        // Days with no arm here are not written yet. Matching before fetching
-        // keeps a run over every year from downloading inputs it cannot use.
-        let solver_fn: Solver = match (day.year(), day.value()) {
-            (2015, 1) => solve::<year_2015::day_01::Puzzle>,
-            (2016, 1) => solve::<year_2016::day_01::Puzzle>,
-            _ => continue,
+        // Asked before fetching, so a run over every year downloads nothing for
+        // days it cannot solve.
+        let Some(solver_fn) = solver_for(day.year(), day.value()) else {
+            if args.day.is_some() {
+                eprintln!("year {} day {} has no solution yet", day.year(), day.value());
+            }
+            continue;
         };
 
         let entry = ensure_entry(&mut aoc, &day)?;

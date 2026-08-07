@@ -90,19 +90,26 @@ against and the call site says what it is doing.
 
 ## Dispatch
 
-One match arm per day, inside the solve loop:
+One match arm per day, in `solver_for`:
 
 ```rust
-let solver_fn: Solver = match (day.year(), day.value()) {
-    (2015, 1) => solve::<year_2015::day_01::Puzzle>,
-    (2016, 1) => solve::<year_2016::day_01::Puzzle>,
-    _ => continue,
-};
+fn solver_for(year: i32, day: i32) -> Option<Solver> {
+    Some(match (year, day) {
+        (2015, 1) => solve::<year_2015::day_01::Puzzle>,
+        (2016, 1) => solve::<year_2016::day_01::Puzzle>,
+        _ => return None,
+    })
+}
 ```
 
-The match yields a function pointer rather than calling directly, so a day with
-no solution is skipped before `ensure_entry` would download anything nothing can
-use.
+Returning a function pointer rather than calling means the registry can be asked
+whether a day exists without holding its input. Three things fall out of that.
+A run skips unwritten days before `ensure_entry` downloads anything for them,
+`--submit` can count what it is about to send, and asking for a specific
+unwritten day can say so instead of printing nothing.
+
+It briefly lived inline in the solve loop, which read fine while nothing else
+needed to ask the question.
 
 Rust has no runtime reflection, so this mapping has to exist in source
 somewhere. A `macro_rules!` generated these arms while inputs were embedded with
@@ -146,9 +153,6 @@ Parse time belongs to neither part, which is why `Solved` exists rather than the
 durations hanging off the parts alone.
 
 ## Open
-
-Asking for a day with no registered solution prints nothing, the same as
-skipping it during a run over everything. The match `continue`s in both cases.
 
 `Solution::input()` exists but nothing calls it, since `solve` already holds the
 input it was given. Worth deleting unless something needs it.

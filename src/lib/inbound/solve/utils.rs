@@ -15,12 +15,7 @@ use std::io::{self, Write};
 /// puzzle is one the solver cannot judge either way.
 ///
 /// Rejected answers come back untouched, carrying only the solver's objection.
-pub fn submit(
-    aoc: &AocClient,
-    day: &Day,
-    part: Part,
-    outcome: Outcome,
-) -> anyhow::Result<Outcome> {
+pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyhow::Result<Outcome> {
     let Some(value) = outcome.value() else {
         return Ok(outcome);
     };

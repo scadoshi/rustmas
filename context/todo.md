@@ -120,8 +120,6 @@ lands with this work.
 - More solutions. Each is one match arm in `inbound/solve/run.rs` plus a module.
 
 ## Soon
-- Distinguish an explicitly requested day with no solution from one skipped
-  during a run over everything. The dispatch match `continue`s in both cases.
 - Decide whether a failed download should abort `fetch` or log and continue.
 
 ## Later
@@ -132,6 +130,9 @@ lands with this work.
 
 ## Done
 
+- `solver_for` as the one registry, so unwritten days are skipped before
+  downloading, `--submit` counts what it will send, and an explicitly requested
+  day with no solution says so.
 - Timing per part and for parsing, measured before validation so no network
   time leaks in.
 - Single binary with `fetch` and `solve` subcommands, library split into
