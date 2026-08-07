@@ -13,6 +13,8 @@ Hand this dir to any AI assistant to resume work on `rustmas` with full context.
   clone them, when they were last checked, and the contracts we rely on.
 - [`rules/commit_guidelines.md`](rules/commit_guidelines.md) is binding for any
   commit.
+- [`rules/template_branch.md`](rules/template_branch.md) is how to refresh the
+  solution-free `template` branch.
 
 Update `todo.md` and add a journal entry at the end of a working session. Add to
 `design/` whenever a decision gets made, even if no code changed.
