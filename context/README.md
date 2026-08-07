@@ -2,10 +2,10 @@
 
 Hand this dir to any AI assistant to resume work on `rustmas` with full context.
 
-This is the `template` branch, which is `master` with the solutions removed.
-What survives here is the reasoning behind the design and the two service
-contracts, both of which are yours to build on. scadoshi's working notes, his
-journal and todo, were left on `master` where they belong.
+This branch is the tool itself, with no solutions and none of the owner's
+working notes. What survives is the reasoning behind the design and the two
+service contracts, both of which are yours to build on. scadoshi's solutions,
+journal, and todo live on the `scadoshi` branch.
 
 ## Where things are
 
@@ -22,9 +22,9 @@ that is the part nobody can recover from reading the code.
 
 ## Working in this repo
 
-The sections describing who the owner is and how they like to be worked with
-lived here on `master` and were dropped, since they described someone else.
-Write your own if you want an assistant to follow them.
+Sections describing who the owner is and how they like to be worked with live on
+the `scadoshi` branch, since they describe someone else. Write your own if you
+want an assistant to follow them.
 
 One habit worth keeping regardless: verify claims rather than asserting them.
 Several decisions recorded in `design/` changed because something got probed or

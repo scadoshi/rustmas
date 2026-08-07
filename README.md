@@ -1,12 +1,12 @@
-# rustmas (template)
+# rustmas
 
 Rust tooling for Advent of Code. Downloads your puzzle inputs, runs your
 solutions, checks the answers against an independent solver, and submits them
 for stars.
 
-This branch has no solutions in it. Clone it, add your `.env`, and write your
-first day. The `master` branch is the same tool with scadoshi's solutions
-attached, if you want to see worked examples.
+No solutions ship with it. Clone it, add your `.env`, and write your first day.
+scadoshi's own solutions live on the `scadoshi` branch if you want worked
+examples.
 
 ## Setup
 
