@@ -5,6 +5,7 @@ use crate::{
     },
     outbound::client::SolverClient,
 };
+use std::time::{Duration, Instant};
 
 /// One day's puzzle, parsed and ready to answer both parts.
 ///
@@ -26,7 +27,32 @@ pub trait Solution: Sized {
     fn part_two(&self) -> Answer;
 }
 
+/// An answer and how long it took to work out.
+#[derive(Debug)]
+pub struct Timed {
+    pub answer: Answer,
+    pub elapsed: Duration,
+}
+
+/// One run of a day: both answers, and where the time went.
+#[derive(Debug)]
+pub struct Solved {
+    pub parse: Duration,
+    pub one: Timed,
+    pub two: Timed,
+}
+
+impl Solved {
+    /// Parsing plus both parts. Excludes any network time.
+    pub fn total(&self) -> Duration {
+        self.parse + self.one.elapsed + self.two.elapsed
+    }
+}
+
 /// Runs both parts, checking each answer against the solver when `validate`.
+///
+/// Timings cover parsing and solving only. Validation happens after both parts
+/// are measured, so no duration includes a network round trip.
 ///
 /// Only [`Answer::Value`] is checked, since nothing else has anything to check.
 pub fn solve<S: Solution>(
@@ -34,11 +60,18 @@ pub fn solve<S: Solution>(
     validate: bool,
     input: &str,
     day: &Day,
-) -> anyhow::Result<(Answer, Answer)> {
+) -> anyhow::Result<Solved> {
+    let start = Instant::now();
     let solution = S::new(input)?;
+    let parse = start.elapsed();
 
+    let start = Instant::now();
     let mut one = solution.part_one();
+    let one_elapsed = start.elapsed();
+
+    let start = Instant::now();
     let mut two = solution.part_two();
+    let two_elapsed = start.elapsed();
 
     if validate {
         if let Some(value) = one.value() {
@@ -51,5 +84,15 @@ pub fn solve<S: Solution>(
         }
     }
 
-    Ok((one, two))
+    Ok(Solved {
+        parse,
+        one: Timed {
+            answer: one,
+            elapsed: one_elapsed,
+        },
+        two: Timed {
+            answer: two,
+            elapsed: two_elapsed,
+        },
+    })
 }

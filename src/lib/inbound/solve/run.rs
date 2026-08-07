@@ -1,7 +1,10 @@
 use crate::{
     domain::{
         address::{self, Part},
-        solutions::{answer::Answer, solution::solve, year_2015, year_2016},
+        solutions::{
+            solution::{Solved, solve},
+            year_2015, year_2016,
+        },
     },
     inbound::{
         input::ensure_entry,
@@ -14,7 +17,7 @@ use crate::{
 };
 
 /// A day's solver, once its concrete type is known.
-type Solver = fn(&SolverClient, bool, &str, &address::Day) -> anyhow::Result<(Answer, Answer)>;
+type Solver = fn(&SolverClient, bool, &str, &address::Day) -> anyhow::Result<Solved>;
 
 pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
@@ -47,19 +50,31 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
         let entry = ensure_entry(&mut aoc, &day)?;
         let input = entry.input.data();
         match solver_fn(&solver, validate, input, &day) {
-            Ok((mut one, mut two)) => {
+            Ok(mut solved) => {
                 // Submit before printing, so each part reports what both
                 // checkers said on one line.
                 // Gated on the flag, not on the client existing: fetching a
                 // missing input builds one too.
                 if args.submit {
                     let aoc = aoc.as_ref().expect("built up front when submitting");
-                    one = submit(aoc, &day, Part::One, one)?;
-                    two = submit(aoc, &day, Part::Two, two)?;
+                    solved.one.answer = submit(aoc, &day, Part::One, solved.one.answer)?;
+                    solved.two.answer = submit(aoc, &day, Part::Two, solved.two.answer)?;
                 }
-                println!("year {} day {}", day.year(), day.value());
-                println!("  part one: {one}");
-                println!("  part two: {two}");
+                println!(
+                    "year {} day {} in {:?} ({:?} parsing)",
+                    day.year(),
+                    day.value(),
+                    solved.total(),
+                    solved.parse
+                );
+                println!(
+                    "  part one: {} [{:?}]",
+                    solved.one.answer, solved.one.elapsed
+                );
+                println!(
+                    "  part two: {} [{:?}]",
+                    solved.two.answer, solved.two.elapsed
+                );
             }
             Err(e) => eprintln!("year {} day {} failed: {e:?}", day.year(), day.value()),
         }

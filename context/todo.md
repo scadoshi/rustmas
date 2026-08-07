@@ -91,7 +91,7 @@ contain, so a later run knows the file is half complete rather than assuming a
 present file is a finished one. Same shape of problem as the session hash: a
 file existing does not mean it is the file you want.
 
-### 6. Timing
+### 6. Timing (done, 2026-08-07)
 
 Report how long a solution took. Already listed below, kept here because it
 lands with this work.
@@ -118,8 +118,6 @@ lands with this work.
   the end, part two is the first location visited twice.
 
 - More solutions. Each is one match arm in `inbound/solve/run.rs` plus a module.
-- Timing per part, split from parse time. Belongs in `solve()` in
-  `src/lib/domain/solutions/solution.rs`, where `new` and the two parts are called.
 
 ## Soon
 - Distinguish an explicitly requested day with no solution from one skipped
@@ -134,6 +132,8 @@ lands with this work.
 
 ## Done
 
+- Timing per part and for parsing, measured before validation so no network
+  time leaks in.
 - Single binary with `fetch` and `solve` subcommands, library split into
   domain, inbound, and outbound.
 - Runtime input reading, so a fresh clone compiles with `cache/` empty and

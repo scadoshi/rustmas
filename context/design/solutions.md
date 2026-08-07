@@ -59,7 +59,7 @@ pub fn solve<S: Solution>(
     validate: bool,
     input: &str,
     day: &Day,
-) -> anyhow::Result<(Answer, Answer)>
+) -> anyhow::Result<Solved>
 ```
 
 A free function rather than a method on a client. It briefly lived on the HTTP
@@ -85,7 +85,7 @@ let solver_fn: Solver = match (day.year(), day.value()) {
 ```
 
 The match yields a function pointer rather than calling directly, so a day with
-no solution is skipped before `ensure_input` would download an input nothing can
+no solution is skipped before `ensure_entry` would download anything nothing can
 use.
 
 Rust has no runtime reflection, so this mapping has to exist in source
@@ -117,13 +117,26 @@ Both subcommands use it, so the year and day loops exist once rather than being
 duplicated with slightly different guards. `None` means all of them, so the four
 flag combinations need no matching.
 
+## Timing
+
+`solve` returns `Solved { parse, one: Timed, two: Timed }`, where `Timed` pairs
+an `Answer` with how long it took. Parsing is measured separately, since a slow
+day is often slow in one place or the other.
+
+Both parts are computed and measured before any validation runs, so no duration
+includes a network round trip. Debug and release differ by roughly twenty times
+on 2015 day 1, which is the easiest sanity check that the numbers mean anything.
+
+Duration stays out of `Answer` deliberately. It applies to every variant, so it
+could not live inside `Value` the way verdicts do, and putting it beside the enum
+would turn `Answer` into a struct wrapping one, undoing the reason a visual
+answer cannot carry a verdict. Parse time also belongs to neither part, so
+something like `Solved` has to exist regardless.
+
 ## Open
 
 Asking for a day with no registered solution prints nothing, the same as
 skipping it during a run over everything. The match `continue`s in both cases.
-
-Timing is planned but not built. It belongs in `solve()`, where `new` and the
-two parts are called, so parse time can be reported separately.
 
 `Solution::input()` exists but nothing calls it, since `solve` already holds the
 input it was given. Worth deleting unless something needs it.

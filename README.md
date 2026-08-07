@@ -98,12 +98,15 @@ it on purpose, since `-y` is `--year` and this one is worth typing out.
 ### Reading the output
 
 ```
-year 2015 day 1
-  part one: 138 (starred)
-  part two: 1771 (correct)
+year 2015 day 1 in 12.707µs (3.291µs parsing)
+  part one: 138 (starred) [7.125µs]
+  part two: 1771 (correct) [2.291µs]
 ```
 
-Each part is one line: the answer, then whatever is known about it.
+Each part is one line: the answer, then whatever is known about it, then how
+long it took. Timings cover parsing and solving only, never the network, and
+they are worth reading in `--release` since debug builds run roughly twenty
+times slower.
 
 | Note | Meaning |
 | --- | --- |
