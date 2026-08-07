@@ -1,6 +1,6 @@
 use crate::{
     domain::address::{Day, Part},
-    outbound::client::verdict::Verdict,
+    outbound::client::solver_verdict::SolverVerdict,
 };
 use anyhow::bail;
 use reqwest::{Url, blocking::Client};
@@ -69,7 +69,7 @@ impl SolverClient {
         input: impl Display,
         part: Part,
         answer: impl AsRef<str>,
-    ) -> anyhow::Result<Verdict> {
+    ) -> anyhow::Result<SolverVerdict> {
         let input = input.to_string();
         let answer = answer.as_ref();
         let path = format!(
@@ -117,7 +117,7 @@ impl SolverClient {
 
             if status.is_client_error() {
                 if body.starts_with("Unsupported") {
-                    return Ok(Verdict::Unsupported);
+                    return Ok(SolverVerdict::Unsupported);
                 }
                 bail!("solver at {url} rejected the request: {body}");
             }

@@ -3,7 +3,7 @@ use crate::{
         address::{Day, Part},
         solutions::outcome::Outcome,
     },
-    outbound::client::{AocClient, verdict::Verdict},
+    outbound::client::{AocClient, solver_verdict::SolverVerdict},
 };
 use std::io::{self, Write};
 
@@ -11,7 +11,7 @@ use std::io::{self, Write};
 /// AOC's reply attached.
 ///
 /// A wrong answer costs an escalating cooldown, so the solver verdict gates the
-/// send. [`Verdict::Unsupported`] goes through anyway, since an unimplemented
+/// send. [`SolverVerdict::Unsupported`] goes through anyway, since an unimplemented
 /// puzzle is one the solver cannot judge either way.
 ///
 /// Rejected answers come back untouched, carrying only the solver's objection.
@@ -26,7 +26,7 @@ pub fn submit(
     };
     if !matches!(
         outcome.verdict(),
-        Some(Verdict::Correct) | Some(Verdict::Unsupported)
+        Some(SolverVerdict::Correct) | Some(SolverVerdict::Unsupported)
     ) {
         return Ok(outcome);
     }

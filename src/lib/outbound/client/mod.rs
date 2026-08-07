@@ -7,10 +7,13 @@
 
 pub mod aoc;
 pub mod solver;
-pub mod verdict;
+pub mod aoc_verdict;
+pub mod solver_verdict;
 
 pub use aoc::AocClient;
+pub use aoc_verdict::AocVerdict;
 pub use solver::SolverClient;
+pub use solver_verdict::SolverVerdict;
 
 /// Env var holding an address AOC can reach you at, folded into the
 /// `User-Agent`. Optional. Kept out of the source so a fork identifies its own

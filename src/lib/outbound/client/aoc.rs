@@ -1,6 +1,6 @@
 use crate::{
     domain::address::{Day, Part},
-    outbound::client::verdict::Verdict,
+    outbound::client::aoc_verdict::AocVerdict,
 };
 use anyhow::Context;
 use reqwest::{Url, blocking::Client};
@@ -132,17 +132,17 @@ impl AocClient {
     ///
     /// AOC answers 200 for everything, wrong answers included, so the verdict
     /// comes entirely from the body. It also grades a part only once: after that
-    /// it returns [`Verdict::AlreadySolved`] rather than confirming again, which
+    /// it returns [`AocVerdict::AlreadySolved`] rather than confirming again, which
     /// is why a correct answer is worth caching.
     ///
     /// A direction hint is optional. A wrong answer may come back as
-    /// [`Verdict::High`] or [`Verdict::Low`], or just [`Verdict::Incorrect`].
+    /// [`AocVerdict::High`] or [`AocVerdict::Low`], or just [`AocVerdict::Incorrect`].
     pub fn submit_answer(
         &self,
         day: &Day,
         part: Part,
         answer: impl AsRef<str>,
-    ) -> anyhow::Result<Verdict> {
+    ) -> anyhow::Result<AocVerdict> {
         let path = format!("/{}/day/{}/answer", day.year(), day.value());
         let url = Url::parse(AOC_BASE_URL)?.join(&path)?;
         let form = [("level", part.to_wire_value()), ("answer", answer.as_ref())];
@@ -170,23 +170,23 @@ impl AocClient {
 /// before the generic wrong-answer phrase, since "too high" replies contain
 /// that phrase too. Strings verified live against 2015 day 1 on a scratch
 /// account; see `context/references.md`.
-fn verdict_from(body: &str) -> Verdict {
+fn verdict_from(body: &str) -> AocVerdict {
     if body.contains("That's the right answer") {
-        return Verdict::Correct;
+        return AocVerdict::Correct;
     }
     if body.contains("your answer is too high") {
-        return Verdict::High;
+        return AocVerdict::High;
     }
     if body.contains("your answer is too low") {
-        return Verdict::Low;
+        return AocVerdict::Low;
     }
     if body.contains("You don't seem to be solving the right level") {
-        return Verdict::AlreadySolved;
+        return AocVerdict::AlreadySolved;
     }
     if body.contains("You gave an answer too recently") {
-        return Verdict::Cooldown(wait_from(body));
+        return AocVerdict::Cooldown(wait_from(body));
     }
-    Verdict::Incorrect
+    AocVerdict::Incorrect
 }
 
 /// Pulls the remaining wait out of a cooldown reply, e.g. `1m 0s`.
@@ -200,7 +200,7 @@ fn wait_from(body: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::{verdict_from, wait_from};
-    use crate::outbound::client::verdict::Verdict;
+    use crate::outbound::client::aoc_verdict::AocVerdict;
 
     // Fixtures are the real replies AOC gave for 2015 day 1 on a scratch
     // account, trimmed to the sentence that carries the verdict.
@@ -214,19 +214,19 @@ mod tests {
 
     #[test]
     fn classifies_replies() {
-        assert!(matches!(verdict_from(CORRECT), Verdict::Correct));
-        assert!(matches!(verdict_from(HIGH), Verdict::High));
-        assert!(matches!(verdict_from(LOW), Verdict::Low));
-        assert!(matches!(verdict_from(WRONG), Verdict::Incorrect));
-        assert!(matches!(verdict_from(SOLVED), Verdict::AlreadySolved));
-        assert!(matches!(verdict_from(COOLDOWN), Verdict::Cooldown(_)));
+        assert!(matches!(verdict_from(CORRECT), AocVerdict::Correct));
+        assert!(matches!(verdict_from(HIGH), AocVerdict::High));
+        assert!(matches!(verdict_from(LOW), AocVerdict::Low));
+        assert!(matches!(verdict_from(WRONG), AocVerdict::Incorrect));
+        assert!(matches!(verdict_from(SOLVED), AocVerdict::AlreadySolved));
+        assert!(matches!(verdict_from(COOLDOWN), AocVerdict::Cooldown(_)));
     }
 
     /// A directional reply also contains the generic phrase, so order matters.
     #[test]
     fn direction_beats_generic() {
         assert!(HIGH.contains("That\'s not the right answer"));
-        assert!(matches!(verdict_from(HIGH), Verdict::High));
+        assert!(matches!(verdict_from(HIGH), AocVerdict::High));
     }
 
     #[test]

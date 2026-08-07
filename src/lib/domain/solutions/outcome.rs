@@ -1,4 +1,7 @@
-use crate::{domain::solutions::answer::Answer, outbound::client::verdict::Verdict};
+use crate::{
+    domain::solutions::answer::Answer,
+    outbound::client::{aoc_verdict::AocVerdict, solver_verdict::SolverVerdict},
+};
 use std::{fmt::Display, time::Duration};
 
 /// One part's answer and everything learned about it afterwards.
@@ -12,9 +15,9 @@ pub struct Outcome {
     /// Time to compute the answer. Never includes a network round trip.
     elapsed: Duration,
     /// From the third-party solver. Repeatable, so it gates submission.
-    verdict: Option<Verdict>,
+    verdict: Option<SolverVerdict>,
     /// From adventofcode.com. Says whether the star exists.
-    submission: Option<Verdict>,
+    submission: Option<AocVerdict>,
 }
 
 impl Outcome {
@@ -28,7 +31,7 @@ impl Outcome {
     }
 
     /// Attaches a solver verdict, ignored unless there is something to check.
-    pub fn with_verdict(mut self, verdict: Verdict) -> Self {
+    pub fn with_verdict(mut self, verdict: SolverVerdict) -> Self {
         if self.answer.value().is_some() {
             self.verdict = Some(verdict);
         }
@@ -36,7 +39,7 @@ impl Outcome {
     }
 
     /// Attaches what AOC said, ignored unless there is something to submit.
-    pub fn with_submission(mut self, submission: Verdict) -> Self {
+    pub fn with_submission(mut self, submission: AocVerdict) -> Self {
         if self.answer.value().is_some() {
             self.submission = Some(submission);
         }
@@ -56,11 +59,11 @@ impl Outcome {
         self.answer.value()
     }
 
-    pub fn verdict(&self) -> Option<&Verdict> {
+    pub fn verdict(&self) -> Option<&SolverVerdict> {
         self.verdict.as_ref()
     }
 
-    pub fn submission(&self) -> Option<&Verdict> {
+    pub fn submission(&self) -> Option<&AocVerdict> {
         self.submission.as_ref()
     }
 }
@@ -74,8 +77,8 @@ impl Display for Outcome {
         // AOC's word supersedes the solver's, so a starred part reads as starred
         // rather than repeating that the solver agreed.
         let notes: Vec<String> = match (&self.verdict, &self.submission) {
-            (_, Some(Verdict::Correct)) => vec!["new star".to_string()],
-            (_, Some(Verdict::AlreadySolved)) => vec!["starred".to_string()],
+            (_, Some(AocVerdict::Correct)) => vec!["new star".to_string()],
+            (_, Some(AocVerdict::AlreadySolved)) => vec!["starred".to_string()],
             (Some(v), Some(s)) => vec![v.to_string(), s.to_string()],
             (Some(v), None) => vec![v.to_string()],
             (None, Some(s)) => vec![s.to_string()],

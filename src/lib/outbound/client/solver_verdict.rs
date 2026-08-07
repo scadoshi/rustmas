@@ -1,22 +1,20 @@
 use std::{cmp::Ordering, fmt::Display};
 
-/// What a checker made of an answer.
+/// What the third-party solver made of an answer.
+///
+/// Repeatable, since the solver has no accounts and no memory, which is what
+/// makes it usable as a gate before submitting.
 #[derive(Debug)]
-pub enum Verdict {
+pub enum SolverVerdict {
     Correct,
     Incorrect,
     Low,
     High,
-    /// The solver has no implementation for that puzzle.
+    /// No implementation for that puzzle.
     Unsupported,
-    /// AOC refused to grade because an answer was submitted too recently. Holds
-    /// the remaining wait as AOC phrased it, such as `1m 0s`.
-    Cooldown(String),
-    /// AOC will not grade a part that is already solved.
-    AlreadySolved,
 }
 
-impl From<Ordering> for Verdict {
+impl From<Ordering> for SolverVerdict {
     fn from(value: Ordering) -> Self {
         match value {
             Ordering::Equal => Self::Correct,
@@ -26,7 +24,7 @@ impl From<Ordering> for Verdict {
     }
 }
 
-impl From<bool> for Verdict {
+impl From<bool> for SolverVerdict {
     fn from(value: bool) -> Self {
         if value {
             Self::Correct
@@ -36,7 +34,7 @@ impl From<bool> for Verdict {
     }
 }
 
-impl Display for Verdict {
+impl Display for SolverVerdict {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Correct => write!(f, "correct"),
@@ -44,8 +42,6 @@ impl Display for Verdict {
             Self::Low => write!(f, "low"),
             Self::High => write!(f, "high"),
             Self::Unsupported => write!(f, "unsupported"),
-            Self::Cooldown(wait) => write!(f, "rate limited, {wait} left to wait"),
-            Self::AlreadySolved => write!(f, "already solved"),
         }
     }
 }
