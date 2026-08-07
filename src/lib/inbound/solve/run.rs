@@ -49,12 +49,10 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     let validate = args.validate || args.submit;
     let solver = SolverClient::new();
 
-    if args.submitting_everything() && !args.yes {
-        let count = part_count(args.year, args.day);
-        if !confirm(count)? {
-            eprintln!("Nothing submitted.");
-            return Ok(());
-        }
+    let count = part_count(args.year, args.day);
+    if args.submitting_everything() && !args.yes && count > 0 && !confirm(count)? {
+        eprintln!("Nothing submitted.");
+        return Ok(());
     }
 
     // Built up front when submitting, so a bad cookie fails before any solving.
@@ -68,7 +66,11 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
         // days it cannot solve.
         let Some(solver_fn) = solver_for(day.year(), day.value()) else {
             if args.day.is_some() {
-                eprintln!("year {} day {} has no solution yet", day.year(), day.value());
+                eprintln!(
+                    "year {} day {} has no solution yet",
+                    day.year(),
+                    day.value()
+                );
             }
             continue;
         };
