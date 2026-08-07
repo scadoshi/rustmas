@@ -119,6 +119,7 @@ times slower.
 | `new star` | Advent of Code just accepted it |
 | `starred` | Advent of Code says the part was already solved |
 | `unsupported` | The solver has no implementation for this puzzle |
+| `rate limited, 1m 0s left to wait` | Advent of Code refused to grade, wait it out |
 | `(none)` | The part has no answer, such as day 25 part two |
 
 Advent of Code grades each part exactly once, so a part solved earlier reports
@@ -183,28 +184,30 @@ parsing twice.
 
 ```
 src/
-  bin/main.rs       # entry point, nothing else
+  bin/main.rs                # entry point, nothing else
   lib/
-    domain/         # puzzles, with no idea HTTP or files exist
-      address/      # which puzzle: Year, Day, Part
+    domain/                  # puzzles, with no idea HTTP or files exist
+      address/               # which puzzle: Year, Day, Part
       solutions/
-        answer.rs   # what a part produced
-        outcome.rs  # that answer, plus timing and verdicts
-        solution.rs # the Solution trait and the runner
-        year_2015/  # one dir per day, each with a Puzzle
+        answer.rs            # what a part produced
+        outcome.rs           # that answer, plus timing and verdicts
+        solution.rs          # the Solution trait and the runner
+        year_2015/           # one dir per day, each with a Puzzle
         year_2016/
-    inbound/        # ways in
-      cli.rs        # the command line
-      command.rs    # which subcommand was asked for
-      fetch/        # the input downloader
-      solve/        # the solution runner
-    outbound/       # ways out
+    inbound/                 # ways in
+      cli.rs                 # the command line and its subcommands
+      input.rs               # read the cache, fetch what is missing
+      fetch/                 # the input downloader
+      solve/                 # the solution runner
+    outbound/                # ways out
       client/
-        aoc.rs      # adventofcode.com: inputs and submissions
-        solver.rs   # third-party solver: repeatable answer checks
-        verdict.rs  # what a checker made of an answer
-cache/              # downloaded inputs and puzzle text (gitignored)
-context/            # design notes, journal, and todo
+        aoc.rs               # adventofcode.com: inputs and submissions
+        aoc_verdict.rs       # what AOC said about a submission
+        solver.rs            # third-party solver: repeatable answer checks
+        solver_verdict.rs    # what the solver made of an answer
+      store/                 # the cache on disk
+cache/                       # downloaded inputs and puzzle text (gitignored)
+context/                     # design notes, journal, and todo
 ```
 
 The library is arranged as ports and adapters. `domain` holds the puzzle types
