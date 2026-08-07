@@ -103,6 +103,9 @@ year 2015 day 1 in 12.707µs (3.291µs parsing)
   part two: 1771 (correct) [2.291µs]
 ```
 
+Until a day has a solution, `solve` skips it. Asking for one by name says so
+rather than printing nothing.
+
 Each part is one line: the answer, then whatever is known about it, then how
 long it took. Timings cover parsing and solving only, never the network, and
 they are worth reading in `--release` since debug builds run roughly twenty
@@ -123,23 +126,58 @@ Advent of Code grades each part exactly once, so a part solved earlier reports
 
 ## Adding a solution
 
-Create `src/lib/solutions/year_<year>/day_<NN>/mod.rs` with a `Puzzle` type
-implementing `Solution`, declare it in the year's `mod.rs`, then register it:
+Three steps. Say you are writing 2015 day 1.
+
+Create `src/lib/domain/solutions/year_2015/day_01/mod.rs`:
 
 ```rust
-solutions! {
-    (2015, 01) => year_2015::day_01::Puzzle,
+use crate::domain::solutions::{answer::Answer, solution::Solution};
+
+pub struct Puzzle {
+    input: String,
+}
+
+impl Solution for Puzzle {
+    fn new(input: impl Into<String>) -> anyhow::Result<Self> {
+        Ok(Self {
+            input: input.into(),
+        })
+    }
+
+    fn input(&self) -> &str {
+        &self.input
+    }
+
+    fn part_one(&self) -> Answer {
+        Answer::solved(self.input.len().to_string())
+    }
+
+    fn part_two(&self) -> Answer {
+        Answer::None
+    }
 }
 ```
 
-Days are written zero padded, because the macro builds the input path from those
-literals. Every day's type is named `Puzzle`, with the module path carrying the
-coordinate.
+Declare it. `year_2015/mod.rs` needs `pub mod day_01;`, and
+`solutions/mod.rs` needs `pub mod year_2015;`.
+
+Register it in `solver_for` in `src/lib/inbound/solve/run.rs`:
+
+```rust
+(2015, 1) => Some(solve::<year_2015::day_01::Puzzle>),
+```
+
+That match is the only list of what has been solved. A day missing from it is
+skipped rather than failing.
+
+Every day's type is named `Puzzle`, with the module path carrying the
+coordinate, so importing the year modules keeps two years from colliding.
 
 Parts return an `Answer`: `Answer::solved(value)` for something submittable,
-`Answer::Visual(art)` for a grid you read yourself, or `Answer::None` when
-there is nothing to produce. Returning the art rather than printing it keeps
-solving free of IO.
+`Answer::Visual(art)` for a grid you read yourself, or `Answer::None` when there
+is nothing to produce. Returning the art rather than printing it keeps solving
+free of IO, and `new` parses once so both parts read the result instead of
+parsing twice.
 
 ## Layout
 
@@ -151,6 +189,7 @@ src/
       address/      # which puzzle: Year, Day, Part
       solutions/
         answer.rs   # what a part produced
+        outcome.rs  # that answer, plus timing and verdicts
         solution.rs # the Solution trait and the runner
         year_2015/  # one dir per day, each with a Puzzle
         year_2016/

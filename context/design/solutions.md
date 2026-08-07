@@ -6,7 +6,7 @@
 
 ```rust
 pub trait Solution: Sized {
-    fn new(input: &str) -> anyhow::Result<Self>;
+    fn new(input: impl Into<String>) -> anyhow::Result<Self>;
     fn input(&self) -> &str;
     fn part_one(&self) -> Answer;
     fn part_two(&self) -> Answer;
