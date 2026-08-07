@@ -2,49 +2,35 @@
 
 Hand this dir to any AI assistant to resume work on `rustmas` with full context.
 
-This is the `template` branch, which is `master` with the solutions removed. The
-design notes and journal describe how the tool got its shape and are worth
-keeping. The journal is scadoshi's log rather than yours, so start a fresh entry
-rather than continuing his.
+This is the `template` branch, which is `master` with the solutions removed.
+What survives here is the reasoning behind the design and the two service
+contracts, both of which are yours to build on. scadoshi's working notes, his
+journal and todo, were left on `master` where they belong.
 
 ## Where things are
 
-- [`todo.md`](todo.md) is what is coming next and what is already done.
-- [`progress/journal.md`](progress/journal.md) is dated session logs, newest
-  first.
 - [`design/`](design/) is why the code looks the way it does, including the
   options that were rejected and the reasons.
 - [`references.md`](references.md) covers external things we depend on, where to
   clone them, when they were last checked, and the contracts we rely on.
-- [`rules/commit_guidelines.md`](rules/commit_guidelines.md) is binding for any
-  commit.
-- [`rules/template_branch.md`](rules/template_branch.md) is how to refresh the
-  solution-free `template` branch.
+- [`rules/commit_guidelines.md`](rules/commit_guidelines.md) is scadoshi's, and
+  worth keeping or replacing with your own.
 
-Update `todo.md` and add a journal entry at the end of a working session. Add to
-`design/` whenever a decision gets made, even if no code changed.
+Add to `design/` whenever a decision gets made, even if no code changed. The
+notes here are most useful when they record what was rejected and why, since
+that is the part nobody can recover from reading the code.
 
-## Who
+## Working in this repo
 
-scadoshi (Scotty) is a strong Rust developer. He's deep on ownership, traits,
-error-as-values, and making illegal states unrepresentable, so skip beginner
-Rust explanations.
+The sections describing who the owner is and how they like to be worked with
+lived here on `master` and were dropped, since they described someone else.
+Write your own if you want an assistant to follow them.
 
-## How to work with him
-
-He streams ideas and half-formed designs. Your job is to correct what's wrong,
-briefly confirm what's right, and extend with a question. Don't write novels.
-Keep replies short and skip the emojis.
-
-Avoid AI-tell prose. In particular, never join two fragments with a dash, in
-either code comments or conversation. Write real sentences.
-
-When he asks for implementation, write the code. When he's still thinking out
-loud, coach and nudge instead of jumping to code.
-
-Verify claims rather than asserting them. Several decisions here changed because
-something got probed or read rather than assumed. The solver's error contract
-was guessed wrong twice before anyone ran a curl against it.
+One habit worth keeping regardless: verify claims rather than asserting them.
+Several decisions recorded in `design/` changed because something got probed or
+read rather than assumed. The solver's error contract was guessed wrong twice
+before anyone ran a curl against it, and the day page structure was confirmed
+across three pages before anything was built on it.
 
 ## What rustmas is
 
