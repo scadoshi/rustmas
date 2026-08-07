@@ -1,6 +1,6 @@
 # Answer verification
 
-`src/lib/client/`
+`src/lib/outbound/client/`
 
 Two different things, deliberately kept apart, and since 2026-08-06 that
 separation is structural: `AocClient` (`aoc.rs`) holds `get_input` and
@@ -36,7 +36,7 @@ as `AlreadySolved`, so nothing needs to be tracked locally.
 
 ## Verdict
 
-`src/lib/client/verdict.rs`. `Correct`, `Incorrect`, `Low`, `High`,
+`src/lib/outbound/client/verdict.rs`. `Correct`, `Incorrect`, `Low`, `High`,
 `Unsupported`, `Cooldown(String)`, `AlreadySolved`. Built via `From<Ordering>`
 for numeric comparisons and `From<bool>` for text.
 
@@ -102,7 +102,7 @@ than waste.
 Form-encodes `level` and `answer` to `/<year>/day/<day>/answer`. AOC returns 200
 for everything including wrong answers, so the verdict comes entirely from the
 body. Strings and match ordering are in [`../references.md`](../references.md),
-with fixtures kept as unit tests at the bottom of `src/lib/client/aoc.rs`.
+with fixtures kept as unit tests at the bottom of `src/lib/outbound/client/aoc.rs`.
 
 ## What counts as solved
 

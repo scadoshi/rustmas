@@ -8,7 +8,7 @@ rely on, when it was last verified, and how to check it again.
 - Source: `https://github.com/fornwall/advent-of-code.git`
 - Cloned locally at `~/Work/advent-of-code`
 - Last checked: 2026-08-04, at commit `b5d0e717` (authored 2026-07-03)
-- Used by: `SolverClient::validate_answer` in `src/lib/client/solver.rs`
+- Used by: `SolverClient::validate_answer` in `src/lib/outbound/client/solver.rs`
 
 Hosts, all running the same WASM solver. Listed in `AOC_SOLVER_BASE_URLS`:
 
@@ -61,6 +61,7 @@ about.
 
 - Input endpoint: `GET /<year>/day/<day>/input`, authenticated by a `session`
   cookie read from `COOKIE`
+- Day page: `GET /<year>/day/<day>`, same cookie, returns HTML
 - Submit endpoint: `POST /<year>/day/<day>/answer`, form-encoded, fields `level`
   (1 or 2) and `answer`
 - A `User-Agent` identifying this repo is sent on request, which the site asks
@@ -99,8 +100,27 @@ remaining time is prose (`1m 0s`, `5s`), which is why `Verdict::Cooldown` holds 
 string rather than a `Duration`.
 
 Submitting a correct answer a second time gives `AlreadySolved`, not another
-confirmation. That is the whole reason a local answer cache is needed rather
-than merely nice.
+confirmation. AOC is stateful, so that reply is itself the durable record of a
+star, which is why no local answer cache was built.
 
 Fixtures for these strings live in the tests at the bottom of
-`src/lib/client/aoc.rs`.
+`src/lib/outbound/client/aoc.rs`.
+
+### Day page contract
+
+Verified live on 2026-08-07 across three pages. Each unlocked part is its own
+`<article class="day-desc">`, so the article count says which parts you have:
+
+| Page | Articles |
+| --- | --- |
+| 2015 day 1, both parts starred | 2 |
+| 2016 day 1, unstarred | 1 |
+| 2021 day 5, unstarred | 1 |
+
+Part two carries `<h2 id="part2">`, but counting articles is enough and needs no
+text parsing. Splitting on the literal opening tag works because articles do not
+nest.
+
+`html2text` renders each article into markdown-ish text: `##` headings,
+backticks for code, `*` for emphasis and bullets. Width 80 is baked into what
+gets stored, so reflowing later means storing a wider render.

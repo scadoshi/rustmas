@@ -98,10 +98,11 @@ lands with this work.
 
 ## Next
 
-- **Write 2016 day 1.** `src/lib/solutions/year_2016/day_01/mod.rs` is a stub
-  returning `Answer::None` from both parts. Its input is already fetched and it
-  is already registered in the `solutions!` macro, so it only needs the two
-  parts filled in.
+- **Write 2016 day 1.** `src/lib/domain/solutions/year_2016/day_01/mod.rs` is a
+  stub returning `Answer::None` from both parts.
+
+  Its input and instructions are already cached and it is already in the
+  dispatch match, so it only needs the two parts filled in.
 
   It exists to drive the one output branch never seen live: `new star`, the
   `Display` for a submission that AOC graded `Correct` rather than
@@ -116,26 +117,31 @@ lands with this work.
   follow `R2, L3` style turns on a grid, part one is the Manhattan distance to
   the end, part two is the first location visited twice.
 
-- More solutions. The pipeline is complete now: fetch, solve, validate, submit.
-  Each new day is one line in the `solutions!` invocation plus a module.
+- More solutions. Each is one match arm in `inbound/solve/run.rs` plus a module.
 - Timing per part, split from parse time. Belongs in `solve()` in
-  `src/lib/solutions/solution.rs`, where `new` and the two parts are called.
+  `src/lib/domain/solutions/solution.rs`, where `new` and the two parts are called.
 
 ## Soon
 - Distinguish an explicitly requested day with no solution from one skipped
-  during a run-all. `dispatch` already returns `None` for both and `main`
-  ignores the difference.
+  during a run over everything. The dispatch match `continue`s in both cases.
 - Decide whether a failed download should abort `fetch` or log and continue.
 
 ## Later
 
-- Cache puzzle instructions for full offline use. Two passes, since part two's
-  text is hidden until part one is solved. Gitignore it.
-- Revisit the visual-answer case. A part returning `None` while printing from
-  inside the solver puts a side effect somewhere awkward to test.
+- No day returns `Answer::Visual` yet, so that path is written but unexercised.
+- Nothing displays cached instructions. They are stored and unread.
+- `Solution::input()` has no callers, since `solve` holds the input already.
 
 ## Done
 
+- Single binary with `fetch` and `solve` subcommands, library split into
+  domain, inbound, and outbound.
+- Runtime input reading, so a fresh clone compiles with `cache/` empty and
+  `solve` fetches what it needs.
+- Session fingerprinting: inputs carry a SHA-256 of the cookie that fetched
+  them, and a mismatch refetches the input while keeping the instructions.
+- Instructions cached as markdown per part, split on `<article class="day-desc">`
+  and rendered with `html2text`.
 - `--submit` on `solve`, gated on a solver verdict, with a confirmation prompt
   for unfiltered runs and `--yes` to skip it.
 - Client split into `AocClient` and `SolverClient`.

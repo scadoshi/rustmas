@@ -3,6 +3,62 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-07
+
+Four of the six planned changes landed. The repo looks quite different.
+
+**One binary.** `fetch` and `solve` are subcommands now, so `--bin` is gone from
+every invocation. Cargo also stops parsing at the subcommand, which means the
+`--` separator is optional and cargo's own flags simply go first:
+`cargo run --release solve -y 2015 -d 1`.
+
+**Ports and adapters.** The library split into `domain`, `inbound`, and
+`outbound`. Fixing the wiring turned up empty `mod.rs` files, `run.rs` modules
+still declaring `args` from when they were `main.rs`, and every internal path
+needing a rewrite. Grouped `use crate::{a, b, c}` imports made that fiddly, since
+only the first element matches a naive replace.
+
+`calendar` became `address`, and `Part` moved inside it. Year and day being
+calendar-shaped was incidental to their real job, which is naming one puzzle, so
+`calendar` left `Part` sitting outside a module about dates. `coordinates` and
+`path` were the other candidates. `path` lost because `std::path` is imported in
+the same files.
+
+**Inputs at runtime.** `include_str!` is gone, so the project compiles with an
+empty cache and `solve` fetches what it needs. That also killed the dispatch
+macro, which existed mostly to build input paths from literals at expansion
+time. The registry is a plain match now, one arm per day, and it yields a
+function pointer rather than calling directly so an unregistered day is skipped
+before anything downloads.
+
+Two bugs of mine on the way. The first version fetched before checking the
+registry, which would have pulled all 262 inputs on an unfiltered run. The
+second gated submission on `if let Some(aoc)`, and since `ensure_entry` builds a
+client lazily, solving a day with a missing input and no `--submit` would have
+submitted anyway.
+
+Also replaced `Option<&SolverClient>` as an implicit validate flag with an
+explicit `validate: bool`. The client is always built now, since it needs no
+cookie and cannot fail, so there is no invalid combination to guard.
+
+**Session fingerprinting and instructions.** Each day is a directory of plain
+files: `input.txt`, `session` holding a SHA-256 of the cookie, and
+`part_one.md` / `part_two.md`. A session mismatch refetches the input and keeps
+the instructions, since puzzle text is the same for everyone.
+
+That landed as one JSON file per day first, which read badly: a 7000 character
+input and a page of markdown both collapse onto one escaped line. Splitting into
+plain files cost the guarantee that an input and its hash are written together,
+but a missing `session` reads as "refetch" anyway, so the failure mode is the
+same either way. `serde` and `serde_json` were added and removed within the
+hour.
+
+The day page splits on `<article class="day-desc">`, one per unlocked part,
+verified across three pages before building on it. `part_two.md` existing is
+what says part two is available, so nothing can disagree with the text beside
+it. `html2text` does the rendering, inside the client, so the store never sees a
+tag.
+
 ## 2026-08-06 (end of day)
 
 Planned a rework, wrote none of it. Five changes in

@@ -46,14 +46,15 @@ library arranged as ports and adapters: `domain` knows nothing about the network
 or the filesystem, `inbound` is how a request arrives, `outbound` is how it
 leaves.
 
-`fetch` downloads puzzle inputs to `inputs/<year>/<NN>.txt`.
+`fetch` downloads puzzle inputs and instructions into `cache/<year>/<NN>/`, one
+directory of plain files per day.
 
-`solve` runs the solutions, and with `--validate` checks each answer against a
-third-party solver. `--submit` posts them to adventofcode.com for stars, sending
-only what the solver agreed with.
+`solve` runs the solutions, fetching any input it does not have. `--validate`
+checks each answer against a third-party solver, and `--submit` posts them to
+adventofcode.com for stars, sending only what the solver agreed with.
 
-Both subcommands take `-y`/`--year` and `-d`/`--day`. Omitting a flag means all of
-them, so they filter rather than look up.
+Both subcommands take `-y`/`--year` and `-d`/`--day`. Omitting a flag means all
+of them, so they filter rather than look up.
 
 The library holds the validated `Year`, `Day`, and `Part` types, the two HTTP
 clients, and the solutions. `AocClient` and `SolverClient` are separate on
