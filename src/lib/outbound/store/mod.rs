@@ -122,6 +122,7 @@ pub fn ensure_dir(path: &Path) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::address::Year;
     use std::fs::remove_dir_all;
 
     /// A cache root of its own per test, so nothing touches the real one and
@@ -155,7 +156,7 @@ mod tests {
     #[test]
     fn round_trips() {
         let temp = Temp::new("round-trips");
-        let day = Day::new(1, 2015).unwrap();
+        let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
 
         assert!(read_entry_in(&temp.0, &day).unwrap().is_none());
 
@@ -172,7 +173,7 @@ mod tests {
     /// it.
     #[test]
     fn pads_the_day() {
-        let day = Day::new(1, 2015).unwrap();
+        let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
         let path = day_path_in(Path::new("/cache"), &day);
         assert!(path.ends_with("2015/01"));
     }
@@ -180,7 +181,7 @@ mod tests {
     #[test]
     fn missing_part_two_reads_as_none() {
         let temp = Temp::new("no-part-two");
-        let day = Day::new(1, 2015).unwrap();
+        let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
 
         let mut entry = entry("cookie");
         entry.instructions.part_two = None;
@@ -195,7 +196,7 @@ mod tests {
     #[test]
     fn entry_without_a_session_reads_as_missing() {
         let temp = Temp::new("no-session");
-        let day = Day::new(1, 2015).unwrap();
+        let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
 
         write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
         std::fs::remove_file(day_path_in(&temp.0, &day).join(SESSION_FILE)).unwrap();
