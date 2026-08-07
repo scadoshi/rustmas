@@ -109,7 +109,7 @@ lands with this work.
   account, so nothing there can produce it. Once written:
 
   ```
-  cargo run -- solve -y 2016 -d 1 --submit
+  cargo run solve -y 2016 -d 1 --submit
   ```
 
   should print `(new star)` for each part. The puzzle is "No Time for a Taxicab":

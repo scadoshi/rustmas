@@ -23,15 +23,35 @@ gitignored. `CONTACT` and `REPO_URL` shape the `User-Agent`, because the site
 asks automated clients to be reachable. Neither has a default that names anyone,
 so leaving them blank identifies the tool and nobody else.
 
+## Running it
+
+One binary, one subcommand per mode.
+
+```
+cargo run fetch -y 2015 -d 1
+cargo run solve -y 2015 -d 1
+```
+
+Cargo stops parsing at the subcommand and hands the rest to the program, so the
+usual `--` separator is optional. Cargo's own flags go before it:
+
+```
+cargo run --release solve -y 2015 -d 1
+```
+
+Debug builds are slow enough to notice on anything that brute forces, so
+`--release` is worth reaching for once a day takes longer than you want to sit
+through.
+
 ## fetch
 
 Downloads published puzzle inputs into `inputs/<year>/<NN>.txt`.
 
 ```
-cargo run -- fetch                 # everything
-cargo run -- fetch -y 2015         # one year
-cargo run -- fetch -d 1            # day 1 of every year
-cargo run -- fetch -y 2015 -d 1    # one puzzle
+cargo run fetch                 # everything
+cargo run fetch -y 2015         # one year
+cargo run fetch -d 1            # day 1 of every year
+cargo run fetch -y 2015 -d 1    # one puzzle
 ```
 
 | Flag | Meaning |
@@ -49,9 +69,9 @@ re-download.
 Runs your solutions, with the same filters.
 
 ```
-cargo run -- solve -y 2015 -d 1              # offline
-cargo run -- solve -y 2015 -d 1 --validate   # check the answers
-cargo run -- solve -y 2015 -d 1 --submit     # check, then send for stars
+cargo run solve -y 2015 -d 1              # offline
+cargo run solve -y 2015 -d 1 --validate   # check the answers
+cargo run solve -y 2015 -d 1 --submit     # check, then send for stars
 ```
 
 | Flag | Meaning |

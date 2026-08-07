@@ -245,7 +245,7 @@ cannot read without parsing `main.rs`.
 Lost `inputs/` during that testing and re-downloaded it. Recovery was
 uneventful, which is the no-clobber caching working as intended.
 
-Verified day 1 end to end. `cargo run -- solve -y 2015 -d 1` gives `280`
+Verified day 1 end to end. `cargo run solve -y 2015 -d 1` gives `280`
 and `1797`, and the solver returns the same for both parts.
 
 Decided how validation gets wired into `solve`, though the wiring itself is not
