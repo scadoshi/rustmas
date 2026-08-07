@@ -48,7 +48,7 @@
 - `--validate` wired end to end. `-y 2015 -d 1 --validate` reports
   `280 (Correct)` and `1797 (Correct)`.
 - `Answer` enum with the verdict folded into the submittable variant.
-- `solve` as a free function taking `Option<&Session>`.
+- `solve` as a free function taking `Option<&SolverClient>`.
 - 2015 day 1, verified end to end. `280` and `1797`, both matching the solver.
 - `validate_answer` against the third-party solver, all branches driven live.
 - Solver contract recorded and verified against its source.

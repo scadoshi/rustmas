@@ -109,8 +109,8 @@ with fixtures kept as unit tests at the bottom of `src/lib/client/aoc.rs`.
 Two facts come apart, and conflating them is the trap.
 
 Whether the **star exists** is something only AOC knows. Both `Correct` and
-`AlreadySolved` prove it. `AlreadySolved` is not a failure, it is AOC confirming
-the part is already done.
+`AlreadySolved` prove it. `AlreadySolved` reads like a rejection but it is AOC
+confirming the part is already done.
 
 Whether **this answer is right** is a separate question. `AlreadySolved` does not
 answer it, because AOC never looks at the submitted value once a part is

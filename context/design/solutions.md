@@ -39,7 +39,7 @@ putting a side effect somewhere awkward to test. Now the solution returns the
 art and the caller prints it.
 
 The verdict sits inside the `Value` variant rather than beside the enum, so a
-visual answer carrying a verdict is unrepresentable rather than merely unused.
+visual answer cannot carry a verdict at all.
 Same move as `Day` wrapping `Year`. `Answer::solved(value)` is the constructor a
 day uses, and `with_verdict` attaches a verdict afterwards, landing only on
 `Value`.

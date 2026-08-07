@@ -15,7 +15,7 @@ Hand this dir to any AI assistant to resume work on `rustmas` with full context.
   commit.
 
 Update `todo.md` and add a journal entry at the end of a working session. Add to
-`design/` when a decision gets made, not just when code gets written.
+`design/` whenever a decision gets made, even if no code changed.
 
 ## Who
 
@@ -35,22 +35,27 @@ either code comments or conversation. Write real sentences.
 When he asks for implementation, write the code. When he's still thinking out
 loud, coach and nudge instead of jumping to code.
 
-Verify claims rather than asserting them. Several design decisions here changed
-because something got probed or read rather than assumed.
+Verify claims rather than asserting them. Several decisions here changed because
+something got probed or read rather than assumed. The solver's error contract
+was guessed wrong twice before anyone ran a curl against it.
 
 ## What rustmas is
 
 Advent of Code tooling in Rust. Two binaries over one shared library.
 
-`fetch` downloads every published puzzle input to `inputs/<year>/<NN>.txt`.
+`fetch` downloads puzzle inputs to `inputs/<year>/<NN>.txt`.
 
-`solve` runs the solutions, filtered by optional `-y`/`--year` and `-d`/`--day`.
-Omitting a flag means "all", so both are filters rather than a lookup, and no
-flags runs everything.
+`solve` runs the solutions, and with `--validate` checks each answer against a
+third-party solver. `--submit` posts them to adventofcode.com for stars, sending
+only what the solver agreed with.
 
-The library holds validated `Year`, `Day`, and `Part` types, a `Session` that
-talks to both adventofcode.com and a third-party solver, and the solutions
-themselves.
+Both binaries take `-y`/`--year` and `-d`/`--day`. Omitting a flag means all of
+them, so they filter rather than look up.
+
+The library holds the validated `Year`, `Day`, and `Part` types, the two HTTP
+clients, and the solutions. `AocClient` and `SolverClient` are separate on
+purpose: the first is authenticated and grades once, the second is anonymous and
+repeatable.
 
 ## Do not
 
