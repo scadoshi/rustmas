@@ -1,7 +1,7 @@
 use crate::{
     domain::{
         address::{Day, FIRST_YEAR, Part, days_in_year, latest_year},
-        solutions::{answer::Answer, solution::solve, year_2015, year_2016},
+        solutions::{solution::solve, year_2015, year_2016},
     },
     inbound::solve::{
         args::SolveArgs,
@@ -12,22 +12,6 @@ use crate::{
         store,
     },
 };
-
-/// Maps a runtime `(year, day)` to the type that solves it.
-///
-/// `None` means no solution is registered, which is how a run over every year
-/// skips the days not written yet.
-fn dispatch(
-    client: Option<&SolverClient>,
-    day: &Day,
-    input: &str,
-) -> Option<anyhow::Result<(Answer, Answer)>> {
-    Some(match (day.year(), day.value()) {
-        (2015, 1) => solve::<year_2015::day_01::Puzzle>(client, input, day),
-        (2016, 1) => solve::<year_2016::day_01::Puzzle>(client, input, day),
-        _ => return None,
-    })
-}
 
 pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
@@ -59,8 +43,13 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
             let Some(input) = store::read_input(&day)? else {
                 continue;
             };
-            let Some(result) = dispatch(solver.as_ref(), &day, &input) else {
-                continue;
+            let client = solver.as_ref();
+            // Days with no arm here are not written yet, so a run over every
+            // year skips them.
+            let result = match (day.year(), day.value()) {
+                (2015, 1) => solve::<year_2015::day_01::Puzzle>(client, &input, &day),
+                (2016, 1) => solve::<year_2016::day_01::Puzzle>(client, &input, &day),
+                _ => continue,
             };
             match result {
                 Ok((mut one, mut two)) => {
