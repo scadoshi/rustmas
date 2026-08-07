@@ -26,12 +26,12 @@ pub trait Solution: Sized {
     fn part_two(&self) -> Answer;
 }
 
-/// Runs both parts, validating each answer when given a client.
+/// Runs both parts, checking each answer against the solver when `validate`.
 ///
-/// `client` doubles as the validate flag: `None` solves offline. Only
-/// [`Answer::Value`] is validated, since nothing else has anything to check.
+/// Only [`Answer::Value`] is checked, since nothing else has anything to check.
 pub fn solve<S: Solution>(
-    client: Option<&SolverClient>,
+    client: &SolverClient,
+    validate: bool,
     input: &str,
     day: &Day,
 ) -> anyhow::Result<(Answer, Answer)> {
@@ -40,7 +40,7 @@ pub fn solve<S: Solution>(
     let mut one = solution.part_one();
     let mut two = solution.part_two();
 
-    if let Some(client) = client {
+    if validate {
         if let Some(value) = one.value() {
             let verdict = client.validate_answer(day, input, Part::One, value)?;
             one = one.with_verdict(verdict);

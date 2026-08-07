@@ -1,70 +1,66 @@
 use crate::{
     domain::{
-        address::{Day, FIRST_YEAR, Part, days_in_year, latest_year},
-        solutions::{solution::solve, year_2015, year_2016},
+        address::{self, Part},
+        solutions::{answer::Answer, solution::solve, year_2015, year_2016},
     },
-    inbound::solve::{
-        args::SolveArgs,
-        utils::{confirm, submit},
+    inbound::{
+        input::ensure_input,
+        solve::{
+            args::SolveArgs,
+            utils::{confirm, submit},
+        },
     },
-    outbound::{
-        client::{AocClient, SolverClient},
-        store,
-    },
+    outbound::client::{AocClient, SolverClient},
 };
+
+/// A day's solver, once its concrete type is known.
+type Solver = fn(&SolverClient, bool, &str, &address::Day) -> anyhow::Result<(Answer, Answer)>;
 
 pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
     let validate = args.validate || args.submit;
-    let solver = validate.then(SolverClient::new);
+    let solver = SolverClient::new();
 
     if args.submitting_everything() && !args.yes {
-        let count: usize = (FIRST_YEAR..=latest_year())
-            .map(|year| days_in_year(year) as usize * 2)
-            .sum();
+        let count = address::each(None, None).count() * 2;
         if !confirm(count)? {
             eprintln!("Nothing submitted.");
             return Ok(());
         }
     }
 
-    // Only built when submitting, so validating alone never needs a cookie.
-    let aoc = args.submit.then(AocClient::from_env).transpose()?;
+    // Built up front when submitting, so a bad cookie fails before any solving.
+    // Otherwise built on first download, leaving cached runs offline.
+    let mut aoc = args.submit.then(AocClient::from_env).transpose()?;
 
-    for year in FIRST_YEAR..=latest_year() {
-        if args.year.is_some_and(|y| y != year) {
-            continue;
-        }
-        for day in 1..=days_in_year(year) {
-            if args.day.is_some_and(|d| d != day) {
-                continue;
-            }
-            let day = Day::new(day, year)?;
-            let Some(input) = store::read_input(&day)? else {
-                continue;
-            };
-            let client = solver.as_ref();
-            // Days with no arm here are not written yet, so a run over every
-            // year skips them.
-            let result = match (day.year(), day.value()) {
-                (2015, 1) => solve::<year_2015::day_01::Puzzle>(client, &input, &day),
-                (2016, 1) => solve::<year_2016::day_01::Puzzle>(client, &input, &day),
-                _ => continue,
-            };
-            match result {
-                Ok((mut one, mut two)) => {
-                    // Submit before printing, so each part reports what both
-                    // checkers said on one line.
-                    if let Some(aoc) = aoc.as_ref() {
-                        one = submit(aoc, &day, Part::One, one)?;
-                        two = submit(aoc, &day, Part::Two, two)?;
-                    }
-                    println!("year {year} day {}", day.value());
-                    println!("  part one: {one}");
-                    println!("  part two: {two}");
+    for day in address::each(args.year, args.day) {
+        let day = day?;
+
+        // Days with no arm here are not written yet. Matching before fetching
+        // keeps a run over every year from downloading inputs it cannot use.
+        let solver_fn: Solver = match (day.year(), day.value()) {
+            (2015, 1) => solve::<year_2015::day_01::Puzzle>,
+            (2016, 1) => solve::<year_2016::day_01::Puzzle>,
+            _ => continue,
+        };
+
+        let input = ensure_input(&mut aoc, &day)?;
+        match solver_fn(&solver, validate, &input, &day) {
+            Ok((mut one, mut two)) => {
+                // Submit before printing, so each part reports what both
+                // checkers said on one line.
+                // Gated on the flag, not on the client existing: fetching a
+                // missing input builds one too.
+                if args.submit {
+                    let aoc = aoc.as_ref().expect("built up front when submitting");
+                    one = submit(aoc, &day, Part::One, one)?;
+                    two = submit(aoc, &day, Part::Two, two)?;
                 }
-                Err(e) => eprintln!("year {year} day {} failed: {e:?}", day.value()),
+                println!("year {} day {}", day.year(), day.value());
+                println!("  part one: {one}");
+                println!("  part two: {two}");
             }
+            Err(e) => eprintln!("year {} day {} failed: {e:?}", day.year(), day.value()),
         }
     }
     Ok(())

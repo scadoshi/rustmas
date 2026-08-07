@@ -170,6 +170,14 @@ swallow the question and a script does not hang or accidentally proceed.
 The two clients are built independently. Validating alone never needs a cookie,
 since only `AocClient` has one.
 
+Intent travels as flags rather than as the presence of a client. `solve` takes
+`validate: bool` alongside a `&SolverClient` that is always built, since that
+client needs no cookie and cannot fail to construct. `AocClient` stays optional
+because it genuinely can be absent, but nothing reads intent from it: submission
+is gated on `--submit`, and `ensure_input` builds a client of its own when a
+download is needed, so an existing client no longer implies anything was asked
+for.
+
 Submission happens before printing, so each part is one line carrying what both
 checkers said. `Answer::Value` holds two optional verdicts, `verdict` from the
 solver and `submission` from AOC, and `Display` merges them into one set of

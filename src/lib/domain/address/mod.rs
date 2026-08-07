@@ -22,3 +22,17 @@ pub use year::{FIRST_YEAR, Year, latest_year};
 #[derive(Debug, Error)]
 #[error("out of range")]
 pub struct OutOfRange;
+
+/// Every published puzzle day, narrowed by the filters.
+///
+/// `None` means all of them, so `each(None, None)` walks every day of every
+/// event and `each(Some(2015), Some(1))` yields one.
+pub fn each(year: Option<i32>, day: Option<i32>) -> impl Iterator<Item = Result<Day, OutOfRange>> {
+    (FIRST_YEAR..=latest_year())
+        .filter(move |y| year.is_none_or(|want| want == *y))
+        .flat_map(move |y| {
+            (1..=days_in_year(y))
+                .filter(move |d| day.is_none_or(|want| want == *d))
+                .map(move |d| Day::new(d, y))
+        })
+}

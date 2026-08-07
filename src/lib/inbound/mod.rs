@@ -2,4 +2,5 @@
 
 pub mod cli;
 pub mod fetch;
+pub mod input;
 pub mod solve;

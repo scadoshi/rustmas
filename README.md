@@ -82,8 +82,9 @@ cargo run solve -y 2015 -d 1 --submit     # check, then send for stars
 | `-s`, `--submit` | Submit to Advent of Code. Implies `--validate`. |
 | `--yes` | Skip the confirmation prompt on an unfiltered `--submit`. |
 
-Without a flag, solving is entirely offline and needs no cookie. So does
-`--validate`, since the third-party solver has no accounts.
+Solving reads inputs from disk and downloads any that are missing, so a run
+over cached days is entirely offline and needs no cookie. `--validate` needs
+none either, since the third-party solver has no accounts.
 
 `--submit` always validates first and only sends what the solver agrees with,
 because a wrong answer to Advent of Code earns a cooldown that escalates with
@@ -168,9 +169,9 @@ The library is arranged as ports and adapters. `domain` holds the puzzle types
 and knows nothing about the network, the filesystem, or the command line.
 `inbound` is how a request arrives, `outbound` is how it leaves.
 
-Solutions embed their input with `include_str!`, so `solve` will not compile
-until `fetch` has downloaded the days it covers. `inputs/` is gitignored, which
-means a fresh clone has to run `fetch` first.
+Inputs are read at runtime, so a fresh clone compiles with `inputs/` empty.
+`solve` downloads what it needs, which means `fetch` is for pulling things ahead
+of time rather than a prerequisite.
 
 ## License
 

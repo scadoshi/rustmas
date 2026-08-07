@@ -19,7 +19,7 @@ Subcommand variants hold types deriving `clap::Args` rather than `Parser`, and
 `#[command(version)]` moved up to `Cli`, since a subcommand does not carry its
 own version.
 
-### 2. Inputs at runtime, and solve fetches what it needs
+### 2. Inputs at runtime, and solve fetches what it needs (done, 2026-08-07)
 
 Drop `include_str!`. Read inputs from disk when a solution runs, and if the file
 is missing, fetch it first as long as a session exists. Solving stops requiring
