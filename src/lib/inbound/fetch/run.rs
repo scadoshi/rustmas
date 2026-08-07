@@ -1,5 +1,5 @@
 use crate::{
-    domain::address,
+    domain::address::Day,
     inbound::{fetch::args::FetchArgs, input::ensure_entry},
 };
 
@@ -11,7 +11,7 @@ pub fn run(args: &FetchArgs) -> anyhow::Result<()> {
     // Built on first download, so a fully cached run needs no cookie.
     let mut client = None;
 
-    for day in address::each(args.year, args.day) {
+    for day in Day::each(args.year, args.day) {
         ensure_entry(&mut client, &day?)?;
     }
     Ok(())

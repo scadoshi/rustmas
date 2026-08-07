@@ -1,6 +1,6 @@
 use crate::{
     domain::{
-        address::{self, Part},
+        address::{Day, Part},
         solutions::{
             solution::{Solved, solve},
             year_2015, year_2016,
@@ -17,7 +17,7 @@ use crate::{
 };
 
 /// A day's solver, once its concrete type is known.
-type Solver = fn(&SolverClient, bool, &str, &address::Day) -> anyhow::Result<Solved>;
+type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;
 
 /// The solver for a day, or `None` when nobody has written one.
 ///
@@ -37,7 +37,7 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
 
 /// How many parts a run over these filters would touch.
 fn part_count(year: Option<i32>, day: Option<i32>) -> usize {
-    address::each(year, day)
+    Day::each(year, day)
         .filter_map(Result::ok)
         .filter(|day| solver_for(day.year(), day.value()).is_some())
         .count()
@@ -59,7 +59,7 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Otherwise built on first download, leaving cached runs offline.
     let mut aoc = args.submit.then(AocClient::from_env).transpose()?;
 
-    for day in address::each(args.year, args.day) {
+    for day in Day::each(args.year, args.day) {
         let day = day?;
 
         // Asked before fetching, so a run over every year downloads nothing for
