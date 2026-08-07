@@ -76,7 +76,7 @@ impl SolverClient {
             "/solve/{}/{}/{}",
             day.year(),
             day.value(),
-            part.to_wire_value()
+            part.wire_value()
         );
 
         for base in BASE_URLS {

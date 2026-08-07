@@ -145,7 +145,7 @@ impl AocClient {
     ) -> anyhow::Result<AocVerdict> {
         let path = format!("/{}/day/{}/answer", day.year(), day.value());
         let url = Url::parse(AOC_BASE_URL)?.join(&path)?;
-        let form = [("level", part.to_wire_value()), ("answer", answer.as_ref())];
+        let form = [("level", part.wire_value()), ("answer", answer.as_ref())];
 
         let body = self
             .client
