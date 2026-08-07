@@ -1,30 +1,38 @@
 use crate::{
-    domain::{address::{Day, Part}, solutions::answer::Answer},
+    domain::{
+        address::{Day, Part},
+        solutions::outcome::Outcome,
+    },
     outbound::client::{AocClient, verdict::Verdict},
 };
 use std::io::{self, Write};
 
-/// Submits `answer` if the solver backed it, returning it with AOC's reply
-/// attached.
+/// Submits the answer if the solver backed it, returning the outcome with
+/// AOC's reply attached.
 ///
 /// A wrong answer costs an escalating cooldown, so the solver verdict gates the
 /// send. [`Verdict::Unsupported`] goes through anyway, since an unimplemented
 /// puzzle is one the solver cannot judge either way.
 ///
 /// Rejected answers come back untouched, carrying only the solver's objection.
-pub fn submit(aoc: &AocClient, day: &Day, part: Part, answer: Answer) -> anyhow::Result<Answer> {
-    let Some(value) = answer.value() else {
-        return Ok(answer);
+pub fn submit(
+    aoc: &AocClient,
+    day: &Day,
+    part: Part,
+    outcome: Outcome,
+) -> anyhow::Result<Outcome> {
+    let Some(value) = outcome.value() else {
+        return Ok(outcome);
     };
     if !matches!(
-        answer.verdict(),
+        outcome.verdict(),
         Some(Verdict::Correct) | Some(Verdict::Unsupported)
     ) {
-        return Ok(answer);
+        return Ok(outcome);
     }
 
     let verdict = aoc.submit_answer(day, part, value)?;
-    Ok(answer.with_submission(verdict))
+    Ok(outcome.with_submission(verdict))
 }
 
 /// Asks before an unfiltered submit run, which would post every solved day.

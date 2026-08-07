@@ -57,8 +57,8 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 // missing input builds one too.
                 if args.submit {
                     let aoc = aoc.as_ref().expect("built up front when submitting");
-                    solved.one.answer = submit(aoc, &day, Part::One, solved.one.answer)?;
-                    solved.two.answer = submit(aoc, &day, Part::Two, solved.two.answer)?;
+                    solved.one = submit(aoc, &day, Part::One, solved.one)?;
+                    solved.two = submit(aoc, &day, Part::Two, solved.two)?;
                 }
                 println!(
                     "year {} day {} in {:?} ({:?} parsing)",
@@ -67,14 +67,8 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                     solved.total(),
                     solved.parse
                 );
-                println!(
-                    "  part one: {} [{:?}]",
-                    solved.one.answer, solved.one.elapsed
-                );
-                println!(
-                    "  part two: {} [{:?}]",
-                    solved.two.answer, solved.two.elapsed
-                );
+                println!("  part one: {}", solved.one);
+                println!("  part two: {}", solved.two);
             }
             Err(e) => eprintln!("year {} day {} failed: {e:?}", day.year(), day.value()),
         }

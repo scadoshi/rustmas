@@ -26,26 +26,42 @@ Each day's type is named `Puzzle` and holds its input as an owned `String`. A
 lifetime parameter would work too, but it would infect the trait and every call
 site for no gain at this size.
 
-## Answer
+## Answer and Outcome
 
 ```rust
 pub enum Answer {
-    Value { value: String, verdict: Option<Verdict>, submission: Option<Verdict> },
+    Value(String),
     Visual(String),
     None,
 }
+
+pub struct Outcome {
+    answer: Answer,
+    elapsed: Duration,
+    verdict: Option<Verdict>,     // the solver
+    submission: Option<Verdict>,  // adventofcode.com
+}
 ```
 
-This replaced `Option<String>`, which conflated two different absences and left
-a visual part unable to hand back its grid at all, since any `Some` would have
-been sent off for validation. Visual parts printed from inside the solver as a
-result, putting a side effect somewhere awkward to test. Now the solution
-returns the art and the caller prints it.
+Split by provenance. `Answer` is what the part computed and nothing else,
+`elapsed` is measured, and the verdicts arrive over the network.
 
-Both verdicts sit inside `Value` rather than beside the enum, so a visual answer
-cannot carry one. `Answer::solved(value)` is the constructor a day uses;
-`with_verdict` and `with_submission` attach results afterwards and land only on
-`Value`.
+They were one type for a while, with the verdicts folded into the `Value`
+variant so a visual answer could not carry one. Timing broke that: a duration
+applies to every variant, so it could not go inside `Value`, and once it sat
+beside the enum the type was measuring one field while holding two others from
+completely different sources. `Timed { answer, elapsed }` read as "this answer
+took this long" when it meant "computing this value took this long", with the
+verdicts unmeasured and unmentioned.
+
+`Outcome` keeps the old invariant without the enum trick: `with_verdict` and
+`with_submission` check for a submittable answer and ignore anything else, so a
+visual answer still ends up with no verdict.
+
+`Answer` replaced `Option<String>`, which conflated two different absences and
+left a visual part unable to hand back its grid at all, since any `Some` would
+have been sent off for validation. Visual parts printed from inside the solver
+as a result. Now the solution returns the art and the caller prints it.
 
 An alternative was a separate `is_visual(part)` method on the trait. Rejected
 because it is a second source of truth that can disagree with what the part
@@ -119,19 +135,15 @@ flag combinations need no matching.
 
 ## Timing
 
-`solve` returns `Solved { parse, one: Timed, two: Timed }`, where `Timed` pairs
-an `Answer` with how long it took. Parsing is measured separately, since a slow
-day is often slow in one place or the other.
+`solve` returns `Solved { parse, one: Outcome, two: Outcome }`. Parsing is
+measured separately, since a slow day is often slow in one place or the other.
 
 Both parts are computed and measured before any validation runs, so no duration
 includes a network round trip. Debug and release differ by roughly twenty times
 on 2015 day 1, which is the easiest sanity check that the numbers mean anything.
 
-Duration stays out of `Answer` deliberately. It applies to every variant, so it
-could not live inside `Value` the way verdicts do, and putting it beside the enum
-would turn `Answer` into a struct wrapping one, undoing the reason a visual
-answer cannot carry a verdict. Parse time also belongs to neither part, so
-something like `Solved` has to exist regardless.
+Parse time belongs to neither part, which is why `Solved` exists rather than the
+durations hanging off the parts alone.
 
 ## Open
 

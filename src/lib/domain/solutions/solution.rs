@@ -1,7 +1,7 @@
 use crate::{
     domain::{
         address::{Day, Part},
-        solutions::answer::Answer,
+        solutions::{answer::Answer, outcome::Outcome},
     },
     outbound::client::SolverClient,
 };
@@ -27,25 +27,18 @@ pub trait Solution: Sized {
     fn part_two(&self) -> Answer;
 }
 
-/// An answer and how long it took to work out.
-#[derive(Debug)]
-pub struct Timed {
-    pub answer: Answer,
-    pub elapsed: Duration,
-}
-
-/// One run of a day: both answers, and where the time went.
+/// One run of a day: both parts, and where the time went.
 #[derive(Debug)]
 pub struct Solved {
     pub parse: Duration,
-    pub one: Timed,
-    pub two: Timed,
+    pub one: Outcome,
+    pub two: Outcome,
 }
 
 impl Solved {
     /// Parsing plus both parts. Excludes any network time.
     pub fn total(&self) -> Duration {
-        self.parse + self.one.elapsed + self.two.elapsed
+        self.parse + self.one.elapsed() + self.two.elapsed()
     }
 }
 
@@ -66,12 +59,12 @@ pub fn solve<S: Solution>(
     let parse = start.elapsed();
 
     let start = Instant::now();
-    let mut one = solution.part_one();
-    let one_elapsed = start.elapsed();
+    let one = solution.part_one();
+    let mut one = Outcome::new(one, start.elapsed());
 
     let start = Instant::now();
-    let mut two = solution.part_two();
-    let two_elapsed = start.elapsed();
+    let two = solution.part_two();
+    let mut two = Outcome::new(two, start.elapsed());
 
     if validate {
         if let Some(value) = one.value() {
@@ -84,15 +77,5 @@ pub fn solve<S: Solution>(
         }
     }
 
-    Ok(Solved {
-        parse,
-        one: Timed {
-            answer: one,
-            elapsed: one_elapsed,
-        },
-        two: Timed {
-            answer: two,
-            elapsed: two_elapsed,
-        },
-    })
+    Ok(Solved { parse, one, two })
 }
