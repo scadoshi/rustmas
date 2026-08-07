@@ -157,4 +157,15 @@ durations hanging off the parts alone.
 `Solution::input()` exists but nothing calls it, since `solve` already holds the
 input it was given. Worth deleting unless something needs it.
 
-No day returns `Answer::Visual` yet, so that path is written but unexercised.
+No day returns `Answer::Visual` yet. Its rendering is covered by tests, but
+nothing produces one in a real run.
+
+## Tests
+
+Mostly pure functions, so they live beside what they test. The `Outcome` display
+matrix gets the most attention, since it decides everything a user reads and had
+no coverage at all until it had six branches.
+
+The store threads its root through private `_in` variants, so tests use a
+temporary directory rather than the real cache. An env var would have been
+simpler but tests run in parallel and would fight over it.

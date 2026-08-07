@@ -91,3 +91,93 @@ impl Display for Outcome {
         write!(f, " [{:?}]", self.elapsed)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn value() -> Outcome {
+        Outcome::new(Answer::solved("138"), Duration::from_micros(7))
+    }
+
+    /// The timing suffix is asserted separately, so these compare the part
+    /// before it.
+    fn notes(outcome: &Outcome) -> String {
+        let rendered = outcome.to_string();
+        rendered
+            .split_once(" [")
+            .map(|(before, _)| before.to_string())
+            .unwrap_or(rendered)
+    }
+
+    #[test]
+    fn bare_answer_has_no_notes() {
+        assert_eq!(notes(&value()), "138");
+    }
+
+    #[test]
+    fn solver_verdict_alone_shows() {
+        assert_eq!(
+            notes(&value().with_verdict(SolverVerdict::High)),
+            "138 (high)"
+        );
+    }
+
+    /// AOC's word supersedes the solver's, so a starred part reads as starred
+    /// rather than repeating that the solver agreed.
+    #[test]
+    fn aoc_supersedes_the_solver() {
+        let starred = value()
+            .with_verdict(SolverVerdict::Correct)
+            .with_submission(AocVerdict::AlreadySolved);
+        assert_eq!(notes(&starred), "138 (starred)");
+
+        let fresh = value()
+            .with_verdict(SolverVerdict::Correct)
+            .with_submission(AocVerdict::Correct);
+        assert_eq!(notes(&fresh), "138 (new star)");
+    }
+
+    /// Any other AOC reply is worth seeing next to what the solver thought.
+    #[test]
+    fn both_verdicts_show_when_aoc_did_not_grade() {
+        let cooled = value()
+            .with_verdict(SolverVerdict::Correct)
+            .with_submission(AocVerdict::Cooldown("1m 0s".to_string()));
+        assert_eq!(
+            notes(&cooled),
+            "138 (correct, rate limited, 1m 0s left to wait)"
+        );
+    }
+
+    #[test]
+    fn timing_always_renders() {
+        assert!(value().to_string().ends_with("[7µs]"));
+    }
+
+    /// Nothing but a submittable answer can carry a verdict, which is the
+    /// invariant that survived splitting `Answer` from `Outcome`.
+    #[test]
+    fn unsubmittable_answers_never_take_a_verdict() {
+        for answer in [Answer::Visual("art".to_string()), Answer::None] {
+            let outcome = Outcome::new(answer, Duration::ZERO)
+                .with_verdict(SolverVerdict::Correct)
+                .with_submission(AocVerdict::Correct);
+            assert!(outcome.verdict().is_none());
+            assert!(outcome.submission().is_none());
+        }
+    }
+
+    #[test]
+    fn visual_answers_render_their_art() {
+        let outcome = Outcome::new(Answer::Visual("###".to_string()), Duration::ZERO);
+        assert!(outcome.to_string().contains("###"));
+        assert_eq!(notes(&outcome), "\n###");
+    }
+
+    #[test]
+    fn absent_answers_say_so() {
+        let outcome = Outcome::new(Answer::None, Duration::ZERO);
+        assert_eq!(notes(&outcome), "(none)");
+    }
+}

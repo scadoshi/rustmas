@@ -45,3 +45,35 @@ impl Display for SolverVerdict {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Comparing our answer against the solver's, so `Less` means ours was low.
+    #[test]
+    fn ordering_reads_from_our_side() {
+        assert!(matches!(
+            SolverVerdict::from(Ordering::Less),
+            SolverVerdict::Low
+        ));
+        assert!(matches!(
+            SolverVerdict::from(Ordering::Greater),
+            SolverVerdict::High
+        ));
+        assert!(matches!(
+            SolverVerdict::from(Ordering::Equal),
+            SolverVerdict::Correct
+        ));
+    }
+
+    /// Non-numeric answers can only match or not, with no direction to report.
+    #[test]
+    fn text_comparison_has_no_direction() {
+        assert!(matches!(SolverVerdict::from(true), SolverVerdict::Correct));
+        assert!(matches!(
+            SolverVerdict::from(false),
+            SolverVerdict::Incorrect
+        ));
+    }
+}

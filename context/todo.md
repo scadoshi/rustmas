@@ -124,12 +124,17 @@ lands with this work.
 
 ## Later
 
-- No day returns `Answer::Visual` yet, so that path is written but unexercised.
+- No day returns `Answer::Visual` yet. Its rendering is tested, but nothing
+  produces one in a real run.
 - Nothing displays cached instructions. They are stored and unread.
 - `Solution::input()` has no callers, since `solve` holds the input already.
 
 ## Done
 
+- Tests: 27 covering the domain bounds, `address::each` filters, the `Outcome`
+  display matrix, its no-verdict-on-unsubmittable invariant, the store round
+  trip, and session hashing. Two were mutation checked to confirm they fail when
+  the thing they describe breaks.
 - `solver_for` as the one registry, so unwritten days are skipped before
   downloading, `--submit` counts what it will send, and an explicitly requested
   day with no solution says so.

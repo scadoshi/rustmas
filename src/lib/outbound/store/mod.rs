@@ -37,10 +37,13 @@ pub fn project_root() -> anyhow::Result<PathBuf> {
 
 /// Where `day`'s cache lives: `cache/<year>/<NN>/`, zero padded.
 pub fn day_path(day: &Day) -> anyhow::Result<PathBuf> {
-    Ok(project_root()?
-        .join(CACHE_PATH)
-        .join(day.year().to_string())
-        .join(format!("{:02}", day.value())))
+    Ok(day_path_in(&project_root()?.join(CACHE_PATH), day))
+}
+
+/// `day`'s directory under an arbitrary cache root.
+fn day_path_in(root: &Path, day: &Day) -> PathBuf {
+    root.join(day.year().to_string())
+        .join(format!("{:02}", day.value()))
 }
 
 /// Reads `day`'s cache, or `None` when nothing has been downloaded.
@@ -49,7 +52,11 @@ pub fn day_path(day: &Day) -> anyhow::Result<PathBuf> {
 /// usable across a cookie change. A missing session file reads as `None` too,
 /// since an input nothing can vouch for is one to fetch again.
 pub fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
-    let dir = day_path(day)?;
+    read_entry_in(&project_root()?.join(CACHE_PATH), day)
+}
+
+fn read_entry_in(root: &Path, day: &Day) -> anyhow::Result<Option<Entry>> {
+    let dir = day_path_in(root, day);
 
     let (Some(data), Some(hash), Some(part_one)) = (
         read_opt(&dir.join(INPUT_FILE))?,
@@ -70,7 +77,11 @@ pub fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
 
 /// Writes `day`'s cache, creating the directory if needed.
 pub fn write_entry(day: &Day, entry: &Entry) -> anyhow::Result<()> {
-    let dir = day_path(day)?;
+    write_entry_in(&project_root()?.join(CACHE_PATH), day, entry)
+}
+
+fn write_entry_in(root: &Path, day: &Day, entry: &Entry) -> anyhow::Result<()> {
+    let dir = day_path_in(root, day);
     ensure_dir(&dir)?;
 
     write_file(&dir.join(INPUT_FILE), entry.input.data())?;
@@ -106,4 +117,99 @@ pub fn ensure_dir(path: &Path) -> anyhow::Result<()> {
         bail!("path exists but is not a dir: {}", path.display());
     }
     create_dir_all(path).with_context(|| format!("failed to create dir: {}", path.display()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::remove_dir_all;
+
+    /// A cache root of its own per test, so nothing touches the real one and
+    /// tests do not fight each other.
+    struct Temp(PathBuf);
+
+    impl Temp {
+        fn new(name: &str) -> Self {
+            let path = std::env::temp_dir().join(format!("rustmas-test-{name}"));
+            let _ = remove_dir_all(&path);
+            Self(path)
+        }
+    }
+
+    impl Drop for Temp {
+        fn drop(&mut self) {
+            let _ = remove_dir_all(&self.0);
+        }
+    }
+
+    fn entry(cookie: &str) -> Entry {
+        Entry {
+            input: Input::new(cookie, "()()"),
+            instructions: Instructions {
+                part_one: "## one".to_string(),
+                part_two: Some("## two".to_string()),
+            },
+        }
+    }
+
+    #[test]
+    fn round_trips() {
+        let temp = Temp::new("round-trips");
+        let day = Day::new(1, 2015).unwrap();
+
+        assert!(read_entry_in(&temp.0, &day).unwrap().is_none());
+
+        write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
+        let read = read_entry_in(&temp.0, &day).unwrap().unwrap();
+
+        assert_eq!(read.input.data(), "()()");
+        assert!(read.input.is_from("cookie"));
+        assert_eq!(read.instructions.part_one, "## one");
+        assert_eq!(read.instructions.part_two.as_deref(), Some("## two"));
+    }
+
+    /// Days are zero padded so a directory listing sorts the way a human reads
+    /// it.
+    #[test]
+    fn pads_the_day() {
+        let day = Day::new(1, 2015).unwrap();
+        let path = day_path_in(Path::new("/cache"), &day);
+        assert!(path.ends_with("2015/01"));
+    }
+
+    #[test]
+    fn missing_part_two_reads_as_none() {
+        let temp = Temp::new("no-part-two");
+        let day = Day::new(1, 2015).unwrap();
+
+        let mut entry = entry("cookie");
+        entry.instructions.part_two = None;
+        write_entry_in(&temp.0, &day, &entry).unwrap();
+
+        let read = read_entry_in(&temp.0, &day).unwrap().unwrap();
+        assert!(read.instructions.part_two.is_none());
+    }
+
+    /// An input nothing can vouch for is one to fetch again, so a cache with no
+    /// session file reads as empty.
+    #[test]
+    fn entry_without_a_session_reads_as_missing() {
+        let temp = Temp::new("no-session");
+        let day = Day::new(1, 2015).unwrap();
+
+        write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
+        std::fs::remove_file(day_path_in(&temp.0, &day).join(SESSION_FILE)).unwrap();
+
+        assert!(read_entry_in(&temp.0, &day).unwrap().is_none());
+    }
+
+    #[test]
+    fn ensure_dir_refuses_to_clobber_a_file() {
+        let temp = Temp::new("clobber");
+        create_dir_all(&temp.0).unwrap();
+        let path = temp.0.join("in-the-way");
+        write(&path, "").unwrap();
+
+        assert!(ensure_dir(&path).is_err());
+    }
 }
