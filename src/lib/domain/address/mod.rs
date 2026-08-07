@@ -5,8 +5,7 @@
 //!
 //! `Day` wraps `Year`, both constructor-only with private fields, so holding a
 //! `Day` means it names a real puzzle without re-checking. The same address
-//! becomes a URL path (`/2015/day/1`) and a file path
-//! (`inputs/2015/01.txt`).
+//! becomes a URL path (`/2015/day/1`) and a cache path (`cache/2015/01/`).
 
 pub mod day;
 pub mod part;

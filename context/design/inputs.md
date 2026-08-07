@@ -1,28 +1,34 @@
 # Puzzle inputs and instructions
 
-`src/lib/outbound/store/`, `src/lib/inbound/input.rs`, `inputs/`
+`src/lib/outbound/store/`, `src/lib/inbound/input.rs`, `cache/`
 
-Each day is one JSON file at `inputs/<year>/<NN>.json`, zero padded, holding the
-input, the session that fetched it, and the puzzle text:
+One directory per day under `cache/<year>/<NN>/`, zero padded:
 
-```rust
-struct Entry { input: Input, instructions: Instructions }
-struct Input { hash: String, data: String }
-struct Instructions { part_one: String, part_two: Option<String> }
+```text
+input.txt     the puzzle input, verbatim
+session       hash of the cookie that fetched it
+part_one.md   puzzle text
+part_two.md   puzzle text, absent until part one is solved
 ```
 
-The directory is gitignored, since inputs are tied to a personal account and AOC
-asks that puzzle text not be republished.
+`cache/` is gitignored, since inputs are tied to a personal account and AOC asks
+that puzzle text not be republished.
 
-One file per day rather than raw inputs plus a manifest of hashes. A manifest
-means two places to keep in step, and instructions were always going to need a
-home anyway.
+Every file opens in an editor on its own. An earlier version put all of it in
+one JSON file per day, which read badly: a 7000 character input and a page of
+markdown both collapse onto a single escaped line. Plain files cost the
+guarantee that the input and its hash are written together, but the failure mode
+is mild, since a missing or unreadable `session` reads as "refetch", which is
+what a mismatch does anyway.
+
+`part_two.md` existing is what says part two is available, so nothing can
+disagree with the text beside it.
 
 ## Session fingerprinting
 
-`Input` holds a SHA-256 of the cookie that fetched it, generated in the
-constructor so it cannot be set to something that disagrees with the data.
-`is_from(cookie)` answers whether an input belongs to the current session.
+`Input` carries a SHA-256 of the cookie that fetched it. `Input::new` generates
+it, `Input::from_parts` rebuilds one already on disk, and `is_from(cookie)`
+answers whether an input belongs to the current session.
 
 This exists because swapping `COOKIE` silently invalidates every input, and
 nothing caught it: `2015/01` answered `280` one day and `138` the next, and only

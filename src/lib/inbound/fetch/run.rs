@@ -3,7 +3,7 @@ use crate::{
     inbound::{fetch::args::FetchArgs, input::ensure_entry},
 };
 
-/// Downloads puzzle inputs into `inputs/<year>/<NN>.txt`.
+/// Downloads puzzle inputs and instructions into `cache/<year>/<NN>/`.
 ///
 /// `--year` and `--day` are filters, so omitting one means all of them. Files
 /// already on disk are left alone. One failed download aborts the rest.

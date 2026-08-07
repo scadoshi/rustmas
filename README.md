@@ -45,7 +45,7 @@ through.
 
 ## fetch
 
-Downloads published puzzle inputs into `inputs/<year>/<NN>.txt`.
+Downloads puzzle inputs and instructions into `cache/<year>/<NN>/`.
 
 ```
 cargo run fetch                 # everything
@@ -161,7 +161,7 @@ src/
         aoc.rs      # adventofcode.com: inputs and submissions
         solver.rs   # third-party solver: repeatable answer checks
         verdict.rs  # what a checker made of an answer
-inputs/             # downloaded puzzle inputs (gitignored)
+cache/              # downloaded inputs and puzzle text (gitignored)
 context/            # design notes, journal, and todo
 ```
 
@@ -169,7 +169,7 @@ The library is arranged as ports and adapters. `domain` holds the puzzle types
 and knows nothing about the network, the filesystem, or the command line.
 `inbound` is how a request arrives, `outbound` is how it leaves.
 
-Inputs are read at runtime, so a fresh clone compiles with `inputs/` empty.
+Inputs are read at runtime, so a fresh clone compiles with `cache/` empty.
 `solve` downloads what it needs, which means `fetch` is for pulling things ahead
 of time rather than a prerequisite.
 
