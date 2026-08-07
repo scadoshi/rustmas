@@ -1,5 +1,5 @@
 use crate::{
-    domain::{day::Day, part::Part, solutions::answer::Answer},
+    domain::{calendar::Day, part::Part, solutions::answer::Answer},
     outbound::client::{AocClient, verdict::Verdict},
 };
 use std::io::{self, Write};

@@ -1,5 +1,5 @@
 use crate::{
-    domain::{day::Day, part::Part},
+    domain::{calendar::Day, part::Part},
     outbound::client::verdict::Verdict,
 };
 use anyhow::Context;

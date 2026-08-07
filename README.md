@@ -144,8 +144,7 @@ src/
   bin/main.rs       # entry point, nothing else
   lib/
     domain/         # puzzles, with no idea HTTP or files exist
-      calendar.rs   # which events exist
-      day.rs        # Year -> Day validated coordinates
+      calendar/     # which events exist, and Year -> Day coordinates
       part.rs       # which of a day's two puzzles
       solutions/
         answer.rs   # what a part produced
