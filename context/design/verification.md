@@ -3,8 +3,8 @@
 `src/lib/outbound/client/`
 
 Two different things, deliberately kept apart, and since 2026-08-06 that
-separation is structural: `AocClient` (`aoc.rs`) holds `get_input` and
-`submit_answer`, `SolverClient` (`solver.rs`) holds `validate_answer`. They
+separation is structural: `AocClient` (`aoc_client.rs`) holds `get_input` and
+`submit_answer`, `SolverClient` (`solver_client.rs`) holds `validate_answer`. They
 share only the `User-Agent` builder in `mod.rs`.
 
 Naming them for who they talk to beat naming them for a property. `official.rs`
@@ -34,26 +34,35 @@ The plan is to route on solved state: submit to AOC when a part is unsolved, and
 fall back to the solver once it is. AOC itself holds that state, and reports it
 as `AlreadySolved`, so nothing needs to be tracked locally.
 
-## Verdict
+## Verdicts
 
-`src/lib/outbound/client/verdict.rs`. `Correct`, `Incorrect`, `Low`, `High`,
-`Unsupported`, `Cooldown(String)`, `AlreadySolved`. Built via `From<Ordering>`
-for numeric comparisons and `From<bool>` for text.
+`src/lib/domain/solution/solver_verdict.rs` and `aoc_verdict.rs`. Two types, one
+per source.
+
+`SolverVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Unsupported`, built
+via `From<Ordering>` for numeric comparisons and `From<bool>` for text.
+`AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(String)`,
+`AlreadySolved`.
 
 Direction is worth keeping rather than flattening into a bool, and both sources
 produce it.
 
-One type serves both clients even though neither can produce every variant.
-`Unsupported` only ever comes from the solver; `Cooldown` and `AlreadySolved`
-only from AOC. The cost is that exhaustive matches carry arms that cannot happen
-for the call that was made. Accepted at this size. If it starts to hurt, the fix
-is two enums sharing a core, or one enum plus a source tag.
+One shared type came first and was wrong. Neither client could produce every
+variant: `Unsupported` only ever comes from the solver, `Cooldown` and
+`AlreadySolved` only from AOC. Every exhaustive match therefore carried arms
+that could not happen for the call that was made. Splitting them deleted those
+arms rather than documenting them.
 
-Tagging the source inside `Verdict`, as in nested `Official` and `Unofficial`
-variants, was considered and rejected. The caller already knows which client it
-called, so the tag restates known information while pushing every match two
-levels deep. It would matter for a stored verdict, which outlives the call that
-produced it, but nothing is stored (see the rejected cache below).
+Tagging the source inside one enum, as in nested `Official` and `Unofficial`
+variants, was considered and rejected before the split. The caller already knows
+which client it called, so the tag restates known information while pushing
+every match two levels deep. Two types get the same result with no tag.
+
+They live in the domain, not beside the clients that parse them. Neither
+mentions HTTP or carries a status code, and `Outcome` matches on both to render
+a line, so a domain type would otherwise depend on an adapter. They sat in
+`outbound/client/` for a long time purely because that is where they were first
+written. The clients map their replies onto them.
 
 `Cooldown` holds a string because AOC phrases the remaining wait as prose
 (`1m 0s`). It reports and moves on rather than sleeping: the wait escalates well
@@ -102,7 +111,8 @@ than waste.
 Form-encodes `level` and `answer` to `/<year>/day/<day>/answer`. AOC returns 200
 for everything including wrong answers, so the verdict comes entirely from the
 body. Strings and match ordering are in [`../references.md`](../references.md),
-with fixtures kept as unit tests at the bottom of `src/lib/outbound/client/aoc.rs`.
+with fixtures kept as unit tests at the bottom of
+`src/lib/outbound/client/aoc_client.rs`.
 
 ## What counts as solved
 
