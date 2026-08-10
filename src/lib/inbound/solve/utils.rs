@@ -1,9 +1,9 @@
 use crate::{
     domain::{
         address::{Day, Part},
-        solutions::outcome::Outcome,
+        solution::{outcome::Outcome, solver_verdict::SolverVerdict},
     },
-    outbound::client::{AocClient, solver_verdict::SolverVerdict},
+    outbound::client::aoc_client::AocClient,
 };
 use std::io::{self, Write};
 

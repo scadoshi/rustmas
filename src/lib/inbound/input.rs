@@ -1,7 +1,7 @@
 use crate::{
     domain::address::Day,
     outbound::{
-        client::{AocClient, aoc::cookie_from_env},
+        client::aoc_client::{AocClient, cookie_from_env},
         store::{
             self,
             cache::{Entry, Input, Instructions},

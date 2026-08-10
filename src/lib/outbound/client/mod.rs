@@ -1,19 +1,17 @@
-//! HTTP clients for the two services this tool talks to.
+//! The two services this tool talks to, and the runner that drives one of them.
 //!
-//! [`AocClient`] is adventofcode.com: authenticated, and it grades each part
-//! exactly once. [`SolverClient`] is a third-party solver: no auth, and it
-//! answers the same question as many times as you ask. Kept apart because they
-//! differ in auth, contract, and failure semantics.
+//! [`aoc_client::AocClient`] is adventofcode.com: authenticated, and it grades
+//! each part exactly once. [`solver_client::SolverClient`] is a third-party
+//! solver: no auth, and it answers the same question as many times as you ask.
+//! Kept apart because they differ in auth, contract, and failure semantics.
+//!
+//! [`solve::solve`] runs a day and validates it. It sits here rather than in
+//! the domain because it holds a client, which is the dependency the domain is
+//! not allowed to have.
 
-pub mod aoc;
-pub mod aoc_verdict;
-pub mod solver;
-pub mod solver_verdict;
-
-pub use aoc::AocClient;
-pub use aoc_verdict::AocVerdict;
-pub use solver::SolverClient;
-pub use solver_verdict::SolverVerdict;
+pub mod aoc_client;
+pub mod solve;
+pub mod solver_client;
 
 /// Env var holding an address AOC can reach you at, folded into the
 /// `User-Agent`. Optional. Kept out of the source so a fork identifies its own

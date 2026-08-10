@@ -1,6 +1,6 @@
-use crate::{
-    domain::address::{Day, Part},
-    outbound::client::solver_verdict::SolverVerdict,
+use crate::domain::{
+    address::{Day, Part},
+    solution::solver_verdict::SolverVerdict,
 };
 use anyhow::bail;
 use reqwest::{Url, blocking::Client};

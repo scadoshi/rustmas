@@ -133,10 +133,10 @@ Advent of Code grades each part exactly once, so a part solved earlier reports
 
 Three steps. Say you are writing 2015 day 1.
 
-Create `src/lib/domain/solutions/year_2015/day_01/mod.rs`:
+Create `src/lib/domain/solution/year_2015/day_01/mod.rs`:
 
 ```rust
-use crate::domain::solutions::{answer::Answer, solution::Solution};
+use crate::domain::solution::{Solution, answer::Answer};
 
 pub struct Puzzle {
     input: String,
@@ -164,11 +164,19 @@ impl Solution for Puzzle {
 ```
 
 Declare it. `year_2015/mod.rs` needs `pub mod day_01;`, and
-`solutions/mod.rs` needs `pub mod year_2015;`.
+`solution/mod.rs` needs `pub mod year_2015;`.
 
-Register it in `solver_for` in `src/lib/inbound/solve/run.rs`:
+Register it in `solver_for` in `src/lib/inbound/solve/run.rs`, importing the
+year module and `solve` at the top of that file:
 
 ```rust
+use crate::{
+    domain::solution::year_2015,
+    outbound::client::solve::solve,
+};
+
+// ...
+
 (2015, 1) => Some(solve::<year_2015::day_01::Puzzle>),
 ```
 
@@ -192,10 +200,12 @@ src/
   lib/
     domain/                  # puzzles, with no idea HTTP or files exist
       address/               # which puzzle: Year, Day, Part
-      solutions/
+      solution/
+        mod.rs               # the Solution trait, and one run's timings
         answer.rs            # what a part produced
         outcome.rs           # that answer, plus timing and verdicts
-        solution.rs          # the Solution trait and the runner
+        aoc_verdict.rs       # what AOC said about a submission
+        solver_verdict.rs    # what the solver made of an answer
         year_<year>/         # your days go here, one dir each
     inbound/                 # ways in
       cli.rs                 # the command line and its subcommands
@@ -204,10 +214,9 @@ src/
       solve/                 # the solution runner
     outbound/                # ways out
       client/
-        aoc.rs               # adventofcode.com: inputs and submissions
-        aoc_verdict.rs       # what AOC said about a submission
-        solver.rs            # third-party solver: repeatable answer checks
-        solver_verdict.rs    # what the solver made of an answer
+        aoc_client.rs        # adventofcode.com: inputs and submissions
+        solver_client.rs     # third-party solver: repeatable answer checks
+        solve.rs             # runs a day, validating against the solver
       store/                 # the cache on disk
 cache/                       # downloaded inputs and puzzle text (gitignored)
 context/                     # design notes, journal, and todo
