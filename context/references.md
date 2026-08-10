@@ -8,7 +8,7 @@ rely on, when it was last verified, and how to check it again.
 - Source: `https://github.com/fornwall/advent-of-code.git`
 - Cloned locally at `~/Work/advent-of-code`
 - Last checked: 2026-08-04, at commit `b5d0e717` (authored 2026-07-03)
-- Used by: `SolverClient::validate_answer` in `src/lib/outbound/client/solver.rs`
+- Used by: `SolverClient::validate_answer` in `src/lib/outbound/client/solver_client.rs`
 
 Hosts, all running the same WASM solver. Listed in `AOC_SOLVER_BASE_URLS`:
 
@@ -104,7 +104,7 @@ confirmation. AOC is stateful, so that reply is itself the durable record of a
 star, which is why no local answer cache was built.
 
 Fixtures for these strings live in the tests at the bottom of
-`src/lib/outbound/client/aoc.rs`.
+`src/lib/outbound/client/aoc_client.rs`.
 
 ### Day page contract
 

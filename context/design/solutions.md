@@ -1,6 +1,7 @@
 # Solutions and dispatch
 
-`src/lib/domain/solutions/`, `src/lib/inbound/solve/`
+`src/lib/domain/solution/`, `src/lib/inbound/solve/`,
+`src/lib/outbound/client/solve.rs`
 
 ## The trait
 
@@ -77,6 +78,17 @@ pub fn solve<S: Solution>(
     day: &Day,
 ) -> anyhow::Result<Solved>
 ```
+
+It lives in `outbound/client/solve.rs`, not in the domain. Holding a
+`SolverClient` is a dependency the domain is not allowed to have, and it was in
+`domain/solutions/solution.rs` for a long time without anyone minding. Moving it
+was what made the domain import nothing outside itself.
+
+Whether `outbound/client/` is the right home is still open. It is not a client,
+it is the orchestration that drives one, and `inbound/solve/` already holds its
+only callers. The alternative to moving it is a port trait the domain owns and
+`SolverClient` implements, which is the textbook answer but buys nothing here,
+since the domain does not need to call out once the runner is elsewhere.
 
 A free function rather than a method on a client. It briefly lived on the HTTP
 client, which put application logic inside an adapter that never needed its own
