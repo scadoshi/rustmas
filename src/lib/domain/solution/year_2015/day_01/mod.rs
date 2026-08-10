@@ -1,4 +1,4 @@
-use crate::domain::solutions::{answer::Answer, solution::Solution};
+use crate::domain::solution::{Solution, answer::Answer};
 
 pub struct Puzzle {
     input: String,

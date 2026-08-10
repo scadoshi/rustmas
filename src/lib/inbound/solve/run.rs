@@ -1,10 +1,7 @@
 use crate::{
     domain::{
         address::{Day, Part},
-        solutions::{
-            solution::{Solved, solve},
-            year_2015, year_2016,
-        },
+        solution::{Solved, year_2015, year_2016},
     },
     inbound::{
         input::ensure_entry,
@@ -13,7 +10,7 @@ use crate::{
             utils::{confirm, submit},
         },
     },
-    outbound::client::{AocClient, SolverClient},
+    outbound::client::{aoc_client::AocClient, solve::solve, solver_client::SolverClient},
 };
 
 /// A day's solver, once its concrete type is known.

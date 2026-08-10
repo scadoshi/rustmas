@@ -1,6 +1,5 @@
-use crate::{
-    domain::solutions::answer::Answer,
-    outbound::client::{aoc_verdict::AocVerdict, solver_verdict::SolverVerdict},
+use crate::domain::solution::{
+    answer::Answer, aoc_verdict::AocVerdict, solver_verdict::SolverVerdict,
 };
 use std::{fmt::Display, time::Duration};
 

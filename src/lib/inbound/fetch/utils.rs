@@ -1,4 +1,4 @@
-use crate::{domain::address::Day, outbound::client::AocClient};
+use crate::{domain::address::Day, outbound::client::aoc_client::AocClient};
 use anyhow::{Context, bail};
 use std::{fs::create_dir_all, path::Path};
 
