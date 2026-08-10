@@ -3,6 +3,30 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-08
+
+Tail end of the rework, mostly prompted by translating the same types into C#
+and noticing what the Rust was doing awkwardly.
+
+`Day::each` moved off the module and onto `Day`, since a `Day` already carries
+its `Year` and enumerating days is enumerating the pairs. It iterates validated
+`Year`s now rather than raw integers.
+
+`Day::new` takes a built `Year` rather than a number, so `each` stops
+constructing a year only for `new` to throw it away and rebuild one. `Year` is
+`Copy`, being one integer.
+
+The day bounds check dropped `(1..=n).contains(&day)` for two comparisons. That
+came straight from C# having no range type to lean on, which made the
+indirection obvious in both languages.
+
+`Part::to_wire_value` became `wire_value` taking `self`. Rust's `to_` signals
+expense and this allocates nothing, where C#'s `To*` only signals conversion.
+Same method, different right answer per language.
+
+Two stale doc links fixed, `latest_year` and `Session::from_env`, both left over
+from earlier moves. `cargo doc` is clean.
+
 ## 2026-08-07
 
 Four of the six planned changes landed. The repo looks quite different.
