@@ -9,7 +9,22 @@ work, 28 tests pass, and both service contracts are recorded in
 The six-item rework planned on 2026-08-06 is done except for one piece, below.
 What each change was and why is in `design/` and `progress/journal.md`.
 
+The domain now imports nothing outside itself, as of 2026-08-10. Both verdicts
+live in `domain/solution/`, and `solve()` moved to `outbound/client/solve.rs`.
+
 ## Next
+
+- **Decide where `solve()` belongs.** It is in `outbound/client/solve.rs`, which
+  works and is documented, but `outbound` means "how a request leaves this
+  program" and `solve()` does not leave anywhere. It is orchestration that
+  drives a client, and `inbound/solve/` already holds its only callers plus
+  `args.rs` and `utils.rs`.
+
+  Cost of leaving it: `outbound/mod.rs` and `outbound/client/mod.rs` both had to
+  be widened to describe a runner sitting among the clients. Moving it lets both
+  read as they did.
+
+  Small change, no behaviour, just the module docs and one import in `run.rs`.
 
 - **Refetch instructions after starring part one.** The last piece of the
   rework. Part two's text is absent from the day page until part one is solved,

@@ -3,6 +3,62 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-10
+
+A layering fix, prompted by translating `Outcome` into C# and noticing the Rust
+had a dependency pointing the wrong way. Same pattern as 2026-08-08: the
+translation keeps finding things the original got away with.
+
+The domain imported from `outbound` in exactly two places, which was smaller
+than it felt. `domain/solutions/outcome.rs` pulled both verdicts from
+`outbound::client`, and `domain/solutions/solution.rs` pulled `SolverClient`.
+
+Both verdicts moved into the domain. They were always domain vocabulary: neither
+mentions HTTP, neither carries a status code, and `Outcome` matches on them to
+render a line. They lived beside the clients purely because that is where they
+were first written. Now the clients map their replies onto them, which is the
+direction ports and adapters wants.
+
+`solve()` moved out to `outbound/client/solve.rs`. The alternative was a port
+trait the domain owns and `SolverClient` implements, which is the textbook
+answer and buys nothing here: `solve()` is orchestration rather than domain
+logic, its only callers are in `inbound/solve/`, and moving it removes the need
+for the domain to call out at all. Whether `outbound/client/` is the right
+destination is still open, since it is not a client. `inbound/solve/` sits next
+to the callers and would let the module docs stay as written.
+
+`solutions/` became `solution/`, matching the `Solution` trait now in its
+`mod.rs`. `aoc.rs` and `solver.rs` became `aoc_client.rs` and
+`solver_client.rs`.
+
+Worth remembering from the cleanup:
+
+- `cargo build` never checks intra-doc links. Both renames compiled fine while
+  three `[`Type`]` links pointed at nothing. Only `cargo doc` catches it, so run
+  it after any rename.
+- A module doc that has gone false is the signal the code moved somewhere it
+  should not have. `outbound/client/mod.rs` said "HTTP clients for the two
+  services" and could not honestly describe `solve.rs`.
+- The README's "Adding a solution" instructions were stale in four places. They
+  are checked now by actually following them against the tree and building, the
+  same way they were checked when they were wrong once before.
+
+The merge into this branch conflicted the way a directory rename always does.
+Git followed the files both branches touched, but `year_2015/` and `year_2016/`
+exist only here, so nothing told it they belonged under the new name and they
+stayed behind under `solutions/`. Rebase would not have helped: five of the ten
+commits touch that path, so it would ask the same question five times and
+rewrite pushed history. Point at the destination once and move on.
+
+Solutions were never at risk. `git diff` against the pre-merge tag showed the
+day files changed by exactly one line each, the `use`.
+
+Also fixed: the first merge commit went in without the import edits, because
+`git mv` stages a rename but not later edits to the moved file. The build passed
+anyway since the working tree had them. `git status` showing modified files
+straight after committing is the tell. Verified the fix by cloning the committed
+branch and building that, rather than trusting the working copy.
+
 ## 2026-08-08
 
 Tail end of the rework, mostly prompted by translating the same types into C#
