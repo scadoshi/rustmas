@@ -18,6 +18,31 @@ Returns `Answer::None` when nothing repeats. The first version returned the
 final position's distance, which is part one's answer wearing part two's hat,
 and exactly the shape the day before was spent hunting.
 
+2017 day 1, both parts. Same loop twice with a different step: compare each
+digit against the next one round the circle, then against the one halfway
+around. 1097 and 1188.
+
+2018 day 1. Part one is the sum, 587. Part two wants the first frequency
+reached twice, and the list of changes repeats forever, so one pass over the
+input finds nothing and returns `Answer::None`. `iter().cycle()` says that in
+one word, and it keeps the `None` honest rather than unreachable: an empty
+input yields nothing from `cycle()`, so no answer is the truth. 83130.
+
+Found why part two's text kept arriving a run late. `ensure_entry` runs at the
+top of the day loop and the submission happens further down, so the run that
+earns a new star on part one reads the cache while part two is still locked,
+and never goes back. The next run picked it up, which made it look like the
+recheck was broken when it was only late.
+
+Fixed at the point where it is knowable: a `new star` on part one is the one
+moment part two is certain to have just unlocked, so that branch calls
+`ensure_entry` again. It reuses the existing "is part two missing" gate, so a
+day that already has it costs a cache read and no request.
+
+Not yet seen working. Proving it needs a real submission on a genuinely
+unsolved day, so the next `solve -s` on a fresh one should print `part two
+unlocked` in the same run instead of needing a second.
+
 ## 2026-08-10
 
 A layering fix, prompted by translating `Outcome` into C# and noticing the Rust
