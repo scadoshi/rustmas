@@ -13,22 +13,50 @@ pub struct InvalidDirection(String);
 ///
 /// Parses from a `char` (`'l'`, `'r'`, `'u'`, `'d'`) or a `&str` (those
 /// letters or the full words), either case.
-#[derive(Debug, Clone, Copy)]
+///
+/// Declared clockwise from `Up`, so [`Direction::turn_right`] is one step down
+/// the list and [`Direction::turn_left`] one step up. `Up` is the default
+/// because a puzzle that starts you facing somewhere usually starts you facing
+/// north.
+#[derive(Debug, Clone, Copy, Default)]
 pub enum Direction {
-    Left,
-    Right,
+    #[default]
     Up,
+    Right,
     Down,
+    Left,
+}
+
+impl Direction {
+    /// A quarter turn clockwise.
+    pub fn turn_right(self) -> Self {
+        match self {
+            Self::Up => Self::Right,
+            Self::Right => Self::Down,
+            Self::Down => Self::Left,
+            Self::Left => Self::Up,
+        }
+    }
+
+    /// A quarter turn anticlockwise.
+    pub fn turn_left(self) -> Self {
+        match self {
+            Self::Up => Self::Left,
+            Self::Left => Self::Down,
+            Self::Down => Self::Right,
+            Self::Right => Self::Up,
+        }
+    }
 }
 
 impl TryFrom<char> for Direction {
     type Error = InvalidDirection;
     fn try_from(value: char) -> Result<Self, Self::Error> {
         match value.to_ascii_lowercase() {
-            'l' => Ok(Self::Left),
-            'r' => Ok(Self::Right),
             'u' => Ok(Self::Up),
+            'r' => Ok(Self::Right),
             'd' => Ok(Self::Down),
+            'l' => Ok(Self::Left),
             other => Err(InvalidDirection(other.to_string())),
         }
     }
@@ -38,10 +66,10 @@ impl TryFrom<&str> for Direction {
     type Error = InvalidDirection;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value.to_lowercase().as_str() {
-            "left" | "l" => Ok(Self::Left),
-            "right" | "r" => Ok(Self::Right),
             "up" | "u" => Ok(Self::Up),
+            "right" | "r" => Ok(Self::Right),
             "down" | "d" => Ok(Self::Down),
+            "left" | "l" => Ok(Self::Left),
             other => Err(InvalidDirection(other.to_owned())),
         }
     }

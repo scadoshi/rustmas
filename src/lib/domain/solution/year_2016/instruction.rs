@@ -18,14 +18,14 @@ pub enum InvalidInstruction {
 /// Parses from a direction letter followed by a number, such as `R2` or `L3`.
 pub(super) struct Instruction {
     pub direction: Direction,
-    pub distance: u32,
+    pub distance: i32,
 }
 
 impl TryFrom<&str> for Instruction {
     type Error = InvalidInstruction;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let direction = Direction::try_from(value.get(0..1).ok_or(InvalidInstruction::TooShort)?)?;
-        let distance: u32 = value
+        let distance: i32 = value
             .get(1..)
             .ok_or(InvalidInstruction::TooShort)?
             .parse()?;
@@ -36,8 +36,8 @@ impl TryFrom<&str> for Instruction {
     }
 }
 
-/// A whole puzzle input. Parses from instructions separated by commas or
-/// newlines, and fails as a whole if any one of them fails.
+/// A whole puzzle input. Parses from comma-separated instructions, trimming
+/// each one, and fails as a whole if any single instruction fails.
 ///
 /// Derefs to the underlying [`Vec`] for reading, and consumes into an
 /// iterator of [`Instruction`].
@@ -63,8 +63,7 @@ impl TryFrom<&str> for Instructions {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let instructions: Vec<Instruction> = value
             .split(',')
-            .flat_map(|v| v.split('\n'))
-            .map(Instruction::try_from)
+            .map(|s| Instruction::try_from(s.trim()))
             .collect::<Result<Vec<_>, _>>()?;
         Ok(Self(instructions))
     }
