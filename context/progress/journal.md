@@ -129,6 +129,41 @@ left to ignore, and `U3` now fails at parse time with the error that was already
 written for it. The lesson to keep: an argument type with dead arms is usually a
 parser accepting more than it should, one layer up.
 
+`Turn` shipped with two methods nobody called, `applied_to` and `reversed`, and
+both are gone again. `applied_to(direction)` was the worse of the two: it was
+`direction.turned(turn)` with the arguments swapped, so the same operation had
+two spellings. Speculative API on a type that exists to be parsed into.
+
+### Dead code to look at next
+
+Audited the rest while that was fresh. Nothing below is urgent and nothing is
+broken; this is a list to work through rather than a bug report. Verified by
+grepping for callers outside each item's own definition and test module.
+
+Probably keep, since each is the unused half of a deliberate pair:
+
+- `Cell`, the whole type. Never used by a day. It is the grid counterpart to
+  `Point` and no puzzle has needed a grid yet. The first maze or occupancy day
+  will want it.
+- `Point::checked_moved` and `Cell::checked_moved`. Tests only. Days so far use
+  `saturating_moved`; a day that must not leave the grid will want the other.
+- `Outcome::answer`. No callers, but it is the accessor for a private field.
+- `Outcome::error`. No callers. Written when parts became fallible, on the guess
+  that something would want to inspect the failure. Nothing does, since
+  `Display` reads the field directly. Delete unless a caller shows up.
+
+Probably delete, since these look like leftovers from earlier shapes rather than
+halves of anything:
+
+- `store::day_path`. Zero callers. Everything goes through `day_path_in`.
+- `SolverClient::with_client`. Zero callers.
+- `fetch::utils::download_input`. Zero callers anywhere in the tree.
+
+Also worth deciding rather than leaving: `Solution::input` is only ever called
+by a day on itself. If it goes, `new` stops having to retain the raw input, days
+store only what they parsed, and the `impl Into<String>` bound can relax to
+`&str`. See the `AsRef<str>` note that prompted it.
+
 Also swept every doc comment in the repo, 422 lines down to 290, and wrote
 `../rules/doc_comments.md` so it stays that way. The rule is one line by
 default, longer only for a decision that reads as a mistake, a rejected
