@@ -3,6 +3,21 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-11
+
+2016 day 1 part two, an easy one. Walk the same instructions a block at a time
+instead of a segment at a time, keep visited points in a `HashSet`, and stop at
+the first repeat. 161. `Point` gained `PartialEq`, `Eq` and `Hash` to go in the
+set.
+
+Check the current position before stepping rather than after, so each segment's
+endpoint is tested at the start of the next one instead of being skipped or
+counted twice.
+
+Returns `Answer::None` when nothing repeats. The first version returned the
+final position's distance, which is part one's answer wearing part two's hat,
+and exactly the shape the day before was spent hunting.
+
 ## 2026-08-10
 
 A layering fix, prompted by translating `Outcome` into C# and noticing the Rust
