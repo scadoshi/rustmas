@@ -177,6 +177,40 @@ paragraph past its point. Two blocks stayed long on purpose: the cache layout in
 `store/mod.rs`, which is a diagram rather than prose, and the module doc in
 `outbound/client/`, which answers why there are two clients instead of one.
 
+The rule grew one more line afterwards: doc comments describe the code as it is,
+never how it got there. That is what the journal is for, and a comment carrying
+both makes the reader hold two versions of the code at once.
+
+Last find of the day, and the best one, from noticing that `part_two.md` was
+missing from days that should have had it. It was never arriving. Part two stays
+locked until part one is solved, so the first fetch of any day gets only part
+one, and `write_entry` skips the file when there is nothing to write. Then
+`ensure_entry` returned early on a session match without ever asking whether
+`part_two` was `None`. Nothing went back for it. The refetch path was worse: it
+carried the cached instructions forward verbatim, so even a cookie change kept
+the incomplete copy.
+
+The shape of the bug is worth remembering. The cache had no way to say "complete
+but empty" apart from "not fetched yet", and the read path treated the presence
+of a directory as the presence of everything in it. An `Option` field that is
+legitimately `None` on first write will look identical to one that was never
+filled, and something has to decide which.
+
+Now a cache with no `part_two.md` counts as incomplete and is rechecked every
+run, guarded on a cookie existing so an offline run still uses what it has.
+Confirmed against the real cache rather than by reading: `cache/2016/01` was
+missing part two, one `fetch` printed `part two unlocked`, and the file is
+there. `2016/02` and `03` are still missing theirs, correctly, since those parts
+really are locked.
+
+The cost, worth watching: a day whose part two is locked now costs one page
+request per run, and there is no way to learn part two exists without asking.
+`solve` over a whole year is that many extra requests until the days are solved.
+If it gets chatty, narrow it to only chase part two once part one has an answer.
+
+Also fixed while in there: `get_input`'s doc comment had been sitting above
+`get_instructions`, leaving `get_input` undocumented.
+
 ## 2026-08-08
 
 Tail end of the rework, mostly prompted by translating the same types into C#
