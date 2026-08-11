@@ -47,13 +47,26 @@ unlocked` in the same run instead of needing a second.
 list in a `HashMap` and looking for `target - x`, so one pass rather than a
 pair of nested loops.
 
-Part two wants three numbers instead of two, which is the same question with a
-different arity, so the plan is a recursive `n_sum` that `two_sum` becomes a
-case of: pick one number, then solve for `n - 1` against `target - x`. Sketched
-as a stub and stopped there, so `n_sum` currently warns four times, including
-being unused. That is the state to pick back up from, not an oversight.
+Part two wants three numbers, and the first plan was a recursive `n_sum` that
+`two_sum` would become a case of. Dropped it: nothing here will ever want n=4,
+and a specialised `three_sum` is faster. Sort once, then for each `x` walk two
+pointers inward over the rest. O(n²) either way, but the inner step is an add
+and a compare over contiguous memory rather than a hash and a random probe.
+66432240.
 
-2019 skipped for now.
+Worth keeping straight, since I got it wrong once: the `HashMap` stays the right
+call for `two_sum` on its own, where it is O(n) against sorting's O(n log n).
+Sorting only earns its keep once the search nests.
+
+2021 day 1, 1167 and 1130. `windows(2)` counting increases, then part two is
+the same count over `windows(3)` sums. Building the intermediate `Vec` is the
+readable version and the input is small enough that it does not matter.
+
+2022 day 1, 69310 and 206104. Split on blank lines into groups, sum each, take
+the max, then the top three.
+
+The day ones are done for every year written so far: 2015, 2016, 2017, 2018,
+2020, 2021, 2022. 2019 is not missing, it is being saved to do in one run.
 
 ## 2026-08-10
 
