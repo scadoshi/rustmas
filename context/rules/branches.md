@@ -59,7 +59,9 @@ drift the default and correctness the thing you have to work at.
 
 Only on `scadoshi`:
 
-- `src/lib/domain/solutions/year_*/` and the `pub mod year_*;` lines
+- `src/lib/domain/solution/year_YYYY/` and their `pub mod year_YYYY;` lines.
+  Not `year_template/`, which is tooling for writing solutions rather than a
+  solution, and which a fresh clone of `main` should have.
 - the arms in `solver_for`
 - `context/progress/`, `context/todo.md`, and this file
 - the "Who" and "How to work with him" sections of `context/README.md`
