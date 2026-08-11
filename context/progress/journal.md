@@ -68,6 +68,32 @@ the max, then the top three.
 The day ones are done for every year written so far: 2015, 2016, 2017, 2018,
 2020, 2021, 2022. 2019 is not missing, it is being saved to do in one run.
 
+### Next: sweep the finished days for panicking indexing
+
+Go back through every solved day and turn indexing that can panic into `get`
+that returns an error instead. `totals[..3]` in 2022 day 1 is the example that
+prompted it: correct for every real input, a panic mid-run for anything else,
+and it says nothing about which day broke.
+
+Parts already return `anyhow::Result<Answer>`, so the error channel is there and
+the fix is one line with no ceremony:
+
+```rust
+let top = totals.get(..3).context("fewer than three groups")?;
+```
+
+The message is the label, which is the whole reason this is worth doing rather
+than reaching for `anyhow!` and a sentence of boilerplate.
+
+Look for slice indexing, `[..n]` ranges, and `unwrap` outside tests. `w[0]` and
+`w[1]` inside a `windows(2)` closure are fine, since the window size guarantees
+the length. The ones worth changing are where the input's shape is the only
+thing holding the index up.
+
+The instinct to skip it because it will never happen is a fair reading of the
+odds and a bad basis for the code: the cost of being wrong is a panic instead of
+a line naming the broken day, and here the honest version is the same length.
+
 ## 2026-08-10
 
 A layering fix, prompted by translating `Outcome` into C# and noticing the Rust
