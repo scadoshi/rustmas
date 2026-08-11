@@ -211,6 +211,43 @@ If it gets chatty, narrow it to only chase part two once part one has an answer.
 Also fixed while in there: `get_input`'s doc comment had been sitting above
 `get_instructions`, leaving `get_input` undocumented.
 
+Then asked where else that shape would bite, and found three more of it.
+
+`read_opt` returned `Some("")` for a zero-byte file, so a half-written
+`part_two.md` counted as content and the new recheck would never fire again.
+Blank now reads as missing.
+
+`Answer::None` was carrying three meanings at once: no answer for this input,
+no such puzzle, and nobody has written this yet. A forgotten day printed exactly
+like day 25. Split off `Answer::Unwritten`, which prints `(unwritten)`.
+
+`cookie_from_env().ok()` threw away why it failed, so a typo'd `COOKIE` looked
+identical to no cookie and silently dropped the run into offline mode. Added
+`cookie_if_set`, which is `None` only for unset or blank and errors on
+unreadable.
+
+One I raised and then dropped: `Outcome`'s `verdict` and `submission` look like
+the same shape, but `solve` only attaches them when `value()` is `Some`, so the
+ambiguous case cannot arise. Left alone rather than changed for symmetry.
+
+Also tried special-casing day 25, on the grounds that its second star is awarded
+rather than puzzled, so the recheck would ask forever. That bought a `FINAL_DAY`
+const, a `Day::has_second_puzzle` method, a test, and a third clause in the
+condition, in exchange for never caching text that does eventually exist. Backed
+it out. The recheck ends when the year is finished, which is soon enough, and
+day 25 is now just a day.
+
+Added `year_template/`, a year and a day 01 stub to copy. It is registered in
+`solution/mod.rs` and therefore compiled: an uncompiled template drifts from the
+`Solution` trait silently, and this repo already has that failure recorded for
+the README's "Adding a solution" steps, which went stale in four places. A
+template is that same bug with a shorter fuse, since it gets copied rather than
+read. It gains no arm in `solver_for`, so nothing can dispatch to it.
+
+`branches.md` needed a carve-out for it. The old rule sent `year_*/` to
+`scadoshi` only, and the template matches that glob while being tooling rather
+than a solution. A fresh clone of `main` should have it.
+
 ## 2026-08-08
 
 Tail end of the rework, mostly prompted by translating the same types into C#
