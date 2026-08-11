@@ -17,9 +17,22 @@ const AOC_BASE_URL: &str = "https://adventofcode.com";
 ///
 /// Checking which session an input came from needs the cookie but no requests.
 pub fn cookie_from_env() -> anyhow::Result<String> {
+    cookie_if_set()?.with_context(|| format!("{COOKIE_KEY} is not set"))
+}
+
+/// The session cookie, or `None` when it is unset or blank.
+///
+/// Errors only when it is set to something unusable, so a caller that can work
+/// offline is not told to go offline by a typo.
+pub fn cookie_if_set() -> anyhow::Result<Option<String>> {
     // `.env` is optional: values may already live in the real environment.
     dotenvy::dotenv().ok();
-    std::env::var(COOKIE_KEY).with_context(|| format!("failed to get {COOKIE_KEY}"))
+    match std::env::var(COOKIE_KEY) {
+        Ok(cookie) if cookie.trim().is_empty() => Ok(None),
+        Ok(cookie) => Ok(Some(cookie)),
+        Err(std::env::VarError::NotPresent) => Ok(None),
+        Err(e) => Err(e).with_context(|| format!("{COOKIE_KEY} is set but unreadable")),
+    }
 }
 
 /// An authenticated handle to adventofcode.com, pooling one client.
