@@ -23,10 +23,10 @@ use crate::domain::solution::{answer::Answer, outcome::Outcome};
 /// vtable, and dispatch is a match that already knows each concrete type.
 pub trait Solution: Sized {
     /// Parses `input` once, so both parts are reads over the result.
-    fn new(input: impl Into<String>) -> anyhow::Result<Self>;
-
-    /// The raw input this was built from.
-    fn input(&self) -> &str;
+    ///
+    /// Takes a borrow, so a day that parses into its own types keeps no copy
+    /// of the text. A day that reads the raw input in its parts owns one.
+    fn new(input: impl AsRef<str>) -> anyhow::Result<Self>;
 
     /// [`Answer::solved`] for a submittable value, [`Answer::Visual`] for art,
     /// [`Answer::None`] when there is no answer, [`Answer::Unwritten`] for a
