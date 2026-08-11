@@ -9,13 +9,11 @@ pub const FIRST_YEAR: i32 = 2015;
 pub struct Year(i32);
 
 impl Year {
-    /// Returns the inner year value.
     pub fn value(&self) -> i32 {
         self.0
     }
 
-    /// The upper bound is the latest *published* event, not the current
-    /// calendar year, so outside December those differ.
+    /// Bounded by the latest *published* event, not the calendar year.
     pub fn new(year: i32) -> Result<Self, OutOfRange> {
         if year > Self::latest() || year < FIRST_YEAR {
             return Err(OutOfRange);
@@ -23,10 +21,7 @@ impl Year {
         Ok(Self(year))
     }
 
-    /// The latest event that has actually been published.
-    ///
-    /// A new event drops each December, so before then the current calendar year
-    /// has nothing in it yet.
+    /// The latest event actually published. Before December that is last year.
     pub fn latest() -> i32 {
         let now = Utc::now();
         if now.month() == 12 {

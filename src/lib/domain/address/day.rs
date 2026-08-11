@@ -8,20 +8,16 @@ pub struct Day {
 }
 
 impl Day {
-    /// Returns the inner day value.
     pub fn value(&self) -> i32 {
         self.value
     }
 
-    /// Returns the value of the year this day belongs to.
+    /// The year this day belongs to.
     pub fn year(&self) -> i32 {
         self.year.value()
     }
 
-    /// Every published puzzle day, narrowed by the filters.
-    ///
-    /// `None` means all of them, so `each(None, None)` walks every day of every
-    /// event and `each(Some(2015), Some(1))` yields one.
+    /// Every published puzzle day, narrowed by the filters. `None` means all.
     pub fn each(
         year: Option<i32>,
         day: Option<i32>,
@@ -96,8 +92,8 @@ mod tests {
         assert_eq!(both.len(), 1);
     }
 
-    /// Day 25 exists in most years but not in 2025, so a day-only filter has to
-    /// skip the years that never had it rather than erroring.
+    /// A day-only filter skips years that never had that day rather than
+    /// erroring, since 2025 stopped at twelve.
     #[test]
     fn each_skips_years_without_that_day() {
         let days: Vec<_> = Day::each(None, Some(25)).map(Result::unwrap).collect();

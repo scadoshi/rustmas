@@ -48,9 +48,8 @@ fn day_path_in(root: &Path, day: &Day) -> PathBuf {
 
 /// Reads `day`'s cache, or `None` when nothing has been downloaded.
 ///
-/// Returns what is on disk whatever session it came from, so instructions stay
-/// usable across a cookie change. A missing session file reads as `None` too,
-/// since an input nothing can vouch for is one to fetch again.
+/// Returns what is on disk whatever session it came from, but a missing session
+/// file reads as `None`: an input nothing can vouch for is one to fetch again.
 pub fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
     read_entry_in(&project_root()?.join(CACHE_PATH), day)
 }
@@ -107,8 +106,7 @@ fn write_file(path: &Path, contents: &str) -> anyhow::Result<()> {
     write(path, contents).with_context(|| format!("failed to write {}", path.display()))
 }
 
-/// Creates `path` and its parents, no-opping if it already exists. Errors
-/// rather than clobbering when a non-directory is in the way.
+/// Creates `path` and its parents, erroring rather than clobbering a file.
 pub fn ensure_dir(path: &Path) -> anyhow::Result<()> {
     if path.is_dir() {
         return Ok(());
@@ -125,8 +123,7 @@ mod tests {
     use crate::domain::address::Year;
     use std::fs::remove_dir_all;
 
-    /// A cache root of its own per test, so nothing touches the real one and
-    /// tests do not fight each other.
+    /// A root per test, so nothing touches the real cache or another test.
     struct Temp(PathBuf);
 
     impl Temp {
@@ -169,8 +166,7 @@ mod tests {
         assert_eq!(read.instructions.part_two.as_deref(), Some("## two"));
     }
 
-    /// Days are zero padded so a directory listing sorts the way a human reads
-    /// it.
+    /// Zero padded so a directory listing sorts the way a human reads it.
     #[test]
     fn pads_the_day() {
         let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
@@ -191,8 +187,7 @@ mod tests {
         assert!(read.instructions.part_two.is_none());
     }
 
-    /// An input nothing can vouch for is one to fetch again, so a cache with no
-    /// session file reads as empty.
+    /// An input nothing can vouch for is one to fetch again.
     #[test]
     fn entry_without_a_session_reads_as_missing() {
         let temp = Temp::new("no-session");

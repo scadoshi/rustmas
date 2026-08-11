@@ -2,13 +2,13 @@ use std::fmt::Display;
 
 /// What one part of a puzzle produced. Nothing else.
 ///
-/// Verdicts and timings live in [`super::outcome::Outcome`], since they come
-/// from elsewhere: the solver, adventofcode.com, and a clock.
+/// Verdicts and timings come from elsewhere and live in
+/// [`super::outcome::Outcome`].
 #[derive(Debug)]
 pub enum Answer {
     /// A submittable answer.
     Value(String),
-    /// Art you read rather than submit. Returned instead of printed, so solving
+    /// Art you read rather than submit. Returned, not printed, so solving
     /// does no IO.
     Visual(String),
     /// Nothing to produce. Day 25 part two is the usual case.

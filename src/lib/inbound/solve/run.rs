@@ -18,10 +18,9 @@ type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;
 
 /// The solver for a day, or `None` when nobody has written one.
 ///
-/// Returning a function pointer rather than calling means the registry can be
-/// asked whether a day exists without holding its input, which is what lets a
-/// run skip unwritten days before downloading anything and lets `--submit`
-/// count what it is about to send.
+/// Returns a pointer rather than calling, so the registry can be asked whether
+/// a day exists without holding its input. That is what lets a run skip
+/// unwritten days before downloading and lets `--submit` count first.
 ///
 /// One line per day. This is the only list of what has been solved.
 // Empty until the first day is written, so the match has one arm.

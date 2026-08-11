@@ -15,15 +15,15 @@ pub struct SolveArgs {
     /// part). Validates first and only submits what the solver agrees with.
     #[arg(short, long)]
     pub submit: bool,
-    /// Skip the confirmation prompt when submitting without a year or day
-    /// filter. No short flag: this one is worth typing out.
+    /// Skip the confirmation prompt when submitting unfiltered.
+    ///
+    /// No short flag: this one is worth typing out.
     #[arg(long)]
     pub yes: bool,
 }
 
 impl SolveArgs {
-    /// True when a submit run is unfiltered, and so would post answers for
-    /// every solved day rather than the one being worked on.
+    /// True when a submit run would post every solved day, not just this one.
     pub fn submitting_everything(&self) -> bool {
         self.submit && self.year.is_none() && self.day.is_none()
     }

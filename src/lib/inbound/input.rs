@@ -11,10 +11,9 @@ use crate::{
 
 /// Returns `day`'s cached input and instructions, downloading what is missing.
 ///
-/// Nothing cached means both are fetched. An input from a different session is
-/// refetched while its instructions are kept, since puzzle text is the same for
-/// everyone. `client` is built only when something is actually downloaded, so a
-/// run over cached days stays offline.
+/// An input from a different session is refetched while its instructions are
+/// kept, since puzzle text is the same for everyone. `client` is built only
+/// when something is downloaded, so a run over cached days stays offline.
 pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result<Entry> {
     // Absent when no cookie is configured, which leaves a cached entry usable
     // rather than unverifiable and therefore unusable.

@@ -2,10 +2,9 @@ use crate::{domain::address::Day, outbound::client::aoc_client::AocClient};
 use anyhow::{Context, bail};
 use std::{fs::create_dir_all, path::Path};
 
-/// Creates `path` and its parents, no-opping if it already exists.
+/// Creates `path` and its parents, erroring rather than clobbering a file.
 ///
-/// Errors rather than clobbering when a non-directory is in the way. `name` is
-/// for narration only.
+/// `name` is for narration only.
 pub fn ensure_dir(name: &str, path: &Path) -> anyhow::Result<()> {
     if path.is_dir() {
         println!("{name} dir already exists: {}", path.display());
@@ -22,8 +21,7 @@ pub fn ensure_dir(name: &str, path: &Path) -> anyhow::Result<()> {
 
 /// Downloads the input for `day` to `path`, unless it is already there.
 ///
-/// Inputs never change, so an existing file skips the request entirely. AOC
-/// asks that you not re-download.
+/// Inputs never change, and AOC asks that you not re-download.
 pub fn download_input(client: &AocClient, day: &Day, path: &Path) -> anyhow::Result<()> {
     if path.is_file() {
         println!("input already cached: {}", path.display());
