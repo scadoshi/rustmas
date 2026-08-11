@@ -64,9 +64,12 @@ cargo run fetch -y 2015 -d 1    # one puzzle
 | `-d`, `--day` | Only this day. Omit for all. |
 
 Both flags are filters rather than a lookup, so omitting one means all of them.
-Re-running is safe: an existing input counts as a cached download and is never
-refetched, so `fetch` only fills gaps. Advent of Code asks that you not
-re-download.
+
+Re-running is safe. Inputs never change, so a cached one is never fetched again;
+Advent of Code asks that you not re-download. Instructions are different, since
+part two stays locked until part one is solved. A day cached without
+`part_two.md` is incomplete rather than finished, so `fetch` asks for it again
+on every run until it arrives.
 
 ## solve
 
@@ -86,14 +89,18 @@ cargo run solve -y 2015 -d 1 --submit     # check, then send for stars
 | `-s`, `--submit` | Submit to Advent of Code. Implies `--validate`. |
 | `--yes` | Skip the confirmation prompt on an unfiltered `--submit`. |
 
-Solving reads inputs from disk and downloads any that are missing, so a run
-over cached days is entirely offline and needs no cookie. `--validate` needs
-none either, since the third-party solver has no accounts.
+Solving reads inputs from disk and downloads what is missing. With no cookie set
+it stays entirely offline. With one set, a day still waiting on part two costs a
+request to see whether it has unlocked. `--validate` needs no cookie either,
+since the third-party solver has no accounts.
 
 `--submit` always validates first and only sends what the solver agrees with,
 because a wrong answer to Advent of Code earns a cooldown that escalates with
 repeats. If the solver has no implementation for that puzzle, which happens
 during a live event, the answer is submitted anyway and flagged as unchecked.
+
+A new star on part one unlocks part two, so `--submit` fetches its text before
+the run finishes rather than leaving it for next time.
 
 Run `--submit` with no year or day and it would post every solved part, so it
 prints the count and asks first. `--yes` skips that. There is no short flag for
@@ -126,6 +133,7 @@ times slower.
 | `rate limited, 1m 0s left to wait` | Advent of Code refused to grade, wait it out |
 | `(none)` | The part has no answer, such as day 25 part two |
 | `(unwritten)` | Nobody has written this part yet |
+| `error: ...` | The part failed. The other part still ran |
 
 Advent of Code grades each part exactly once, so a part solved earlier reports
 `starred` rather than confirming the answer again.
@@ -198,7 +206,7 @@ src/
         solver_verdict.rs    # what the solver made of an answer
         year_template/       # copy this to start a year
         year_2015/           # one dir per day, each with a Puzzle
-        year_2016/
+        year_2016/           # 2017, 2018, 2020, 2021, 2022 too
     inbound/                 # ways in
       cli.rs                 # the command line and its subcommands
       input.rs               # read the cache, fetch what is missing
