@@ -13,6 +13,8 @@ pub mod year_2016;
 pub mod year_2017;
 pub mod year_2018;
 pub mod year_2020;
+pub mod year_2021;
+pub mod year_2022;
 // Compiled but never dispatched, so copying it starts from something that
 // builds against the current `Solution`.
 pub mod year_template;
