@@ -152,12 +152,16 @@ Probably keep, since each is the unused half of a deliberate pair:
   that something would want to inspect the failure. Nothing does, since
   `Display` reads the field directly. Delete unless a caller shows up.
 
-Probably delete, since these look like leftovers from earlier shapes rather than
-halves of anything:
+Deleted, being leftovers from earlier shapes rather than halves of anything:
 
-- `store::day_path`. Zero callers. Everything goes through `day_path_in`.
-- `SolverClient::with_client`. Zero callers.
-- `fetch::utils::download_input`. Zero callers anywhere in the tree.
+- `store::day_path`, which only wrapped `day_path_in` with the real cache root.
+  `day_path_in` took over its doc line.
+- `SolverClient::with_client`. `new` is the only way one gets built.
+- `fetch::utils::download_input`, which also took `Day` and `AocClient` out of
+  that module's imports. Downloading goes through `inbound/input.rs` now, and
+  this was the earlier path that nothing had removed.
+
+None of the three had a caller or a test, so nothing else moved.
 
 Also worth deciding rather than leaving: `Solution::input` is only ever called
 by a day on itself. If it goes, `new` stops having to retain the raw input, days
