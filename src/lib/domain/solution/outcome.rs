@@ -45,16 +45,6 @@ impl Outcome {
         self
     }
 
-    /// What the part produced, or why it could not.
-    pub fn answer(&self) -> Result<&Answer, &anyhow::Error> {
-        self.answer.as_ref()
-    }
-
-    /// Why the part failed, if it did.
-    pub fn error(&self) -> Option<&anyhow::Error> {
-        self.answer.as_ref().err()
-    }
-
     pub fn elapsed(&self) -> Duration {
         self.elapsed
     }
