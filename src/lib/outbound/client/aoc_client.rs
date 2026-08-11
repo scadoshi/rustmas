@@ -54,9 +54,6 @@ impl AocClient {
         })
     }
 
-    /// Fetches the raw puzzle input for `day`, verbatim.
-    ///
-    /// A non-success status usually means a bad cookie or an unreleased day.
     /// Fetches `day`'s puzzle text, rendered from HTML.
     ///
     /// Part two comes back `None` until part one is solved.
@@ -86,6 +83,9 @@ impl AocClient {
         Ok((one, two))
     }
 
+    /// Fetches the raw puzzle input for `day`, verbatim.
+    ///
+    /// A non-success status usually means a bad cookie or an unreleased day.
     pub fn get_input(&self, day: &Day) -> anyhow::Result<String> {
         self.client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!(

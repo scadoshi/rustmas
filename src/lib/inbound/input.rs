@@ -11,43 +11,69 @@ use crate::{
 
 /// Returns `day`'s cached input and instructions, downloading what is missing.
 ///
-/// An input from a different session is refetched while its instructions are
-/// kept, since puzzle text is the same for everyone. `client` is built only
-/// when something is downloaded, so a run over cached days stays offline.
+/// A cache with no `part_two.md` counts as incomplete and is rechecked every
+/// run, since part two unlocks only once part one is solved. An input from
+/// another session is refetched, keeping its instructions. `client` is built
+/// only when something is downloaded.
 pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result<Entry> {
     // Absent when no cookie is configured, which leaves a cached entry usable
     // rather than unverifiable and therefore unusable.
     let cookie = cookie_from_env().ok();
 
-    let cached = store::read_entry(day)?;
-    if let Some(entry) = cached {
-        let same_session = cookie
-            .as_deref()
-            .is_none_or(|cookie| entry.input.is_from(cookie));
-        if same_session {
-            return Ok(entry);
-        }
+    let Some(cached) = store::read_entry(day)? else {
+        let input = fetch_input(client, day, cookie.as_deref())?;
+        let (part_one, part_two) = connected(client)?.get_instructions(day)?;
         let entry = Entry {
-            input: fetch_input(client, day, cookie.as_deref())?,
-            instructions: entry.instructions,
+            input,
+            instructions: Instructions { part_one, part_two },
         };
         store::write_entry(day, &entry)?;
+        println!("fetched year {} day {}", day.year(), day.value());
+        return Ok(entry);
+    };
+
+    let stale_session = cookie
+        .as_deref()
+        .is_some_and(|cookie| !cached.input.is_from(cookie));
+    // No cookie means nothing to ask with, so an incomplete cache stays as is
+    // rather than failing the run.
+    let chase_part_two = cached.instructions.part_two.is_none() && cookie.is_some();
+
+    if !stale_session && !chase_part_two {
+        return Ok(cached);
+    }
+
+    let input = if stale_session {
+        let input = fetch_input(client, day, cookie.as_deref())?;
         println!(
             "refetched input for year {} day {}",
             day.year(),
             day.value()
         );
-        return Ok(entry);
-    }
+        input
+    } else {
+        cached.input
+    };
 
-    let input = fetch_input(client, day, cookie.as_deref())?;
-    let (part_one, part_two) = connected(client)?.get_instructions(day)?;
+    let instructions = if chase_part_two {
+        let (part_one, part_two) = connected(client)?.get_instructions(day)?;
+        if part_two.is_some() {
+            println!(
+                "part two unlocked for year {} day {}",
+                day.year(),
+                day.value()
+            );
+        }
+        Instructions { part_one, part_two }
+    } else {
+        cached.instructions
+    };
+
     let entry = Entry {
         input,
-        instructions: Instructions { part_one, part_two },
+        instructions,
     };
     store::write_entry(day, &entry)?;
-    println!("fetched year {} day {}", day.year(), day.value());
     Ok(entry)
 }
 

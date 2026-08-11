@@ -35,7 +35,10 @@ If the extra paragraph only restates the signature in prose, cut it.
   nothing.
 - No repeating a parent's doc on every child. Say it once on the type or the
   module.
-- No history. "Used to take a `String`" belongs in the journal, not the code.
+- No history. Describe the code as it is, never how it got there. "Used to take
+  a `String`", "this used to parse in `part_one`", "the old version clobbered
+  the file" all belong in the journal. A reader arriving cold needs to know what
+  the code does now; what it used to do only adds a second thing to hold.
 
 ### Where the long-form goes instead
 
