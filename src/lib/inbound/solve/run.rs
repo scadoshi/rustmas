@@ -1,7 +1,7 @@
 use crate::{
     domain::{
         address::{Day, Part},
-        solution::Solved,
+        solution::{Solved, aoc_verdict::AocVerdict},
     },
     inbound::{
         input::ensure_entry,
@@ -84,10 +84,17 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 // Gated on the flag, not on the client existing: fetching a
                 // missing input builds one too.
                 if args.submit {
-                    let aoc = aoc.as_ref().expect("built up front when submitting");
-                    solved.one = submit(aoc, &day, Part::One, solved.one)?;
-                    solved.two = submit(aoc, &day, Part::Two, solved.two)?;
+                    let client = aoc.as_ref().expect("built up front when submitting");
+                    solved.one = submit(client, &day, Part::One, solved.one)?;
+                    solved.two = submit(client, &day, Part::Two, solved.two)?;
                 }
+
+                // A new star on part one unlocks part two, which was still
+                // locked when this run read the cache.
+                if matches!(solved.one.submission(), Some(AocVerdict::Correct)) {
+                    ensure_entry(&mut aoc, &day)?;
+                }
+
                 println!(
                     "year {} day {} in {:?} ({:?} parsing)",
                     day.year(),
