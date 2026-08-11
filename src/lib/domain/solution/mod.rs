@@ -8,6 +8,7 @@
 
 pub mod answer;
 pub mod aoc_verdict;
+pub mod common;
 pub mod outcome;
 pub mod solver_verdict;
 // One `pub mod year_YYYY;` per year you write solutions for.
@@ -30,6 +31,7 @@ pub trait Solution: Sized {
 
     /// [`Answer::solved`] for a submittable value, [`Answer::Visual`] for art,
     /// [`Answer::None`] for nothing.
+    ///
     fn part_one(&self) -> Answer;
 
     /// Same contract as [`Solution::part_one`]. Day 25 has no second puzzle.
