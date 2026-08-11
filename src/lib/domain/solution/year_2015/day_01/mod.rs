@@ -15,8 +15,8 @@ impl Solution for Puzzle {
         &self.input
     }
 
-    fn part_one(&self) -> Answer {
-        Answer::solved(
+    fn part_one(&self) -> anyhow::Result<Answer> {
+        Ok(Answer::solved(
             self.input
                 .chars()
                 .fold(0, |acc, c| {
@@ -29,10 +29,10 @@ impl Solution for Puzzle {
                     }
                 })
                 .to_string(),
-        )
+        ))
     }
 
-    fn part_two(&self) -> Answer {
+    fn part_two(&self) -> anyhow::Result<Answer> {
         let mut acc = 0;
         for (i, c) in self.input.chars().enumerate() {
             if c == '(' {
@@ -41,9 +41,9 @@ impl Solution for Puzzle {
                 acc -= 1;
             }
             if acc == -1 {
-                return Answer::solved((i + 1).to_string());
+                return Ok(Answer::solved((i + 1).to_string()));
             }
         }
-        Answer::None
+        Ok(Answer::None)
     }
 }
