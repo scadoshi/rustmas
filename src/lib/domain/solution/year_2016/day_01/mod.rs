@@ -43,8 +43,6 @@ impl Solution for Puzzle {
                 pose = pose.saturating_moved(1);
             }
         }
-        Ok(Answer::solved(
-            pose.position.distance_from_origin().to_string(),
-        ))
+        Ok(Answer::None)
     }
 }
