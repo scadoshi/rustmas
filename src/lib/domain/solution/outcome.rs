@@ -186,6 +186,14 @@ mod tests {
         assert_eq!(notes(&outcome), "(none)");
     }
 
+    /// A stub must not read as a part that is finished and has nothing to say.
+    #[test]
+    fn unwritten_parts_are_not_absent_ones() {
+        let outcome = Outcome::new(Ok(Answer::Unwritten), Duration::ZERO);
+        assert_eq!(notes(&outcome), "(unwritten)");
+        assert!(outcome.value().is_none());
+    }
+
     fn failed() -> Outcome {
         let cause = anyhow::anyhow!("given string was too short");
         Outcome::new(

@@ -35,6 +35,6 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::None)
+        Ok(Answer::Unwritten)
     }
 }
