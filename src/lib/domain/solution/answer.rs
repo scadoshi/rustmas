@@ -11,8 +11,11 @@ pub enum Answer {
     /// Art you read rather than submit. Returned, not printed, so solving
     /// does no IO.
     Visual(String),
-    /// Nothing to produce. Day 25 part two is the usual case.
+    /// There is no answer to give: day 25 part two, or an input with none.
     None,
+    /// Nobody has written this part yet. Distinct from [`Answer::None`], so a
+    /// stub cannot pass for a part that is finished and has nothing to say.
+    Unwritten,
 }
 
 impl Answer {
@@ -36,6 +39,7 @@ impl Display for Answer {
             Self::Value(value) => write!(f, "{value}"),
             Self::Visual(art) => write!(f, "\n{art}"),
             Self::None => write!(f, "(none)"),
+            Self::Unwritten => write!(f, "(unwritten)"),
         }
     }
 }
