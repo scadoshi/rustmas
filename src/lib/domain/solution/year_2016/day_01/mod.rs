@@ -1,6 +1,9 @@
+use std::collections::HashSet;
+
 use crate::domain::solution::{
     Solution,
     answer::Answer,
+    common::point::Point,
     year_2016::{instruction::Instructions, pose::Pose},
 };
 
@@ -27,6 +30,21 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Unwritten)
+        let mut pose = Pose::default();
+        let mut visited = HashSet::<Point>::new();
+        for i in self.instructions.iter() {
+            pose = pose.turned(i.turn);
+            for _ in 0..i.distance {
+                if !visited.insert(pose.position) {
+                    return Ok(Answer::solved(
+                        pose.position.distance_from_origin().to_string(),
+                    ));
+                }
+                pose = pose.saturating_moved(1);
+            }
+        }
+        Ok(Answer::solved(
+            pose.position.distance_from_origin().to_string(),
+        ))
     }
 }
