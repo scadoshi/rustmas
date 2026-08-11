@@ -9,6 +9,9 @@ pub mod common;
 pub mod outcome;
 pub mod solver_verdict;
 // One `pub mod year_YYYY;` per year you write solutions for.
+// Compiled but never dispatched, so copying it starts from something that
+// builds against the current `Solution`.
+pub mod year_template;
 
 use std::time::Duration;
 
@@ -26,7 +29,8 @@ pub trait Solution: Sized {
     fn input(&self) -> &str;
 
     /// [`Answer::solved`] for a submittable value, [`Answer::Visual`] for art,
-    /// [`Answer::None`] for nothing.
+    /// [`Answer::None`] when there is no answer, [`Answer::Unwritten`] for a
+    /// part not yet written.
     ///
     /// An error means the day is broken, which is not the same as having no
     /// answer. It stops this part only; the other still runs.
