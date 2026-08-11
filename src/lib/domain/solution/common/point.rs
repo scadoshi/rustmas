@@ -10,8 +10,8 @@ type Dir = Direction;
 /// grid, use [`Cell`](super::cell::Cell).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Point {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl Point {
@@ -53,6 +53,15 @@ impl Point {
             },
         }
     }
+
+    /// Manhattan distance back to `(0, 0)`: the blocks you would walk on a
+    /// grid of streets, not the straight line.
+    ///
+    /// [`i32::unsigned_abs`] rather than `abs`, since `abs` has no answer for
+    /// [`i32::MIN`] and panics on it in debug builds.
+    pub fn distance_from_origin(&self) -> u32 {
+        self.x.unsigned_abs().saturating_add(self.y.unsigned_abs())
+    }
 }
 
 #[cfg(test)]
@@ -93,6 +102,24 @@ mod tests {
         assert_eq!(Point::default().saturating_moved(Dir::Right, 1).x, 1);
         assert_eq!(Point::default().saturating_moved(Dir::Up, 1).y, 1);
         assert_eq!(Point::default().saturating_moved(Dir::Down, 1).y, -1);
+    }
+
+    #[test]
+    fn distance_from_origin_is_manhattan() {
+        assert_eq!(Point::default().distance_from_origin(), 0);
+        assert_eq!(Point::new(3, 4).distance_from_origin(), 7);
+        assert_eq!(Point::new(-3, -4).distance_from_origin(), 7);
+    }
+
+    /// `abs` panics on [`i32::MIN`] in debug builds, so the distance is built
+    /// from `unsigned_abs` instead.
+    #[test]
+    fn distance_from_origin_survives_the_extremes() {
+        assert_eq!(Point::new(i32::MIN, 0).distance_from_origin(), 2_147_483_648);
+        assert_eq!(
+            Point::new(i32::MIN, i32::MIN).distance_from_origin(),
+            u32::MAX
+        );
     }
 
     #[test]
