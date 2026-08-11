@@ -37,14 +37,6 @@ impl SolverClient {
         }
     }
 
-    /// Shares an existing client, whose pool is reference counted internally.
-    pub fn with_client(client: Client) -> Self {
-        Self {
-            user_agent: super::user_agent_from_env(),
-            client,
-        }
-    }
-
     pub fn client(&self) -> &Client {
         &self.client
     }

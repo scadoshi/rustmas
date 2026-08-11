@@ -35,12 +35,7 @@ pub fn project_root() -> anyhow::Result<PathBuf> {
     )?))
 }
 
-/// Where `day`'s cache lives: `cache/<year>/<NN>/`, zero padded.
-pub fn day_path(day: &Day) -> anyhow::Result<PathBuf> {
-    Ok(day_path_in(&project_root()?.join(CACHE_PATH), day))
-}
-
-/// `day`'s directory under an arbitrary cache root.
+/// `day`'s directory under an arbitrary cache root: `<year>/<NN>/`, zero padded.
 fn day_path_in(root: &Path, day: &Day) -> PathBuf {
     root.join(day.year().to_string())
         .join(format!("{:02}", day.value()))
