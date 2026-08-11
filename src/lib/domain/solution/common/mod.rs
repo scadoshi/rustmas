@@ -1,6 +1,6 @@
-//! Pieces that more than one puzzle needs: the two kinds of position and the
-//! directions you move them in.
+//! Pieces more than one puzzle needs: positions, directions, and turns.
 
 pub mod cell;
 pub mod direction;
 pub mod point;
+pub mod turn;
