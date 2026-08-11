@@ -1,7 +1,9 @@
 use crate::{
     domain::{
         address::{Day, Part},
-        solution::{Solved, aoc_verdict::AocVerdict, year_2015, year_2016, year_2017, year_2018},
+        solution::{
+            Solved, aoc_verdict::AocVerdict, year_2015, year_2016, year_2017, year_2018, year_2020,
+        },
     },
     inbound::{
         input::ensure_entry,
@@ -29,6 +31,7 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
         (2016, 1) => solve::<year_2016::day_01::Puzzle>,
         (2017, 1) => solve::<year_2017::day_01::Puzzle>,
         (2018, 1) => solve::<year_2018::day_01::Puzzle>,
+        (2020, 1) => solve::<year_2020::day_01::Puzzle>,
         _ => return None,
     })
 }

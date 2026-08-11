@@ -43,6 +43,18 @@ Not yet seen working. Proving it needs a real submission on a genuinely
 unsolved day, so the next `solve -s` on a fresh one should print `part two
 unlocked` in the same run instead of needing a second.
 
+2020 day 1 part one, 989824. Two numbers summing to 2020, found by putting the
+list in a `HashMap` and looking for `target - x`, so one pass rather than a
+pair of nested loops.
+
+Part two wants three numbers instead of two, which is the same question with a
+different arity, so the plan is a recursive `n_sum` that `two_sum` becomes a
+case of: pick one number, then solve for `n - 1` against `target - x`. Sketched
+as a stub and stopped there, so `n_sum` currently warns four times, including
+being unused. That is the state to pick back up from, not an oversight.
+
+2019 skipped for now.
+
 ## 2026-08-10
 
 A layering fix, prompted by translating `Outcome` into C# and noticing the Rust
