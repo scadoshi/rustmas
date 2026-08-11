@@ -248,6 +248,35 @@ read. It gains no arm in `solver_for`, so nothing can dispatch to it.
 `scadoshi` only, and the template matches that glob while being tooling rather
 than a solution. A fresh clone of `main` should have it.
 
+Then cleared the rest of the dead-code list, keeping `Cell` and both
+`checked_moved`s. Those are the unused half of a two-option API rather than
+rot, and a day that must not leave the grid will want them.
+
+`Outcome::answer` and `Outcome::error` are gone. Neither had a caller, `Display`
+reads the field directly, and `answer` returned a
+`Result<&Answer, &anyhow::Error>` nobody had asked for.
+
+`Solution::input` is gone too, and that one paid. It was only ever called by a
+day on itself, but being on the trait it obliged every day to retain the raw
+text. 2016 day 1 was holding a whole copy of its input purely to satisfy the
+method, having parsed it in `new` and never read it again. Dropping the method
+let that field go, and parsing the day went from about 165µs to 68µs.
+
+With nothing forcing ownership, `new` could finally take `impl AsRef<str>`
+instead of `impl Into<String>`. That was the right answer days ago and the
+wrong time to apply it: the reason `Into<String>` won then was `input()`, so the
+method had to go first. A day that parses into its own types now keeps no copy,
+and one whose parts read the raw text owns a `String` as a private field of its
+own choosing rather than a trait obligation.
+
+The README's "Adding a solution" steps were stale again, in the way the entry
+above predicted. They still showed `-> Answer` and `fn input`, which this same
+session had already changed. Rather than correct the copy, the section now says
+to copy `year_template/`, so there is one example and the compiler owns it.
+`context/design/solutions.md` had the same stale trait sketch and is updated.
+Checked the new steps by following them: copied the template to a scratch
+`year_2017`, built clean with no warnings, deleted it again.
+
 ## 2026-08-08
 
 Tail end of the rework, mostly prompted by translating the same types into C#
