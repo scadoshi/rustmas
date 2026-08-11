@@ -59,6 +59,51 @@ anyway since the working tree had them. `git status` showing modified files
 straight after committing is the tell. Verified the fix by cloning the committed
 branch and building that, rather than trusting the working copy.
 
+Started `domain/solution/common/`, the pieces more than one puzzle needs.
+`Direction` is the four axis moves, parsing from a letter or a word. `Point` is
+cartesian, signed, `y` up. `Cell` is a grid index, unsigned, rows down from the
+top. Both get `checked_moved` and `saturating_moved`, so a solution picks
+whether leaving the grid is an error or a clamp.
+
+The two conventions are the whole reason they are separate types, and the tests
+proved the point by getting it wrong: the row assertions in `cell.rs` were
+copy-pasted from `point.rs`, so they expected `Up` to increase the row. Three of
+the four tests were also marked `#[ignore]` with no `#[test]`, which is not a
+skipped test but a plain function the harness never sees. That hid the one real
+failure. Both fixed, all four run.
+
+That work surfaced the missing piece: parsing can fail and there was nowhere
+for the failure to go. `Instruction::try_from` returns `InvalidInstruction`, but
+the parts returned a bare `Answer`, so the only honest option was `.unwrap()`.
+Which is what day 1 had.
+
+Parts are now `anyhow::Result<Answer>`, and `Outcome` holds the whole
+`Result` rather than just an `Answer`.
+
+Rejected putting an `Error` variant on `Answer`. Its doc comment says "what one
+part produced, nothing else", and an error is not something the part produced.
+Every match on `Answer` would have grown a case, `value()` would have to
+remember to exclude it, and nothing would stop a day from constructing one by
+hand as if it were an answer. `Result` says the same thing in the type and
+brings `?` with it.
+
+Rejected `Box<dyn Error>` for `anyhow::Error`: `Solution::new` and `solve`
+already return `anyhow::Result`, `anyhow` is `Send + Sync` where the box is not
+by default, and `.context()` is the whole reason to want the error in the first
+place.
+
+The part worth having thought about is where the error stops. Propagating it out
+of `solve` would have been less code, but a puzzle runner should never let a
+broken part two hide a working part one. So a failing part is caught into its
+own `Outcome`, prints as `error: <chain>` with its timing, and the other part
+runs regardless. Only a failure in `Solution::new` ends the day, since then
+neither part has anything to read. Errors carry no value, so they cannot be
+validated or submitted, and that falls out of the `value()` gate the visual and
+absent answers already went through rather than needing a new rule.
+
+2016 day 1 now parses in `new` and holds the `Instructions`. Both parts still
+return `Answer::None`; the actual puzzle is next.
+
 ## 2026-08-08
 
 Tail end of the rework, mostly prompted by translating the same types into C#
