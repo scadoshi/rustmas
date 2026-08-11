@@ -101,8 +101,42 @@ neither part has anything to read. Errors carry no value, so they cannot be
 validated or submitted, and that falls out of the `value()` gate the visual and
 absent answers already went through rather than needing a new rule.
 
-2016 day 1 now parses in `new` and holds the `Instructions`. Both parts still
-return `Answer::None`; the actual puzzle is next.
+2016 day 1 part one is done, and validates at 278. It parses in `new`, holds the
+`Instructions`, and walks them with a new `Pose`.
+
+`Pose` is a `Point` plus a `Direction`, because these instructions are relative:
+`R2` turns from wherever the last one left you pointing, so a position on its
+own is not enough state to walk. It went through three names before landing.
+`Position { facing, located_at }` was circular, since the inner field wanted the
+same word as the type. `Position { facing, location }` fixed that. `Pose` is the
+term for position plus orientation, and once the type carried that meaning the
+fields could take the plain nouns: `heading` and `position`. Worth the two
+renames. The first version read as a struct that had run out of names.
+
+The four-variant parameter was the day's real find. `Pose::saturating_turned`
+took a `Direction`, and matched `Up` and `Down` to no-ops, which felt silly
+enough to ask about. It was worse than silly. `Instruction` parsed its letter
+with `Direction::try_from`, which accepts `u` and `d`, so `U3` parsed happily,
+turned nowhere, and walked three blocks along whatever heading it already had. A
+malformed input became a confidently wrong answer, and `InvalidInstruction`
+never fired.
+
+So `Turn { Left, Right }` now lives in `common/`, with its own `TryFrom` that
+takes only `l` and `r`. `Instruction` holds a `Turn`, `Direction::turned(Turn)`
+joins the two turn methods, and `saturating_turned` became `turned`, since
+nothing saturates in a turn. The ignored arms are gone because there is nothing
+left to ignore, and `U3` now fails at parse time with the error that was already
+written for it. The lesson to keep: an argument type with dead arms is usually a
+parser accepting more than it should, one layer up.
+
+Also swept every doc comment in the repo, 422 lines down to 290, and wrote
+`../rules/doc_comments.md` so it stays that way. The rule is one line by
+default, longer only for a decision that reads as a mistake, a rejected
+alternative, a trap, or a cross-reference that saves a search. Most of what came
+out was accessors restating their own names and rationale that had grown a
+paragraph past its point. Two blocks stayed long on purpose: the cache layout in
+`store/mod.rs`, which is a diagram rather than prose, and the module doc in
+`outbound/client/`, which answers why there are two clients instead of one.
 
 ## 2026-08-08
 
