@@ -8,9 +8,14 @@ use std::{fmt::Display, time::Duration};
 /// The three fields have three different sources: [`Answer`] is computed,
 /// `elapsed` is measured, and the verdicts arrive over the network. Only
 /// [`Answer::Value`] can carry a verdict, which the attaching methods enforce.
+///
+/// A part that failed is held here rather than propagated, so one broken part
+/// does not hide the other one's answer. An error has no value, so it can
+/// never be validated or submitted, which falls out of the same
+/// [`Outcome::value`] gate the other unsubmittable answers use.
 #[derive(Debug)]
 pub struct Outcome {
-    answer: Answer,
+    answer: anyhow::Result<Answer>,
     /// Time to compute the answer. Never includes a network round trip.
     elapsed: Duration,
     /// From the third-party solver. Repeatable, so it gates submission.
@@ -20,7 +25,8 @@ pub struct Outcome {
 }
 
 impl Outcome {
-    pub fn new(answer: Answer, elapsed: Duration) -> Self {
+    /// Takes whatever the part returned, error included.
+    pub fn new(answer: anyhow::Result<Answer>, elapsed: Duration) -> Self {
         Self {
             answer,
             elapsed,
@@ -31,7 +37,7 @@ impl Outcome {
 
     /// Attaches a solver verdict, ignored unless there is something to check.
     pub fn with_verdict(mut self, verdict: SolverVerdict) -> Self {
-        if self.answer.value().is_some() {
+        if self.value().is_some() {
             self.verdict = Some(verdict);
         }
         self
@@ -39,23 +45,29 @@ impl Outcome {
 
     /// Attaches what AOC said, ignored unless there is something to submit.
     pub fn with_submission(mut self, submission: AocVerdict) -> Self {
-        if self.answer.value().is_some() {
+        if self.value().is_some() {
             self.submission = Some(submission);
         }
         self
     }
 
-    pub fn answer(&self) -> &Answer {
-        &self.answer
+    /// What the part produced, or why it could not.
+    pub fn answer(&self) -> Result<&Answer, &anyhow::Error> {
+        self.answer.as_ref()
+    }
+
+    /// Why the part failed, if it did.
+    pub fn error(&self) -> Option<&anyhow::Error> {
+        self.answer.as_ref().err()
     }
 
     pub fn elapsed(&self) -> Duration {
         self.elapsed
     }
 
-    /// The submittable text, if there is any.
+    /// The submittable text, if there is any. A failed part has none.
     pub fn value(&self) -> Option<&str> {
-        self.answer.value()
+        self.answer.as_ref().ok()?.value()
     }
 
     pub fn verdict(&self) -> Option<&SolverVerdict> {
@@ -69,9 +81,15 @@ impl Outcome {
 
 impl Display for Outcome {
     /// The answer, then whatever is known about it, then how long it took, so a
-    /// part is always one line.
+    /// part is always one line. A failed part reads as its error chain, still
+    /// on one line, still timed.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.answer)?;
+        match &self.answer {
+            Ok(answer) => write!(f, "{answer}")?,
+            // `{:#}` puts the whole chain on the line rather than just the
+            // outermost message.
+            Err(e) => write!(f, "error: {e:#}")?,
+        }
 
         // AOC's word supersedes the solver's, so a starred part reads as starred
         // rather than repeating that the solver agreed.
@@ -96,7 +114,7 @@ mod tests {
     use super::*;
 
     fn value() -> Outcome {
-        Outcome::new(Answer::solved("138"), Duration::from_micros(7))
+        Outcome::new(Ok(Answer::solved("138")), Duration::from_micros(7))
     }
 
     /// The timing suffix is asserted separately, so these compare the part
@@ -159,7 +177,7 @@ mod tests {
     #[test]
     fn unsubmittable_answers_never_take_a_verdict() {
         for answer in [Answer::Visual("art".to_string()), Answer::None] {
-            let outcome = Outcome::new(answer, Duration::ZERO)
+            let outcome = Outcome::new(Ok(answer), Duration::ZERO)
                 .with_verdict(SolverVerdict::Correct)
                 .with_submission(AocVerdict::Correct);
             assert!(outcome.verdict().is_none());
@@ -169,14 +187,44 @@ mod tests {
 
     #[test]
     fn visual_answers_render_their_art() {
-        let outcome = Outcome::new(Answer::Visual("###".to_string()), Duration::ZERO);
+        let outcome = Outcome::new(Ok(Answer::Visual("###".to_string())), Duration::ZERO);
         assert!(outcome.to_string().contains("###"));
         assert_eq!(notes(&outcome), "\n###");
     }
 
     #[test]
     fn absent_answers_say_so() {
-        let outcome = Outcome::new(Answer::None, Duration::ZERO);
+        let outcome = Outcome::new(Ok(Answer::None), Duration::ZERO);
         assert_eq!(notes(&outcome), "(none)");
+    }
+
+    fn failed() -> Outcome {
+        let cause = anyhow::anyhow!("given string was too short");
+        Outcome::new(
+            Err(cause.context("could not parse the input")),
+            Duration::ZERO,
+        )
+    }
+
+    /// A failed part still prints, and prints the whole chain, since the
+    /// outermost message alone rarely says which day is broken.
+    #[test]
+    fn failed_parts_render_their_error() {
+        assert_eq!(
+            notes(&failed()),
+            "error: could not parse the input: given string was too short"
+        );
+    }
+
+    /// Nothing to submit, so nothing to check. Same gate the unsubmittable
+    /// answers go through.
+    #[test]
+    fn failed_parts_never_take_a_verdict() {
+        let outcome = failed()
+            .with_verdict(SolverVerdict::Correct)
+            .with_submission(AocVerdict::Correct);
+        assert!(outcome.value().is_none());
+        assert!(outcome.verdict().is_none());
+        assert!(outcome.submission().is_none());
     }
 }
