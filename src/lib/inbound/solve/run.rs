@@ -1,7 +1,7 @@
 use crate::{
     domain::{
         address::{Day, Part},
-        solution::{Solved, year_2015, year_2016},
+        solution::{Solved, aoc_verdict::AocVerdict, year_2015, year_2016, year_2017, year_2018},
     },
     inbound::{
         input::ensure_entry,
@@ -27,6 +27,8 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
     Some(match (year, day) {
         (2015, 1) => solve::<year_2015::day_01::Puzzle>,
         (2016, 1) => solve::<year_2016::day_01::Puzzle>,
+        (2017, 1) => solve::<year_2017::day_01::Puzzle>,
+        (2018, 1) => solve::<year_2018::day_01::Puzzle>,
         _ => return None,
     })
 }
@@ -80,10 +82,17 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 // Gated on the flag, not on the client existing: fetching a
                 // missing input builds one too.
                 if args.submit {
-                    let aoc = aoc.as_ref().expect("built up front when submitting");
-                    solved.one = submit(aoc, &day, Part::One, solved.one)?;
-                    solved.two = submit(aoc, &day, Part::Two, solved.two)?;
+                    let client = aoc.as_ref().expect("built up front when submitting");
+                    solved.one = submit(client, &day, Part::One, solved.one)?;
+                    solved.two = submit(client, &day, Part::Two, solved.two)?;
                 }
+
+                // A new star on part one unlocks part two, which was still
+                // locked when this run read the cache.
+                if matches!(solved.one.submission(), Some(AocVerdict::Correct)) {
+                    ensure_entry(&mut aoc, &day)?;
+                }
+
                 println!(
                     "year {} day {} in {:?} ({:?} parsing)",
                     day.year(),

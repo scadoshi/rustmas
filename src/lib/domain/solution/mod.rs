@@ -10,6 +10,8 @@ pub mod outcome;
 pub mod solver_verdict;
 pub mod year_2015;
 pub mod year_2016;
+pub mod year_2017;
+pub mod year_2018;
 // Compiled but never dispatched, so copying it starts from something that
 // builds against the current `Solution`.
 pub mod year_template;
