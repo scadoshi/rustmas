@@ -5,23 +5,15 @@ use crate::domain::solution::{
 };
 
 pub struct Puzzle {
-    input: String,
     /// Parsed here so a bad input fails before either part runs.
     instructions: Instructions,
 }
 
 impl Solution for Puzzle {
-    fn new(input: impl Into<String>) -> anyhow::Result<Self> {
-        let input = input.into();
-        let instructions = Instructions::try_from(input.as_str())?;
+    fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input,
-            instructions,
+            instructions: Instructions::try_from(input.as_ref())?,
         })
-    }
-
-    fn input(&self) -> &str {
-        &self.input
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {

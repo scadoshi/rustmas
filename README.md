@@ -125,6 +125,7 @@ times slower.
 | `unsupported` | The solver has no implementation for this puzzle |
 | `rate limited, 1m 0s left to wait` | Advent of Code refused to grade, wait it out |
 | `(none)` | The part has no answer, such as day 25 part two |
+| `(unwritten)` | Nobody has written this part yet |
 
 Advent of Code grades each part exactly once, so a part solved earlier reports
 `starred` rather than confirming the answer again.
@@ -133,41 +134,26 @@ Advent of Code grades each part exactly once, so a part solved earlier reports
 
 Three steps. Say you are writing 2015 day 1.
 
-Create `src/lib/domain/solution/year_2015/day_01/mod.rs`:
+Copy the template, which is compiled on every build and so cannot drift from
+the trait:
+
+```sh
+cp -r src/lib/domain/solution/year_template \
+      src/lib/domain/solution/year_2015
+```
+
+That gives you `year_2015/day_01/` with both parts stubbed, and a `mod.rs` that
+already declares the day. Write the parts:
 
 ```rust
-use crate::domain::solution::{Solution, answer::Answer};
-
-pub struct Puzzle {
-    input: String,
-}
-
-impl Solution for Puzzle {
-    fn new(input: impl Into<String>) -> anyhow::Result<Self> {
-        Ok(Self {
-            input: input.into(),
-        })
-    }
-
-    fn input(&self) -> &str {
-        &self.input
-    }
-
-    fn part_one(&self) -> Answer {
-        Answer::solved(self.input.len().to_string())
-    }
-
-    fn part_two(&self) -> Answer {
-        Answer::None
-    }
+fn part_one(&self) -> anyhow::Result<Answer> {
+    Ok(Answer::solved(self.input.len().to_string()))
 }
 ```
 
-Declare it. `year_2015/mod.rs` needs `pub mod day_01;`, and
-`solution/mod.rs` needs `pub mod year_2015;`.
-
-Register it in `solver_for` in `src/lib/inbound/solve/run.rs`, importing the
-year module and `solve` at the top of that file:
+Register it. `solution/mod.rs` needs `pub mod year_2015;`, and `solver_for` in
+`src/lib/inbound/solve/run.rs` needs an arm, importing the year module and
+`solve` at the top of that file:
 
 ```rust
 use crate::{
@@ -177,7 +163,7 @@ use crate::{
 
 // ...
 
-(2015, 1) => Some(solve::<year_2015::day_01::Puzzle>),
+(2015, 1) => solve::<year_2015::day_01::Puzzle>,
 ```
 
 That match is the only list of what has been solved. A day missing from it is
@@ -186,11 +172,15 @@ skipped rather than failing.
 Every day's type is named `Puzzle`, with the module path carrying the
 coordinate, so importing the year modules keeps two years from colliding.
 
-Parts return an `Answer`: `Answer::solved(value)` for something submittable,
-`Answer::Visual(art)` for a grid you read yourself, or `Answer::None` when there
-is nothing to produce. Returning the art rather than printing it keeps solving
-free of IO, and `new` parses once so both parts read the result instead of
-parsing twice.
+Parts return `anyhow::Result<Answer>`: `Answer::solved(value)` for something
+submittable, `Answer::Visual(art)` for a grid you read yourself, `Answer::None`
+when there is genuinely no answer, and `Answer::Unwritten` while a part is still
+a stub. An `Err` means the day is broken, and stops that part without stopping
+the other.
+
+Returning art rather than printing it keeps solving free of IO. `new` parses
+once so both parts read the result, and takes `impl AsRef<str>` so a day that
+parses into its own types keeps no copy of the raw text.
 
 ## Layout
 
@@ -206,6 +196,7 @@ src/
         outcome.rs           # that answer, plus timing and verdicts
         aoc_verdict.rs       # what AOC said about a submission
         solver_verdict.rs    # what the solver made of an answer
+        year_template/       # copy this to start a year
         year_2015/           # one dir per day, each with a Puzzle
         year_2016/
     inbound/                 # ways in

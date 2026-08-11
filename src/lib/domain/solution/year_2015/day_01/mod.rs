@@ -5,14 +5,10 @@ pub struct Puzzle {
 }
 
 impl Solution for Puzzle {
-    fn new(input: impl Into<String>) -> anyhow::Result<Self> {
+    fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input.into(),
+            input: input.as_ref().to_owned(),
         })
-    }
-
-    fn input(&self) -> &str {
-        &self.input
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {

@@ -7,15 +7,23 @@
 
 ```rust
 pub trait Solution: Sized {
-    fn new(input: impl Into<String>) -> anyhow::Result<Self>;
-    fn input(&self) -> &str;
-    fn part_one(&self) -> Answer;
-    fn part_two(&self) -> Answer;
+    fn new(input: impl AsRef<str>) -> anyhow::Result<Self>;
+    fn part_one(&self) -> anyhow::Result<Answer>;
+    fn part_two(&self) -> anyhow::Result<Answer>;
 }
 ```
 
 `new` parses once and returns `Result<Self>`, so both parts are reads over
 already-parsed fields rather than two passes over raw text.
+
+It takes `impl AsRef<str>` rather than `impl Into<String>` because nothing
+obliges a day to retain the raw text. One that parses into its own types keeps
+no copy; one whose parts read the input owns a `String` as a private field of
+its own choosing.
+
+Parts return `Result` so a day can `?`, and so a broken day reads as an error
+rather than as `Answer::None`. A failing part does not stop the other: its error
+lands in that part's `Outcome`.
 
 The trait is `Sized` and therefore not object safe, deliberately. A method
 returning `Self` cannot go through a vtable: there is no receiver to find the
