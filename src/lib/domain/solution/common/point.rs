@@ -5,7 +5,7 @@ type Dir = Direction;
 /// A signed position on the cartesian plane, `y` growing upward.
 ///
 /// For row and column indices into a grid, use [`Cell`](super::cell::Cell).
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
