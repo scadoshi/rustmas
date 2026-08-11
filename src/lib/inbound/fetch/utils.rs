@@ -1,4 +1,3 @@
-use crate::{domain::address::Day, outbound::client::aoc_client::AocClient};
 use anyhow::{Context, bail};
 use std::{fs::create_dir_all, path::Path};
 
@@ -16,25 +15,5 @@ pub fn ensure_dir(name: &str, path: &Path) -> anyhow::Result<()> {
     create_dir_all(path)
         .with_context(|| format!("failed to create {name} dir: {}", path.display()))?;
     println!("created {name} dir: {}", path.display());
-    Ok(())
-}
-
-/// Downloads the input for `day` to `path`, unless it is already there.
-///
-/// Inputs never change, and AOC asks that you not re-download.
-pub fn download_input(client: &AocClient, day: &Day, path: &Path) -> anyhow::Result<()> {
-    if path.is_file() {
-        println!("input already cached: {}", path.display());
-        return Ok(());
-    }
-    if path.exists() {
-        bail!("input path exists but is not a file: {}", path.display());
-    }
-    let input = client
-        .get_input(day)
-        .with_context(|| format!("failed to download input: {}", path.display()))?;
-    std::fs::write(path, input)
-        .with_context(|| format!("failed to write input: {}", path.display()))?;
-    println!("downloaded input: {}", path.display());
     Ok(())
 }
