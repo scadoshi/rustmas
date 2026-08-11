@@ -5,8 +5,8 @@ use crate::{
 
 /// Downloads puzzle inputs and instructions into `cache/<year>/<NN>/`.
 ///
-/// `--year` and `--day` are filters, so omitting one means all of them. Files
-/// already on disk are left alone. One failed download aborts the rest.
+/// Filters omitted means all. Files on disk are left alone, and one failed
+/// download aborts the rest.
 pub fn run(args: &FetchArgs) -> anyhow::Result<()> {
     // Built on first download, so a fully cached run needs no cookie.
     let mut client = None;

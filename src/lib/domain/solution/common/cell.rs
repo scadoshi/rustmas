@@ -2,12 +2,11 @@ use crate::domain::solution::common::direction::Direction;
 
 type Dir = Direction;
 
-/// A position in a grid, indexed by row and column.
+/// An unsigned grid index, rows counting down from the top-left.
 ///
-/// The origin is the top-left cell, so `Up` decreases the row and `Down`
-/// increases it. Both fields are unsigned: there is no cell above row 0 or
-/// left of column 0. For signed coordinates on an unbounded plane, use
-/// [`Point`](super::point::Point).
+/// So `Up` decreases the row, the opposite of
+/// [`Point`](super::point::Point), which is what to use for signed
+/// coordinates on an unbounded plane.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Cell {
     column: u32,
@@ -15,13 +14,11 @@ pub struct Cell {
 }
 
 impl Cell {
-    /// Builds a cell at the given column and row.
     pub fn new(column: u32, row: u32) -> Self {
         Self { column, row }
     }
 
-    /// Moves `distance` cells in `direction`, returning `None` if that would
-    /// leave the grid by going past 0 or overflowing [`u32::MAX`].
+    /// Moves `distance` in `direction`, `None` if that would leave the grid.
     pub fn checked_moved(self, direction: Direction, distance: u32) -> Option<Self> {
         Some(Self {
             column: match direction {
@@ -37,9 +34,7 @@ impl Cell {
         })
     }
 
-    /// Moves `distance` cells in `direction`, clamping at the edges of the
-    /// grid rather than failing. Going past 0 stops at 0, and going past
-    /// [`u32::MAX`] stops at [`u32::MAX`].
+    /// Moves `distance` in `direction`, clamping at the edges of the grid.
     pub fn saturating_moved(self, direction: Direction, distance: u32) -> Self {
         Self {
             column: match direction {

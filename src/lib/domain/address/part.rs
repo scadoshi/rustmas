@@ -1,7 +1,6 @@
 //! Which of a day's two puzzles.
 
-/// Names a part so call sites read `Part::One` rather than a bare `1` that
-/// could be mistaken for a day number.
+/// Named so call sites read `Part::One` rather than a `1` that could be a day.
 #[derive(Debug, Clone, Copy)]
 pub enum Part {
     One,
@@ -9,7 +8,7 @@ pub enum Part {
 }
 
 impl Part {
-    /// `1` or `2`, wanted by both AOC's `level` field and the solver's path.
+    /// `1` or `2`, for AOC's `level` field and the solver's path.
     pub fn wire_value(self) -> &'static str {
         match self {
             Self::One => "1",

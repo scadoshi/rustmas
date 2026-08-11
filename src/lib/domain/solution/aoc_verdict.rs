@@ -2,16 +2,15 @@ use std::fmt::Display;
 
 /// What adventofcode.com said about a submission.
 ///
-/// Each part is graded exactly once, so a second correct answer comes back as
-/// [`AocVerdict::AlreadySolved`] rather than another confirmation.
+/// Each part grades once, so a second correct answer comes back as
+/// [`AocVerdict::AlreadySolved`].
 #[derive(Debug)]
 pub enum AocVerdict {
     Correct,
     Incorrect,
     Low,
     High,
-    /// Refused to grade because an answer was submitted too recently. Holds the
-    /// remaining wait as AOC phrased it, such as `1m 0s`.
+    /// Submitted too recently. Holds the wait as AOC phrased it, like `1m 0s`.
     Cooldown(String),
     /// The part is already solved, so nothing was graded.
     AlreadySolved,

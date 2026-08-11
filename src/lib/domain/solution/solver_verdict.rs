@@ -2,8 +2,8 @@ use std::{cmp::Ordering, fmt::Display};
 
 /// What the third-party solver made of an answer.
 ///
-/// Repeatable, since the solver has no accounts and no memory, which is what
-/// makes it usable as a gate before submitting.
+/// Repeatable, having no accounts and no memory, which is what makes it usable
+/// as a gate before submitting.
 #[derive(Debug)]
 pub enum SolverVerdict {
     Correct,

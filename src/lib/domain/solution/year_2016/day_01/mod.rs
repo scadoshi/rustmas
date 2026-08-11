@@ -6,8 +6,7 @@ use crate::domain::solution::{
 
 pub struct Puzzle {
     input: String,
-    /// Parsed once here rather than per part, so a bad input fails the day
-    /// before either part runs.
+    /// Parsed here so a bad input fails before either part runs.
     instructions: Instructions,
 }
 
@@ -28,9 +27,7 @@ impl Solution for Puzzle {
     fn part_one(&self) -> anyhow::Result<Answer> {
         let mut pose = Pose::default();
         for i in self.instructions.iter() {
-            pose = pose
-                .saturating_turned(i.direction)
-                .saturating_moved(i.distance);
+            pose = pose.turned(i.turn).saturating_moved(i.distance);
         }
         Ok(Answer::solved(
             pose.position.distance_from_origin().to_string(),

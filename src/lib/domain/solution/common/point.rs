@@ -2,12 +2,9 @@ use crate::domain::solution::common::direction::Direction;
 
 type Dir = Direction;
 
-/// A position on the cartesian plane.
+/// A signed position on the cartesian plane, `y` growing upward.
 ///
-/// Axes run the usual way: `x` grows to the right and `y` grows upward, so
-/// `Up` increases `y` and `Down` decreases it. Both fields are signed and the
-/// plane is unbounded in every direction. For row and column indices into a
-/// grid, use [`Cell`](super::cell::Cell).
+/// For row and column indices into a grid, use [`Cell`](super::cell::Cell).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Point {
     pub x: i32,
@@ -15,13 +12,11 @@ pub struct Point {
 }
 
 impl Point {
-    /// Builds a point at the given x and y.
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
 
-    /// Moves `distance` units in `direction`, returning `None` if that would
-    /// overflow past [`i32::MIN`] or [`i32::MAX`].
+    /// Moves `distance` in `direction`, `None` if that would overflow [`i32`].
     pub fn checked_moved(self, direction: Direction, distance: i32) -> Option<Self> {
         Some(Self {
             x: match direction {
@@ -37,8 +32,7 @@ impl Point {
         })
     }
 
-    /// Moves `distance` units in `direction`, clamping at [`i32::MIN`] or
-    /// [`i32::MAX`] rather than failing.
+    /// Moves `distance` in `direction`, clamping at the edges of [`i32`].
     pub fn saturating_moved(self, direction: Direction, distance: i32) -> Self {
         Self {
             x: match direction {
@@ -54,11 +48,9 @@ impl Point {
         }
     }
 
-    /// Manhattan distance back to `(0, 0)`: the blocks you would walk on a
-    /// grid of streets, not the straight line.
+    /// Manhattan distance back to `(0, 0)`, not the straight line.
     ///
-    /// [`i32::unsigned_abs`] rather than `abs`, since `abs` has no answer for
-    /// [`i32::MIN`] and panics on it in debug builds.
+    /// `unsigned_abs` rather than `abs`, which panics on [`i32::MIN`] in debug.
     pub fn distance_from_origin(&self) -> u32 {
         self.x.unsigned_abs().saturating_add(self.y.unsigned_abs())
     }
@@ -111,11 +103,13 @@ mod tests {
         assert_eq!(Point::new(-3, -4).distance_from_origin(), 7);
     }
 
-    /// `abs` panics on [`i32::MIN`] in debug builds, so the distance is built
-    /// from `unsigned_abs` instead.
+    /// `abs` would panic on [`i32::MIN`] in debug builds.
     #[test]
     fn distance_from_origin_survives_the_extremes() {
-        assert_eq!(Point::new(i32::MIN, 0).distance_from_origin(), 2_147_483_648);
+        assert_eq!(
+            Point::new(i32::MIN, 0).distance_from_origin(),
+            2_147_483_648
+        );
         assert_eq!(
             Point::new(i32::MIN, i32::MIN).distance_from_origin(),
             u32::MAX

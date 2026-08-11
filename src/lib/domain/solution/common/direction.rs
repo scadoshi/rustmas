@@ -1,3 +1,4 @@
+use crate::domain::solution::common::turn::Turn;
 use thiserror::Error;
 
 /// Returned when text does not name a direction. Carries what was read.
@@ -5,19 +6,12 @@ use thiserror::Error;
 #[error("invalid direction: {0:?}")]
 pub struct InvalidDirection(String);
 
-/// One of the four moves along an axis.
+/// One of the four moves along an axis. Parses from a letter or the full word.
 ///
-/// What `Up` and `Down` do to a coordinate depends on the type being moved:
-/// [`Point`](super::point::Point) counts `y` upward, while
-/// [`Cell`](super::cell::Cell) counts rows downward from the top.
-///
-/// Parses from a `char` (`'l'`, `'r'`, `'u'`, `'d'`) or a `&str` (those
-/// letters or the full words), either case.
-///
-/// Declared clockwise from `Up`, so [`Direction::turn_right`] is one step down
-/// the list and [`Direction::turn_left`] one step up. `Up` is the default
-/// because a puzzle that starts you facing somewhere usually starts you facing
-/// north.
+/// `Up` and `Down` mean opposite things to the two position types:
+/// [`Point`](super::point::Point) counts `y` upward,
+/// [`Cell`](super::cell::Cell) counts rows down from the top. Variants are
+/// declared clockwise, which is what makes the turns one step along the list.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Direction {
     #[default]
@@ -45,6 +39,14 @@ impl Direction {
             Self::Left => Self::Down,
             Self::Down => Self::Right,
             Self::Right => Self::Up,
+        }
+    }
+
+    /// A quarter turn whichever way [`Turn`] says.
+    pub fn turned(self, turn: Turn) -> Self {
+        match turn {
+            Turn::Left => self.turn_left(),
+            Turn::Right => self.turn_right(),
         }
     }
 }

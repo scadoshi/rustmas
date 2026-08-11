@@ -7,14 +7,11 @@ use crate::{
 };
 use std::io::{self, Write};
 
-/// Submits the answer if the solver backed it, returning the outcome with
-/// AOC's reply attached.
+/// Submits the answer if the solver backed it, with AOC's reply attached.
 ///
 /// A wrong answer costs an escalating cooldown, so the solver verdict gates the
-/// send. [`SolverVerdict::Unsupported`] goes through anyway, since an unimplemented
-/// puzzle is one the solver cannot judge either way.
-///
-/// Rejected answers come back untouched, carrying only the solver's objection.
+/// send. [`SolverVerdict::Unsupported`] goes through anyway, since the solver
+/// cannot judge it either way. Rejected answers come back untouched.
 pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyhow::Result<Outcome> {
     let Some(value) = outcome.value() else {
         return Ok(outcome);
@@ -32,8 +29,7 @@ pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyho
 
 /// Asks before an unfiltered submit run, which would post every solved day.
 ///
-/// The question goes to stderr so redirecting output doesn't swallow it. Closed
-/// stdin counts as no.
+/// Goes to stderr so redirecting output cannot swallow it. Closed stdin is no.
 pub fn confirm(count: usize) -> anyhow::Result<bool> {
     eprintln!(
         "About to submit up to {count} answers to adventofcode.com, across every \

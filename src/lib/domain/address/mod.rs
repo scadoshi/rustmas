@@ -1,8 +1,5 @@
 //! Which puzzle we mean: [`year::Year`], [`day::Day`], [`part::Part`].
 //!
-//! The three together name one puzzle unambiguously, which is the job they
-//! exist for. Year and day being calendar-shaped is incidental.
-//!
 //! `Day` wraps `Year`, both constructor-only with private fields, so holding a
 //! `Day` means it names a real puzzle without re-checking. The same address
 //! becomes a URL path (`/2015/day/1`) and a cache path (`cache/2015/01/`).

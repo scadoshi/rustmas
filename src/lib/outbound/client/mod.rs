@@ -1,34 +1,32 @@
 //! The two services this tool talks to, and the runner that drives one of them.
 //!
-//! [`aoc_client::AocClient`] is adventofcode.com: authenticated, and it grades
-//! each part exactly once. [`solver_client::SolverClient`] is a third-party
-//! solver: no auth, and it answers the same question as many times as you ask.
-//! Kept apart because they differ in auth, contract, and failure semantics.
+//! Kept apart because they differ in auth, contract, and failure semantics:
+//! AOC is authenticated and grades once, the solver needs no auth and answers
+//! as often as you ask.
 //!
-//! [`solve::solve`] runs a day and validates it. It sits here rather than in
-//! the domain because it holds a client, which is the dependency the domain is
-//! not allowed to have.
+//! [`solve::solve`] sits here rather than in the domain because it holds a
+//! client, which is the dependency the domain is not allowed to have.
 
 pub mod aoc_client;
 pub mod solve;
 pub mod solver_client;
 
-/// Env var holding an address AOC can reach you at, folded into the
-/// `User-Agent`. Optional. Kept out of the source so a fork identifies its own
-/// owner rather than this repo's.
+/// Optional env var: an address AOC can reach you at, for the `User-Agent`.
+///
+/// Kept out of the source so a fork identifies its own owner, not this repo's.
 const CONTACT_KEY: &str = "CONTACT";
-/// Env var naming the repo reported in the `User-Agent`. Optional, and with no
-/// default, so an unset value never attributes traffic to someone else's repo.
+/// Optional env var: the repo reported in the `User-Agent`.
+///
+/// No default, so an unset value never attributes traffic to another repo.
 const REPO_URL_KEY: &str = "REPO_URL";
-/// Names the tool when neither `REPO_URL` nor `CONTACT` is set. Deliberately
-/// points at nobody: a default naming this repo's author would make them the
-/// contact for a stranger's traffic.
+/// Names the tool when neither `REPO_URL` nor `CONTACT` is set.
+///
+/// Points at nobody on purpose, so a stranger's traffic names no real contact.
 const UNCONFIGURED_USER_AGENT: &str = "rustmas (unconfigured; set CONTACT in .env)";
 
 /// Builds the `User-Agent` from `REPO_URL` and `CONTACT`, both optional.
 ///
-/// AOC asks automated clients to be reachable. Loads `.env` if present, since
-/// the values may already live in the real environment.
+/// AOC asks automated clients to be reachable. Loads `.env` if present.
 pub(crate) fn user_agent_from_env() -> String {
     dotenvy::dotenv().ok();
     let set = |key| match std::env::var(key) {

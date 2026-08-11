@@ -16,9 +16,8 @@ const BASE_URLS: [&str; 3] = [
 
 /// A client for the third-party Advent of Code solver.
 ///
-/// Needs no cookie, since it knows nothing about your account and cannot award
-/// stars. In exchange it answers the same question as many times as you ask,
-/// which is what makes it usable as a regression check.
+/// No cookie, no stars, and no memory, which is what makes it repeatable
+/// enough to use as a regression check.
 pub struct SolverClient {
     user_agent: String,
     client: Client,
@@ -38,8 +37,7 @@ impl SolverClient {
         }
     }
 
-    /// Builds one sharing an existing HTTP client, whose connection pool is
-    /// reference counted internally, so cloning shares it.
+    /// Shares an existing client, whose pool is reference counted internally.
     pub fn with_client(client: Client) -> Self {
         Self {
             user_agent: super::user_agent_from_env(),
@@ -57,12 +55,10 @@ impl SolverClient {
 
     /// Checks `answer` against the solver.
     ///
-    /// Numeric answers compare as numbers, so a mismatch reports a direction.
-    /// Anything else compares as text.
-    ///
-    /// The solver returns 400 for every failure with the reason in the body, so
-    /// classification reads the body rather than the status. Only transport
-    /// failures and 5xx retry the next host, since all three run the same code.
+    /// Numeric answers compare as numbers and report a direction; anything else
+    /// compares as text. Every failure is a 400 with the reason in the body, so
+    /// classification reads the body. Only transport failures and 5xx try the
+    /// next host, since all three run the same code.
     pub fn validate_answer(
         &self,
         day: &Day,

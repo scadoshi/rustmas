@@ -5,18 +5,13 @@ use std::{fmt::Display, time::Duration};
 
 /// One part's answer and everything learned about it afterwards.
 ///
-/// The three fields have three different sources: [`Answer`] is computed,
-/// `elapsed` is measured, and the verdicts arrive over the network. Only
-/// [`Answer::Value`] can carry a verdict, which the attaching methods enforce.
-///
-/// A part that failed is held here rather than propagated, so one broken part
-/// does not hide the other one's answer. An error has no value, so it can
-/// never be validated or submitted, which falls out of the same
-/// [`Outcome::value`] gate the other unsubmittable answers use.
+/// A failure is held rather than propagated, so one broken part does not hide
+/// the other's answer. Only [`Answer::Value`] can carry a verdict, which the
+/// attaching methods enforce and which rules errors out for free.
 #[derive(Debug)]
 pub struct Outcome {
     answer: anyhow::Result<Answer>,
-    /// Time to compute the answer. Never includes a network round trip.
+    /// Never includes a network round trip.
     elapsed: Duration,
     /// From the third-party solver. Repeatable, so it gates submission.
     verdict: Option<SolverVerdict>,
@@ -25,7 +20,6 @@ pub struct Outcome {
 }
 
 impl Outcome {
-    /// Takes whatever the part returned, error included.
     pub fn new(answer: anyhow::Result<Answer>, elapsed: Duration) -> Self {
         Self {
             answer,
@@ -80,9 +74,7 @@ impl Outcome {
 }
 
 impl Display for Outcome {
-    /// The answer, then whatever is known about it, then how long it took, so a
-    /// part is always one line. A failed part reads as its error chain, still
-    /// on one line, still timed.
+    /// Answer, then what is known about it, then timing. Always one line.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.answer {
             Ok(answer) => write!(f, "{answer}")?,
@@ -117,8 +109,7 @@ mod tests {
         Outcome::new(Ok(Answer::solved("138")), Duration::from_micros(7))
     }
 
-    /// The timing suffix is asserted separately, so these compare the part
-    /// before it.
+    /// Timing is asserted separately, so these compare the part before it.
     fn notes(outcome: &Outcome) -> String {
         let rendered = outcome.to_string();
         rendered
@@ -140,8 +131,6 @@ mod tests {
         );
     }
 
-    /// AOC's word supersedes the solver's, so a starred part reads as starred
-    /// rather than repeating that the solver agreed.
     #[test]
     fn aoc_supersedes_the_solver() {
         let starred = value()
@@ -172,8 +161,7 @@ mod tests {
         assert!(value().to_string().ends_with("[7µs]"));
     }
 
-    /// Nothing but a submittable answer can carry a verdict, which is the
-    /// invariant that survived splitting `Answer` from `Outcome`.
+    /// The invariant that survived splitting `Answer` from `Outcome`.
     #[test]
     fn unsubmittable_answers_never_take_a_verdict() {
         for answer in [Answer::Visual("art".to_string()), Answer::None] {
@@ -206,8 +194,7 @@ mod tests {
         )
     }
 
-    /// A failed part still prints, and prints the whole chain, since the
-    /// outermost message alone rarely says which day is broken.
+    /// The whole chain, since the outermost message rarely names the day.
     #[test]
     fn failed_parts_render_their_error() {
         assert_eq!(
@@ -216,8 +203,7 @@ mod tests {
         );
     }
 
-    /// Nothing to submit, so nothing to check. Same gate the unsubmittable
-    /// answers go through.
+    /// Nothing to submit, so nothing to check.
     #[test]
     fn failed_parts_never_take_a_verdict() {
         let outcome = failed()

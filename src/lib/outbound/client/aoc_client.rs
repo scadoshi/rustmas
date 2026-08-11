@@ -8,24 +8,21 @@ use reqwest::{Url, blocking::Client};
 /// Env var holding the adventofcode.com session cookie.
 const COOKIE_KEY: &str = "COOKIE";
 
-/// Marks the start of a puzzle part on a day page. Two of them means part two
-/// is unlocked, one means it is still hidden behind the first star.
+/// Marks a puzzle part on a day page. Two means part two is unlocked.
 const ARTICLE: &str = r#"<article class="day-desc">"#;
 
 const AOC_BASE_URL: &str = "https://adventofcode.com";
 
 /// Reads the session cookie without building a client.
 ///
-/// Checking which session an input came from needs the cookie but no requests,
-/// so it stays separate from [`AocClient::from_env`].
+/// Checking which session an input came from needs the cookie but no requests.
 pub fn cookie_from_env() -> anyhow::Result<String> {
     // `.env` is optional: values may already live in the real environment.
     dotenvy::dotenv().ok();
     std::env::var(COOKIE_KEY).with_context(|| format!("failed to get {COOKIE_KEY}"))
 }
 
-/// An authenticated handle to adventofcode.com, with a pooled client shared
-/// across requests. Build one with [`AocClient::from_env`].
+/// An authenticated handle to adventofcode.com, pooling one client.
 pub struct AocClient {
     cookie: String,
     user_agent: String,
@@ -41,16 +38,14 @@ impl AocClient {
         &self.client
     }
 
-    /// How this tool identifies itself to AOC, which asks automated clients to
-    /// be reachable. Built from `REPO_URL` and `CONTACT`.
+    /// How this tool identifies itself, from `REPO_URL` and `CONTACT`.
     pub fn user_agent(&self) -> &str {
         &self.user_agent
     }
 
     /// Reads configuration from the environment, loading `.env` if present.
     ///
-    /// `COOKIE` is required. `REPO_URL` and `CONTACT` are optional and only
-    /// shape the `User-Agent`, so a fresh clone still runs without them.
+    /// Only `COOKIE` is required, so a fresh clone runs without the rest.
     pub fn from_env() -> anyhow::Result<Self> {
         Ok(Self {
             cookie: cookie_from_env()?,
@@ -61,12 +56,10 @@ impl AocClient {
 
     /// Fetches the raw puzzle input for `day`, verbatim.
     ///
-    /// Errors on a non-success status, which usually means a bad cookie or an
-    /// unreleased day.
-    /// Fetches `day`'s puzzle text, rendered from HTML into readable text.
+    /// A non-success status usually means a bad cookie or an unreleased day.
+    /// Fetches `day`'s puzzle text, rendered from HTML.
     ///
-    /// Part two is absent until part one is solved, so it comes back `None`
-    /// until then.
+    /// Part two comes back `None` until part one is solved.
     pub fn get_instructions(&self, day: &Day) -> anyhow::Result<(String, Option<String>)> {
         let html = self
             .client
@@ -130,13 +123,9 @@ impl AocClient {
 
     /// Submits `answer` to adventofcode.com and reads the graded reply.
     ///
-    /// AOC answers 200 for everything, wrong answers included, so the verdict
-    /// comes entirely from the body. It also grades a part only once: after that
-    /// it returns [`AocVerdict::AlreadySolved`] rather than confirming again, which
-    /// is why a correct answer is worth caching.
-    ///
-    /// A direction hint is optional. A wrong answer may come back as
-    /// [`AocVerdict::High`] or [`AocVerdict::Low`], or just [`AocVerdict::Incorrect`].
+    /// Everything is a 200, so the verdict comes entirely from the body. A part
+    /// grades once, which is why a correct answer is worth caching. A wrong one
+    /// may or may not come with a direction hint.
     pub fn submit_answer(
         &self,
         day: &Day,
@@ -166,10 +155,9 @@ impl AocClient {
 
 /// Classifies AOC's HTML reply to a submission.
 ///
-/// Every reply is a 200, so the body is the only signal. Direction is checked
-/// before the generic wrong-answer phrase, since "too high" replies contain
-/// that phrase too. Strings verified live against 2015 day 1 on a scratch
-/// account; see `context/references.md`.
+/// Direction is checked before the generic wrong-answer phrase, since "too
+/// high" replies contain that phrase too. Strings verified live; see
+/// `context/references.md`.
 fn verdict_from(body: &str) -> AocVerdict {
     if body.contains("That's the right answer") {
         return AocVerdict::Correct;
