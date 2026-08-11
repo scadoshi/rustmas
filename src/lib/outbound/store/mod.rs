@@ -87,14 +87,17 @@ fn write_entry_in(root: &Path, day: &Day, entry: &Entry) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Reads a file, or `None` when it is not there.
+/// Reads a file, or `None` when it is missing or blank.
+///
+/// Blank counts as missing so a half-written file reads as absent and is
+/// fetched again, rather than as content nothing will ever replace.
 fn read_opt(path: &Path) -> anyhow::Result<Option<String>> {
     if !path.is_file() {
         return Ok(None);
     }
-    read_to_string(path)
-        .map(Some)
-        .with_context(|| format!("failed to read {}", path.display()))
+    let contents =
+        read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
+    Ok(Some(contents).filter(|contents| !contents.trim().is_empty()))
 }
 
 fn write_file(path: &Path, contents: &str) -> anyhow::Result<()> {
@@ -177,6 +180,20 @@ mod tests {
         let mut entry = entry("cookie");
         entry.instructions.part_two = None;
         write_entry_in(&temp.0, &day, &entry).unwrap();
+
+        let read = read_entry_in(&temp.0, &day).unwrap().unwrap();
+        assert!(read.instructions.part_two.is_none());
+    }
+
+    /// A blank file is a half-written one, so it reads as absent and gets
+    /// fetched again rather than counting as content.
+    #[test]
+    fn blank_part_two_reads_as_missing() {
+        let temp = Temp::new("blank-part-two");
+        let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
+
+        write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
+        std::fs::write(day_path_in(&temp.0, &day).join(PART_TWO_FILE), "  \n").unwrap();
 
         let read = read_entry_in(&temp.0, &day).unwrap().unwrap();
         assert!(read.instructions.part_two.is_none());
