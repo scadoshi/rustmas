@@ -68,31 +68,73 @@ the max, then the top three.
 The day ones are done for every year written so far: 2015, 2016, 2017, 2018,
 2020, 2021, 2022. 2019 is not missing, it is being saved to do in one run.
 
-### Next: sweep the finished days for panicking indexing
+2024 day 1, 3246517 and 29379307. Sort both lists, zip for the distances, then
+count occurrences for the similarity score.
 
-Go back through every solved day and turn indexing that can panic into `get`
-that returns an error instead. `totals[..3]` in 2022 day 1 is the example that
-prompted it: correct for every real input, a panic mid-run for anything else,
-and it says nothing about which day broke.
+Two things learned there, both about `Result` and iterators. `Result` implements
+`Sum`, so a fallible map can go straight into `.sum::<Result<_>>()?` and
+short-circuit on the first error, with no `collect` into a throwaway `Vec` first.
+A tuple of collections implements `FromIterator`, so a fallible map yielding
+pairs can `collect::<Result<(Vec<_>, Vec<_>), _>>()` and unzip in the same pass.
+Both replaced a `collect`-then-`?` that was only there to have somewhere to put
+the error.
 
-Parts already return `anyhow::Result<Answer>`, so the error channel is there and
-the fix is one line with no ceremony:
+### How much panic-proofing is worth doing
 
-```rust
-let top = totals.get(..3).context("fewer than three groups")?;
-```
+Settled this rather than sweeping blindly. Three cases, three answers:
 
-The message is the label, which is the whole reason this is worth doing rather
-than reaching for `anyhow!` and a sentence of boilerplate.
+- Proven locally, leave alone. `w[0]` and `w[1]` inside a `windows(2)` closure.
+  The invariant is on the same line.
+- An assumption about the input, always handle. `totals[..3]`, `lines[0]`, a
+  bare `unwrap` on a parse. One line with `.context()?` and the message is the
+  label. This is where real bugs live.
+- Arithmetic overflow, change the type rather than handle it. `checked_add` in a
+  `try_fold` at every accumulation is miserable and `i64` deletes the whole
+  class for one character. Worth remembering that release builds wrap silently
+  rather than panicking, so the failure there is a confidently wrong answer
+  rather than a crash.
 
-Look for slice indexing, `[..n]` ranges, and `unwrap` outside tests. `w[0]` and
-`w[1]` inside a `windows(2)` closure are fine, since the window size guarantees
-the length. The ones worth changing are where the input's shape is the only
-thing holding the index up.
+### Reviewed every finished day
 
-The instinct to skip it because it will never happen is a fair reading of the
-odds and a bad basis for the code: the cost of being wrong is a panic instead of
-a line naming the broken day, and here the honest version is the same length.
+`totals[..3]` in 2022 became a `get` with a message naming the actual count.
+2017 was parsing its input in both parts rather than in `new`, which the trait's
+own doc says not to do, and its two parts were the same loop with a different
+step, now one `matching(step)` helper. 2021 part two was building a `Vec` of
+window sums to compare consecutive triples, but comparing elements three apart
+says the same thing, since the shared terms cancel: `windows(4)` and `w[0] <
+w[3]`. Part two went from 177µs to 54µs and is now faster than part one.
+
+2018, 2020 and 2021 parsed lines without trimming first, so a trailing blank
+line would have failed the parse where 2022 and 2024 were already defended. All
+trim now. Every part returns `Answer::solved` rather than constructing
+`Answer::Value` by hand.
+
+### What gets a test
+
+Decided the line, having drifted toward writing example tests per day and then
+pulled back. Shared structures get tests, since a break there corrupts every day
+at once: `Point`, `Cell`, `Direction`, `Turn`, `Answer`, `Outcome`, and now
+`Calibration`. Day logic does not. It runs once, `--validate` checks it against
+an independent solver, and an example fixture repeats what that already proved.
+
+Also rejected a table of known answers as a regression guard. Pinning an answer
+the solver already confirmed adds nothing worth maintaining.
+
+The exception is an error path, which `--validate` can never reach, since it
+only ever sees a well-formed input.
+
+2023 day 1 part one, 54968. A `Calibration` trait over anything `AsRef<str>`,
+so the string does the work rather than the day. First digit from the front,
+last from the back, and one digit counts as both.
+
+`next()` then `next_back()` rather than `next()` then `last()`. Clippy caught it:
+`last` walks the whole iterator on a `DoubleEndedIterator`. The version it wants
+is also the one that stops early from both ends, so only the non-digit runs at
+either end get touched.
+
+A line with no digits errors and names the line number and its contents, rather
+than being quietly dropped by a `filter_map`. Same call as `totals[..3]`: the
+input's shape was the only thing holding it up.
 
 ## 2026-08-10
 
