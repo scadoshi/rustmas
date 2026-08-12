@@ -1,3 +1,5 @@
+use anyhow::Context;
+
 use crate::domain::solution::{Solution, answer::Answer};
 
 pub struct Puzzle {
@@ -34,13 +36,16 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.input
-                .iter()
-                .filter_map(|s| s.calibration_value())
-                .sum::<u32>()
-                .to_string(),
-        ))
+        let total: u32 = self
+            .input
+            .iter()
+            .enumerate()
+            .map(|(i, s)| {
+                s.calibration_value()
+                    .with_context(|| format!("line {} has no digits: {s:?}", i + 1))
+            })
+            .sum::<anyhow::Result<u32>>()?;
+        Ok(Answer::solved(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
