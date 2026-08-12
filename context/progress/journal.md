@@ -136,6 +136,33 @@ A line with no digits errors and names the line number and its contents, rather
 than being quietly dropped by a `filter_map`. Same call as `totals[..3]`: the
 input's shape was the only thing holding it up.
 
+### Next, in order
+
+1. **2023 day 1 part two.** Digits spelled as words count too. The catch is
+   overlap: `eightwo` is both 8 and 2, so scanning each position for a prefix
+   match works and consuming the match as you go does not.
+2. **2025 day 1**, which is the last one needed for a full set of day ones.
+   2025 was a twelve-day event, so day 1 exists. 2019 stays deliberately
+   untouched, to be done in one run.
+3. **Then go back through every day and test the parsing.**
+
+On that third one, which walks back the line drawn earlier today. The rule was
+shared structures get tests and day logic does not, because `--validate` already
+checks the answer. That still holds for the puzzle logic. Parsing is different:
+it is the part that decides what a malformed input does, and `--validate` only
+ever feeds it the real input, which is always well formed. So those branches
+never run in normal use.
+
+They are reachable, just not conveniently: hand-corrupt `cache/<year>/<NN>/
+input.txt`, run it, restore. Fine as a one-off, poor as something to repeat.
+
+So the refined rule is that a test earns its place when it covers something more
+than one day depends on, or an error path nothing else exercises. Not the
+happy path of a day's puzzle logic, which is what `--validate` is for.
+
+Worth checking per day: what a trailing blank line does, what a line the parser
+cannot split does, and whether the message names which line and which day.
+
 ## 2026-08-10
 
 A layering fix, prompted by translating `Outcome` into C# and noticing the Rust
