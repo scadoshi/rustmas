@@ -3,7 +3,7 @@ use crate::{
         address::{Day, Part},
         solution::{
             Solved, aoc_verdict::AocVerdict, year_2015, year_2016, year_2017, year_2018, year_2020,
-            year_2021, year_2022, year_2024,
+            year_2021, year_2022, year_2023, year_2024,
         },
     },
     inbound::{
@@ -35,6 +35,7 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
         (2020, 1) => solve::<year_2020::day_01::Puzzle>,
         (2021, 1) => solve::<year_2021::day_01::Puzzle>,
         (2022, 1) => solve::<year_2022::day_01::Puzzle>,
+        (2023, 1) => solve::<year_2023::day_01::Puzzle>,
         (2024, 1) => solve::<year_2024::day_01::Puzzle>,
         _ => return None,
     })
