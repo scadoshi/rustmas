@@ -1,4 +1,5 @@
 use crate::domain::solution::{Solution, answer::Answer};
+use anyhow::Context;
 use std::cmp::Reverse;
 
 pub struct Puzzle {
@@ -25,7 +26,7 @@ impl Solution for Puzzle {
 
     fn part_one(&self) -> anyhow::Result<Answer> {
         match self.groups.iter().map(|g| g.iter().sum::<i32>()).max() {
-            Some(m) => Ok(Answer::Value(m.to_string())),
+            Some(m) => Ok(Answer::solved(m.to_string())),
             None => Ok(Answer::None),
         }
     }
@@ -33,6 +34,9 @@ impl Solution for Puzzle {
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut totals: Vec<i32> = self.groups.iter().map(|g| g.iter().sum::<i32>()).collect();
         totals.sort_unstable_by_key(|&n| Reverse(n));
-        Ok(Answer::Value(totals[..3].iter().sum::<i32>().to_string()))
+        let top = totals
+            .get(..3)
+            .with_context(|| format!("need three groups to sum, input had {}", totals.len()))?;
+        Ok(Answer::solved(top.iter().sum::<i32>().to_string()))
     }
 }

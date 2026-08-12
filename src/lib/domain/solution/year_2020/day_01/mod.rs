@@ -42,6 +42,7 @@ impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         let nums: Vec<i32> = input
             .as_ref()
+            .trim()
             .lines()
             .map(|s| s.parse())
             .collect::<Result<Vec<i32>, _>>()?;
@@ -50,14 +51,14 @@ impl Solution for Puzzle {
 
     fn part_one(&self) -> anyhow::Result<Answer> {
         match two_sum(&self.nums, TARGET) {
-            Some((x, y)) => Ok(Answer::Value((x * y).to_string())),
+            Some((x, y)) => Ok(Answer::solved((x * y).to_string())),
             None => Ok(Answer::None),
         }
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
         match three_sum(&self.nums, TARGET) {
-            Some((x, y, z)) => Ok(Answer::Value((x * y * z).to_string())),
+            Some((x, y, z)) => Ok(Answer::solved((x * y * z).to_string())),
             None => Ok(Answer::None),
         }
     }
