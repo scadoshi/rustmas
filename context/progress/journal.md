@@ -3,6 +3,55 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-12
+
+2023 day 1 part two, 54094. Spelled-out digits count, and they overlap, so
+`eightwo` is 8 and 2. Reading from every position rather than consuming a match
+handles that without a special case.
+
+The first attempt was a `Window` type: a five-character view, five being the
+longest word, slid along the line. It went in the bin. The last four positions
+of a line have no full window, `find` inside a window returns an offset relative
+to the window rather than the line, and overlapping windows have to be
+reconciled anyway. More bookkeeping than the thing it was replacing. A plain
+`number_at(&s[i..])` over `char_indices()` says the same thing with no type.
+
+Three things learned off that dead end, all worth keeping:
+
+- `const NAME: LazyCell<T>` builds a fresh value at every use site, since a
+  const is inlined rather than stored. Lazy in name only. `static` with
+  `LazyLock` is the one that initialises once.
+- Slicing a `str` takes byte offsets, not character counts. `0..s.chars()
+  .count()` looks equivalent and is not: on any multi-byte character the two
+  drift, and `&s[i..]` then either panics on a non-boundary or slices somewhere
+  unintended. `char_indices()` yields byte offsets that are always boundaries.
+  ASCII input hides the whole thing, which is what makes it worth writing down.
+- An unreachable match arm means the types can spell a state the code cannot
+  produce. The first version tracked `first` and `last` as two `Option`s that
+  were always set together, so two of the four arms were fiction. An iterator
+  with `next()` and `next_back()` deletes both the arms and the flags, and makes
+  part two read like part one.
+
+Both parts now go through one `solve_with(f)` taking a function pointer, so the
+sum and the error naming the offending line are written once. Same shape as
+2017's `matching(step)`.
+
+`Calibration` is implemented on `str` directly rather than over
+`S: AsRef<str>`, which is what lets `solve_with` take a bare
+`fn(&str) -> Option<u32>` with no closure or turbofish at the call site.
+
+### Next, in order
+
+1. **2025 day 1**, the last one needed for a full set of day ones. 2025 was a
+   twelve-day event, so day 1 exists. 2019 stays deliberately untouched, to be
+   done in one run.
+2. **Then go back through every day and test the parsing.** See the note under
+   yesterday for why, and for what is worth checking on each day.
+
+Still not seen working: the part-two-unlock fix from yesterday. It needs a real
+submission on a genuinely unsolved day, so the next `solve -s` on a fresh one
+should print part two in the same run rather than needing a second.
+
 ## 2026-08-11
 
 2016 day 1 part two, an easy one. Walk the same instructions a block at a time
@@ -136,17 +185,9 @@ A line with no digits errors and names the line number and its contents, rather
 than being quietly dropped by a `filter_map`. Same call as `totals[..3]`: the
 input's shape was the only thing holding it up.
 
-### Next, in order
+### On testing the parsing
 
-1. **2023 day 1 part two.** Digits spelled as words count too. The catch is
-   overlap: `eightwo` is both 8 and 2, so scanning each position for a prefix
-   match works and consuming the match as you go does not.
-2. **2025 day 1**, which is the last one needed for a full set of day ones.
-   2025 was a twelve-day event, so day 1 exists. 2019 stays deliberately
-   untouched, to be done in one run.
-3. **Then go back through every day and test the parsing.**
-
-On that third one, which walks back the line drawn earlier today. The rule was
+Walking back the line drawn earlier today. The rule was
 shared structures get tests and day logic does not, because `--validate` already
 checks the answer. That still holds for the puzzle logic. Parsing is different:
 it is the part that decides what a malformed input does, and `--validate` only
