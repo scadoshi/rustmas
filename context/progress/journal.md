@@ -3,6 +3,91 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-13
+
+2025 day 1, 984 and 5657. A dial of a hundred positions, 0 through 99, starting
+at 50. Part one counts the turns that land on zero, part two counts every time
+the dial goes over it.
+
+Built a `Dial` type for it, with `Turn`, an `Instruction`, wrapping arithmetic
+and eleven tests, then deleted the whole thing and inlined both parts against
+two free functions. The type was not wrong, it was just more structure than a
+day this size can justify, and it read as ceremony once the day was solved.
+Kept `Instructions` for the parsing, which does earn a type.
+
+What the deleted version was worth: it forced the wrapping and the overflow to
+be written somewhere they could be reasoned about rather than buried in a fold.
+Both survived the inlining as `wrapped` and `moved`.
+
+`DIAL_SIZE` is 100, not 99, and the reason is worth writing down because it read
+as an off-by-one for a while. `x % n` yields `0..=n-1`, so to keep 99 as a
+position the modulus has to be the number of positions rather than the last one.
+99 is a real position and must stay put, and 100 is the first value that wraps.
+Same identity as `(i + 1) % v.len()` on a `Vec`, where `len()` is one past the
+last index.
+
+Overflow is unreachable rather than handled. `wrapped` takes an `i64`, so a
+caller widens before it adds and folds back afterwards, and a distance of
+`i32::MAX` cannot overflow an `i32` that never holds it. Cheaper than wrapping
+both operands first, which was the earlier version and cost two divisions
+instead of one.
+
+### Counting crossings without walking them
+
+Part two started as a fold inside a fold: step the dial one position at a time
+and count each landing on zero. Correct, and 3.8ms in release against 17µs for
+part one, because it walks the sum of every distance rather than the number of
+instructions.
+
+The closed form counts the multiples of 100 in the interval the turn sweeps.
+Turning right from `p` by `d` that is `(p + d) / 100 - p / 100`. Turning left it
+is the same over `p - d ..= p - 1`, the `- 1` because the position it starts on
+is not one it passes. 38µs, so about a hundred times faster, and parsing now
+costs more than both parts together.
+
+The catch is that it has to be floor division, not `/`, which truncates toward
+zero. They agree on non-negative numbers, which is why part one never noticed,
+and the left sweep runs negative. Turning left 100 from position 50 sweeps
+`-50..=49` and crosses zero once: flooring gives `0 - (-1) = 1`, truncating
+gives `0 - 0 = 0` and loses it. `div_euclid` is floor division, and the formula
+was always written in floors.
+
+Wrapping the position first and then checking does not avoid this. Wrapping is
+what destroys the information, since it collapses three laps and no laps onto
+the same position. Reconstructing the count from a wrapped position needs the
+laps and the leftover sweep separately, which is the same arithmetic with more
+branches.
+
+### Two things that came up while naming
+
+`InvalidInstruction` over `ParseInstructionError`, for consistency with
+`InvalidTurn`. The distinction that would have argued the other way: `Invalid<T>`
+suits a failure that means a value is wrong, `Parse<T>Error` suits one where the
+text can also be structurally malformed, which is what `TooFewParts` is. Not
+worth a second convention for.
+
+`turn_counting_intersections_with` became `turn_counting_passes` before the type
+was deleted. Nothing intersects on a dial, and the parameter had been named
+`intersections_with`, repeating the method name back at itself, which is usually
+the sign the name describes the wrong thing.
+
+Missed a `#[test]` again, same as `cell.rs`. The compiler does say so, as a
+`function is never used` warning during `cargo test`. Worth reading those rather
+than scrolling past, since a test that silently does not run is the failure mode.
+
+The day ones are done for every year except 2019, which is still deliberately
+untouched.
+
+### Next
+
+Go back through every day and test the parsing. The 2026-08-12 note has the
+reasoning and what is worth checking on each one.
+
+Still not confirmed: the part-two-unlock fix from 2026-08-11. Today's `solve -s`
+on 2025 went out with both parts already answered, so it did not exercise the
+case it was written for, which is a first star on part one fetching part two's
+text in the same run.
+
 ## 2026-08-12
 
 2023 day 1 part two, 54094. Spelled-out digits count, and they overlap, so
@@ -39,18 +124,6 @@ sum and the error naming the offending line are written once. Same shape as
 `Calibration` is implemented on `str` directly rather than over
 `S: AsRef<str>`, which is what lets `solve_with` take a bare
 `fn(&str) -> Option<u32>` with no closure or turbofish at the call site.
-
-### Next, in order
-
-1. **2025 day 1**, the last one needed for a full set of day ones. 2025 was a
-   twelve-day event, so day 1 exists. 2019 stays deliberately untouched, to be
-   done in one run.
-2. **Then go back through every day and test the parsing.** See the note under
-   yesterday for why, and for what is worth checking on each day.
-
-Still not seen working: the part-two-unlock fix from yesterday. It needs a real
-submission on a genuinely unsolved day, so the next `solve -s` on a fresh one
-should print part two in the same run rather than needing a second.
 
 ## 2026-08-11
 
