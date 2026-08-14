@@ -83,10 +83,8 @@ untouched.
 Go back through every day and test the parsing. The 2026-08-12 note has the
 reasoning and what is worth checking on each one.
 
-Still not confirmed: the part-two-unlock fix from 2026-08-11. Today's `solve -s`
-on 2025 went out with both parts already answered, so it did not exercise the
-case it was written for, which is a first star on part one fetching part two's
-text in the same run.
+The part-two-unlock fix from 2026-08-11 has been seen working since, so that one
+is closed.
 
 ## 2026-08-12
 
