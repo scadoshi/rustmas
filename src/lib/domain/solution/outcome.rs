@@ -75,16 +75,16 @@ impl Display for Outcome {
 
         // AOC's word supersedes the solver's, so a starred part reads as starred
         // rather than repeating that the solver agreed.
-        let notes: Vec<String> = match (&self.verdict, &self.submission) {
-            (_, Some(AocVerdict::Correct)) => vec!["new star".to_string()],
-            (_, Some(AocVerdict::AlreadySolved)) => vec!["starred".to_string()],
-            (Some(v), Some(s)) => vec![v.to_string(), s.to_string()],
-            (Some(v), None) => vec![v.to_string()],
-            (None, Some(s)) => vec![s.to_string()],
-            (None, None) => vec![],
+        let notes: String = match (&self.verdict, &self.submission) {
+            (_, Some(AocVerdict::Correct)) => "new star".to_string(),
+            (_, Some(AocVerdict::AlreadySolved)) => "starred".to_string(),
+            (Some(v), Some(s)) => format!("{}, {}", v, s),
+            (Some(v), None) => v.to_string(),
+            (None, Some(s)) => s.to_string(),
+            (None, None) => String::new(),
         };
         if !notes.is_empty() {
-            write!(f, " ({})", notes.join(", "))?;
+            write!(f, " ({})", notes)?;
         }
 
         write!(f, " [{:?}]", self.elapsed)
