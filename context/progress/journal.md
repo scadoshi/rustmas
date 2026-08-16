@@ -3,6 +3,27 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-15
+
+Art now gets a newline on both sides rather than only in front, so the timing
+lands on its own line instead of reading as another row of the picture. Decided
+while porting `Outcome` to sharpmas and applied here for parity.
+
+That left a space before `[0ns]` on a line that had already ended. The fix is
+`if !line.ends_with('\n')`, rather than asking whether the answer is
+[`Answer::Visual`]. Both behave the same today, but the rule is about the line,
+not the case, and `Outcome` otherwise never inspects which `Answer` it holds.
+`Display` builds the line as a `String` now so it has something to ask.
+
+Dropped the `notes` test helper. It stripped the timing by splitting on `" ["`,
+which art no longer contains, so it silently returned the whole line instead.
+Building the outcome with `Duration::ZERO` renders `[0ns]` and lets every test
+assert the whole line, which is simpler and has no assumption to break. One test
+keeps a real duration, since zero cannot show that the unit is picked.
+
+Tests use `foo` rather than a real answer now. A puzzle answer in a display test
+reads as though the value matters.
+
 ## 2026-08-13
 
 2025 day 1, 984 and 5657. A dial of a hundred positions, 0 through 99, starting
