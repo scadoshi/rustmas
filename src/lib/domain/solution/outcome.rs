@@ -64,14 +64,15 @@ impl Outcome {
 }
 
 impl Display for Outcome {
-    /// Answer, then what is known about it, then timing. Always one line.
+    /// Answer, then what is known about it, then timing. One line, unless the
+    /// answer is art, which brings its own.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.answer {
-            Ok(answer) => write!(f, "{answer}")?,
+        let mut line = match &self.answer {
+            Ok(answer) => answer.to_string(),
             // `{:#}` puts the whole chain on the line rather than just the
             // outermost message.
-            Err(e) => write!(f, "error: {e:#}")?,
-        }
+            Err(e) => format!("error: {e:#}"),
+        };
 
         // AOC's word supersedes the solver's, so a starred part reads as starred
         // rather than repeating that the solver agreed.
@@ -84,10 +85,15 @@ impl Display for Outcome {
             (None, None) => String::new(),
         };
         if !notes.is_empty() {
-            write!(f, " ({})", notes)?;
+            line.push_str(&format!(" ({notes})"));
         }
 
-        write!(f, " [{:?}]", self.elapsed)
+        // Art ends its own line, so the timing needs no space in front of it.
+        if !line.ends_with('\n') {
+            line.push(' ');
+        }
+
+        write!(f, "{line}[{:?}]", self.elapsed)
     }
 }
 
@@ -95,29 +101,30 @@ impl Display for Outcome {
 mod tests {
     use super::*;
 
+    /// Zero elapsed, so a test can assert the whole line without the timing
+    /// varying under it.
     fn value() -> Outcome {
-        Outcome::new(Ok(Answer::solved("138")), Duration::from_micros(7))
-    }
-
-    /// Timing is asserted separately, so these compare the part before it.
-    fn notes(outcome: &Outcome) -> String {
-        let rendered = outcome.to_string();
-        rendered
-            .split_once(" [")
-            .map(|(before, _)| before.to_string())
-            .unwrap_or(rendered)
+        Outcome::new(Ok(Answer::solved("foo")), Duration::ZERO)
     }
 
     #[test]
     fn bare_answer_has_no_notes() {
-        assert_eq!(notes(&value()), "138");
+        assert_eq!(value().to_string(), "foo [0ns]");
     }
 
     #[test]
     fn solver_verdict_alone_shows() {
         assert_eq!(
-            notes(&value().with_verdict(SolverVerdict::High)),
-            "138 (high)"
+            value().with_verdict(SolverVerdict::High).to_string(),
+            "foo (high) [0ns]"
+        );
+    }
+
+    #[test]
+    fn aoc_verdict_alone_shows() {
+        assert_eq!(
+            value().with_submission(AocVerdict::Low).to_string(),
+            "foo (low) [0ns]"
         );
     }
 
@@ -126,12 +133,12 @@ mod tests {
         let starred = value()
             .with_verdict(SolverVerdict::Correct)
             .with_submission(AocVerdict::AlreadySolved);
-        assert_eq!(notes(&starred), "138 (starred)");
+        assert_eq!(starred.to_string(), "foo (starred) [0ns]");
 
         let fresh = value()
             .with_verdict(SolverVerdict::Correct)
             .with_submission(AocVerdict::Correct);
-        assert_eq!(notes(&fresh), "138 (new star)");
+        assert_eq!(fresh.to_string(), "foo (new star) [0ns]");
     }
 
     /// Any other AOC reply is worth seeing next to what the solver thought.
@@ -141,14 +148,16 @@ mod tests {
             .with_verdict(SolverVerdict::Correct)
             .with_submission(AocVerdict::Cooldown("1m 0s".to_string()));
         assert_eq!(
-            notes(&cooled),
-            "138 (correct, rate limited, 1m 0s left to wait)"
+            cooled.to_string(),
+            "foo (correct, rate limited, 1m 0s left to wait) [0ns]"
         );
     }
 
+    /// The one test that uses a real duration, since zero cannot show a unit.
     #[test]
-    fn timing_always_renders() {
-        assert!(value().to_string().ends_with("[7µs]"));
+    fn timing_renders_in_its_own_unit() {
+        let outcome = Outcome::new(Ok(Answer::solved("foo")), Duration::from_micros(7));
+        assert_eq!(outcome.to_string(), "foo [7µs]");
     }
 
     /// The invariant that survived splitting `Answer` from `Outcome`.
@@ -166,21 +175,22 @@ mod tests {
     #[test]
     fn visual_answers_render_their_art() {
         let outcome = Outcome::new(Ok(Answer::Visual("###".to_string())), Duration::ZERO);
-        assert!(outcome.to_string().contains("###"));
-        assert_eq!(notes(&outcome), "\n###");
+        // Art is the one answer with no space before the timing, since it ends
+        // its own line.
+        assert_eq!(outcome.to_string(), "\n###\n[0ns]");
     }
 
     #[test]
     fn absent_answers_say_so() {
         let outcome = Outcome::new(Ok(Answer::None), Duration::ZERO);
-        assert_eq!(notes(&outcome), "(none)");
+        assert_eq!(outcome.to_string(), "(none) [0ns]");
     }
 
     /// A stub must not read as a part that is finished and has nothing to say.
     #[test]
     fn unwritten_parts_are_not_absent_ones() {
         let outcome = Outcome::new(Ok(Answer::Unwritten), Duration::ZERO);
-        assert_eq!(notes(&outcome), "(unwritten)");
+        assert_eq!(outcome.to_string(), "(unwritten) [0ns]");
         assert!(outcome.value().is_none());
     }
 
@@ -196,8 +206,8 @@ mod tests {
     #[test]
     fn failed_parts_render_their_error() {
         assert_eq!(
-            notes(&failed()),
-            "error: could not parse the input: given string was too short"
+            failed().to_string(),
+            "error: could not parse the input: given string was too short [0ns]"
         );
     }
 

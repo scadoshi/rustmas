@@ -37,7 +37,7 @@ impl Display for Answer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Value(value) => write!(f, "{value}"),
-            Self::Visual(art) => write!(f, "\n{art}"),
+            Self::Visual(art) => write!(f, "\n{art}\n"),
             Self::None => write!(f, "(none)"),
             Self::Unwritten => write!(f, "(unwritten)"),
         }
