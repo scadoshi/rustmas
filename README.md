@@ -177,6 +177,10 @@ use crate::{
 That match is the only list of what has been solved. A day missing from it is
 skipped rather than failing.
 
+Anything more than one day needs goes in `solution/common/`, which is where
+`Point`, `Cell`, `Direction`, and `Turn` live. Those are on this branch rather
+than `main`, since a clone with no solutions has nothing to use them for.
+
 Every day's type is named `Puzzle`, with the module path carrying the
 coordinate, so importing the year modules keeps two years from colliding.
 
@@ -204,6 +208,7 @@ src/
         outcome.rs           # that answer, plus timing and verdicts
         aoc_verdict.rs       # what AOC said about a submission
         solver_verdict.rs    # what the solver made of an answer
+        common/              # helpers days share: Point, Cell, Direction, Turn
         year_template/       # copy this to start a year
         year_2015/           # one dir per day, each with a Puzzle
         year_2016/           # 2017, 2018, 2020, 2021, 2022 too
