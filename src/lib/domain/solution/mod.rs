@@ -5,6 +5,7 @@
 
 pub mod answer;
 pub mod aoc_verdict;
+pub mod common;
 pub mod outcome;
 pub mod solver_verdict;
 // One `pub mod year_YYYY;` per year you write solutions for.

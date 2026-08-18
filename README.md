@@ -177,6 +177,15 @@ use crate::{
 That match is the only list of what has been solved. A day missing from it is
 skipped rather than failing.
 
+Anything more than one day needs goes in `src/lib/domain/solution/common/`,
+which ships empty. Add a `pub mod` line there and write the type. Grid and
+geometry work is what usually ends up there, since Advent of Code returns to it
+every year.
+
+Write those the second day that wants them rather than the first, and give them
+tests: a break in a shared type corrupts every day at once, where a single day's
+logic is already checked by `--validate`.
+
 Every day's type is named `Puzzle`, with the module path carrying the
 coordinate, so importing the year modules keeps two years from colliding.
 
@@ -204,6 +213,7 @@ src/
         outcome.rs           # that answer, plus timing and verdicts
         aoc_verdict.rs       # what AOC said about a submission
         solver_verdict.rs    # what the solver made of an answer
+        common/              # helpers more than one day needs, empty to start
         year_template/       # copy this to start a year
         year_<year>/         # your days go here, one dir each
     inbound/                 # ways in
