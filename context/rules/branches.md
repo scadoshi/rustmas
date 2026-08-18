@@ -62,6 +62,14 @@ Only on `scadoshi`:
 - `src/lib/domain/solution/year_YYYY/` and their `pub mod year_YYYY;` lines.
   Not `year_template/`, which is tooling for writing solutions rather than a
   solution, and which a fresh clone of `main` should have.
+- `src/lib/domain/solution/common/` and its `pub mod common;` line. It holds
+  grid and direction helpers that exist to serve puzzles, so a clone with no
+  solutions has nothing to use them for, and the template is meant to stand
+  alone. It sat on `main` until 2026-08-18 by oversight.
+
+  Removing it from `main` is a deletion in `main`'s history, so the merge that
+  brought it down had to restore `common/` and its module line from the
+  pre-merge commit, the same way the original carve-out did.
 - the arms in `solver_for`
 - `context/progress/`, `context/todo.md`, and this file
 - the "Who" and "How to work with him" sections of `context/README.md`
