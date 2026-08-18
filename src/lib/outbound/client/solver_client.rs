@@ -30,6 +30,11 @@ pub struct SolverClient {
 }
 
 impl SolverClient {
+    /// Builds a client carrying the `User-Agent`, loading `.env` if present.
+    ///
+    /// Nothing here is required, since the solver needs no authentication. It
+    /// fails only when the user agent cannot be a header value, which a stray
+    /// newline in `.env` is enough to cause.
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, HeaderValue::from_str(&Environment::user_agent())?);

@@ -32,9 +32,11 @@ impl AocClient {
         &self.client
     }
 
-    /// Reads configuration from the environment, loading `.env` if present.
+    /// Builds a client carrying the cookie and `User-Agent` on every request.
     ///
-    /// Only `COOKIE` is required, so a fresh clone runs without the rest.
+    /// Reads the environment, loading `.env` if present. Only `COOKIE` is
+    /// required, so a fresh clone runs without the rest. Both headers go on the
+    /// client rather than each request, so nothing can send one without them.
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         let cookie = Environment::cookie()?;
