@@ -13,9 +13,8 @@ pub mod solver_verdict;
 // builds against the current `Solution`.
 pub mod year_template;
 
-use std::time::Duration;
-
 use crate::domain::solution::{answer::Answer, outcome::Outcome};
+use std::time::Duration;
 
 /// One day's puzzle, parsed and ready to answer both parts.
 ///

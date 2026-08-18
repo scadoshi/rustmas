@@ -1,44 +1,25 @@
-use crate::domain::{
-    address::{Day, Part},
-    solution::aoc_verdict::AocVerdict,
+use crate::{
+    domain::{
+        address::{Day, Part},
+        solution::aoc_verdict::AocVerdict,
+    },
+    outbound::client::environment::Environment,
 };
 use anyhow::Context;
-use reqwest::{Url, blocking::Client};
-
-/// Env var holding the adventofcode.com session cookie.
-const COOKIE_KEY: &str = "COOKIE";
+use reqwest::{
+    Url,
+    blocking::Client,
+    header::{COOKIE, HeaderMap, HeaderValue, USER_AGENT},
+};
 
 /// Marks a puzzle part on a day page. Two means part two is unlocked.
 const ARTICLE: &str = r#"<article class="day-desc">"#;
 
 const AOC_BASE_URL: &str = "https://adventofcode.com";
 
-/// Reads the session cookie without building a client.
-///
-/// Checking which session an input came from needs the cookie but no requests.
-pub fn cookie_from_env() -> anyhow::Result<String> {
-    cookie_if_set()?.with_context(|| format!("{COOKIE_KEY} is not set"))
-}
-
-/// The session cookie, or `None` when it is unset or blank.
-///
-/// Errors only when it is set to something unusable, so a caller that can work
-/// offline is not told to go offline by a typo.
-pub fn cookie_if_set() -> anyhow::Result<Option<String>> {
-    // `.env` is optional: values may already live in the real environment.
-    dotenvy::dotenv().ok();
-    match std::env::var(COOKIE_KEY) {
-        Ok(cookie) if cookie.trim().is_empty() => Ok(None),
-        Ok(cookie) => Ok(Some(cookie)),
-        Err(std::env::VarError::NotPresent) => Ok(None),
-        Err(e) => Err(e).with_context(|| format!("{COOKIE_KEY} is set but unreadable")),
-    }
-}
-
 /// An authenticated handle to adventofcode.com, pooling one client.
 pub struct AocClient {
     cookie: String,
-    user_agent: String,
     client: Client,
 }
 
@@ -51,20 +32,19 @@ impl AocClient {
         &self.client
     }
 
-    /// How this tool identifies itself, from `REPO_URL` and `CONTACT`.
-    pub fn user_agent(&self) -> &str {
-        &self.user_agent
-    }
-
     /// Reads configuration from the environment, loading `.env` if present.
     ///
     /// Only `COOKIE` is required, so a fresh clone runs without the rest.
     pub fn from_env() -> anyhow::Result<Self> {
-        Ok(Self {
-            cookie: cookie_from_env()?,
-            user_agent: super::user_agent_from_env(),
-            client: Client::new(),
-        })
+        let mut headers = HeaderMap::new();
+        let cookie = Environment::cookie()?;
+        headers.insert(USER_AGENT, HeaderValue::from_str(&Environment::user_agent())?);
+        headers.insert(
+            COOKIE,
+            HeaderValue::from_str(&format!("session={cookie}"))?,
+        );
+        let client = Client::builder().default_headers(headers).build()?;
+        Ok(Self { cookie, client })
     }
 
     /// Fetches `day`'s puzzle text, rendered from HTML.
@@ -74,8 +54,6 @@ impl AocClient {
         let html = self
             .client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!("{}/day/{}", day.year(), day.value()))?)
-            .header("User-Agent", self.user_agent())
-            .header("Cookie", format!("session={}", self.cookie()))
             .send()
             .with_context(|| format!("failed to reach AOC for {day:?}"))?
             .error_for_status()
@@ -106,8 +84,6 @@ impl AocClient {
                 day.year(),
                 day.value()
             ))?)
-            .header("User-Agent", self.user_agent())
-            .header("Cookie", format!("session={}", self.cookie()))
             .send()
             .with_context(|| {
                 format!(
@@ -152,8 +128,6 @@ impl AocClient {
         let body = self
             .client
             .post(url)
-            .header("User-Agent", self.user_agent())
-            .header("Cookie", format!("session={}", self.cookie()))
             .form(&form)
             .send()
             .with_context(|| format!("failed to reach AOC for {day:?}"))?

@@ -1,7 +1,7 @@
 use crate::{
     domain::address::Day,
     outbound::{
-        client::aoc_client::{AocClient, cookie_from_env, cookie_if_set},
+        client::{aoc_client::AocClient, environment::Environment},
         store::{
             self,
             cache::{Entry, Input, Instructions},
@@ -18,7 +18,7 @@ use crate::{
 pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result<Entry> {
     // Absent when no cookie is configured, which leaves a cached entry usable
     // rather than unverifiable and therefore unusable.
-    let cookie = cookie_if_set()?;
+    let cookie = Environment::cookie_if_set()?;
 
     let Some(cached) = store::read_entry(day)? else {
         let input = fetch_input(client, day, cookie.as_deref())?;
@@ -86,7 +86,7 @@ fn fetch_input(
     let data = connected(client)?.get_input(day)?;
     let cookie = match cookie {
         Some(cookie) => cookie.to_string(),
-        None => cookie_from_env()?,
+        None => Environment::cookie()?,
     };
     Ok(Input::new(cookie, data))
 }
