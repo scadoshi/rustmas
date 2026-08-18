@@ -1,9 +1,16 @@
-use crate::domain::{
-    address::{Day, Part},
-    solution::solver_verdict::SolverVerdict,
+use crate::{
+    domain::{
+        address::{Day, Part},
+        solution::solver_verdict::SolverVerdict,
+    },
+    outbound::client::environment::Environment,
 };
 use anyhow::bail;
-use reqwest::{Url, blocking::Client};
+use reqwest::{
+    Url,
+    blocking::Client,
+    header::{HeaderMap, HeaderValue, USER_AGENT},
+};
 use std::fmt::Display;
 
 /// Three deployments of the same third-party solver, tried in order. See
@@ -19,30 +26,19 @@ const BASE_URLS: [&str; 3] = [
 /// No cookie, no stars, and no memory, which is what makes it repeatable
 /// enough to use as a regression check.
 pub struct SolverClient {
-    user_agent: String,
     client: Client,
 }
 
-impl Default for SolverClient {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl SolverClient {
-    pub fn new() -> Self {
-        Self {
-            user_agent: super::user_agent_from_env(),
-            client: Client::new(),
-        }
+    pub fn from_env() -> anyhow::Result<Self> {
+        let mut headers = HeaderMap::new();
+        headers.insert(USER_AGENT, HeaderValue::from_str(&Environment::user_agent())?);
+        let client = Client::builder().default_headers(headers).build()?;
+        Ok(Self { client })
     }
 
     pub fn client(&self) -> &Client {
         &self.client
-    }
-
-    pub fn user_agent(&self) -> &str {
-        &self.user_agent
     }
 
     /// Checks `answer` against the solver.
@@ -70,13 +66,7 @@ impl SolverClient {
         for base in BASE_URLS {
             let url = Url::parse(base)?.join(&path)?;
 
-            let response = match self
-                .client
-                .post(url.clone())
-                .header("User-Agent", self.user_agent())
-                .body(input.clone())
-                .send()
-            {
+            let response = match self.client.post(url.clone()).body(input.clone()).send() {
                 Ok(response) => response,
                 Err(e) => {
                     eprintln!("failed to reach solver at {url}: {e:?}; trying next url");

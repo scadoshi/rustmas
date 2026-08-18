@@ -54,7 +54,7 @@ fn part_count(year: Option<i32>, day: Option<i32>) -> usize {
 pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
     let validate = args.validate || args.submit;
-    let solver = SolverClient::new();
+    let solver = SolverClient::from_env()?;
 
     let count = part_count(args.year, args.day);
     if args.submitting_everything() && !args.yes && count > 0 && !confirm(count)? {
