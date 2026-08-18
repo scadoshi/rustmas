@@ -3,6 +3,25 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-18
+
+`Direction` had no tests, which the C# port surfaced. Seven now: both turn
+directions, four turns returning to the start, `turned` agreeing with the pair
+it delegates to, parsing letters and words in either case, refusing anything
+else, and the error naming what it read.
+
+Worth noticing how the gap was found. Porting `Direction` to C# meant writing
+its tests from scratch, since nothing existed to translate, and only then did it
+show that the original had none either. `Point`, `Cell`, and `Turn` all had them,
+so this was one file overlooked rather than a policy.
+
+The four-turns test is the one that earns its place beyond the obvious. Each
+single step can be right while the ordering is wrong, and going all the way round
+from every starting point catches that where four separate assertions do not.
+
+Tests match rather than compare, since `Direction` has no `PartialEq` and
+`pose.rs` already decided that tests should not be the reason to add one.
+
 ## 2026-08-15
 
 Art now gets a newline on both sides rather than only in front, so the timing
