@@ -4,8 +4,8 @@
 //! since neither mentions HTTP and a domain type cannot depend on an adapter.
 
 pub mod answer;
-pub mod common;
 pub mod aoc_verdict;
+pub mod common;
 pub mod outcome;
 pub mod solver_verdict;
 pub mod year_2015;

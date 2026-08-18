@@ -177,9 +177,14 @@ use crate::{
 That match is the only list of what has been solved. A day missing from it is
 skipped rather than failing.
 
-Anything more than one day needs goes in `solution/common/`, which is where
-`Point`, `Cell`, `Direction`, and `Turn` live. Those are on this branch rather
-than `main`, since a clone with no solutions has nothing to use them for.
+Anything more than one day needs goes in `src/lib/domain/solution/common/`,
+which ships empty on `main` and holds `Point`, `Cell`, `Direction`, and `Turn`
+here. Add a `pub mod` line there and write the type. Grid and geometry work is
+what usually ends up there, since Advent of Code returns to it every year.
+
+Write those the second day that wants them rather than the first, and give them
+tests: a break in a shared type corrupts every day at once, where a single day's
+logic is already checked by `--validate`.
 
 Every day's type is named `Puzzle`, with the module path carrying the
 coordinate, so importing the year modules keeps two years from colliding.
