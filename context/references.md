@@ -6,7 +6,7 @@ rely on, when it was last verified, and how to check it again.
 ## fornwall/advent-of-code (the solver)
 
 - Source: `https://github.com/fornwall/advent-of-code.git`
-- Cloned locally at `~/Work/advent-of-code`
+- Worth cloning locally to read `crates/core/src/lib.rs` for coverage
 - Last checked: 2026-08-04, at commit `b5d0e717` (authored 2026-07-03)
 - Used by: `SolverClient::validate_answer` in `src/lib/outbound/client/solver_client.rs`
 

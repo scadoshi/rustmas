@@ -56,7 +56,7 @@ solving happens rather than partway through.
 Solving matches the day against the registry before calling `ensure_entry`, so
 a run over every year never downloads anything for a day with no solution.
 
-`cookie_from_env` sits apart from `AocClient::from_env` so a hash check never
+`Environment::cookie` sits apart from `AocClient::from_env` so a hash check never
 forces a client into existence.
 
 ## Rejected: compile-time embedding
