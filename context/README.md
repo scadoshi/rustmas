@@ -1,29 +1,45 @@
-# context (read me first)
+# context
 
-Hand this dir to any AI assistant to resume work on `rustmas` with full context.
+Facts about the repository, plus who owns this branch and how he works. The
+repo facts are one file per topic, shared with `main`; the personal sections
+exist only here.
 
-## Where things are
-
-- [`todo.md`](todo.md) is what is coming next and what is already done.
+- [`todo.md`](todo.md) is what is coming next. Read it first.
 - [`progress/journal.md`](progress/journal.md) is dated session logs, newest
   first.
+- [`rules/`](rules/) is binding when working here: commit guidelines, doc
+  comment style, and the branch model. On this branch only, since the rules are
+  the owner's.
+- [`architecture.md`](architecture.md) is the layout, how a solve runs, and the
+  cache on disk.
 - [`design/`](design/) is why the code looks the way it does, including the
   options that were rejected and the reasons.
-- [`references.md`](references.md) covers external things we depend on, where to
-  clone them, when they were last checked, and the contracts we rely on.
-- [`rules/commit_guidelines.md`](rules/commit_guidelines.md) is binding for any
-  commit.
-- [`rules/branches.md`](rules/branches.md) is how `main` and this branch relate,
-  and what belongs on each.
+- [`references.md`](references.md) covers external things this depends on, where
+  to clone them, when they were last checked, and the contracts relied on.
 
-Update `todo.md` and add a journal entry at the end of a working session. Add to
-`design/` whenever a decision gets made, even if no code changed.
+Add to `design/` whenever a decision gets made, even if no code changed. The
+notes are most useful when they record what was rejected and why, since that is
+the part nobody can recover from reading the code.
+
+## Branches
+
+`main` is the tool with no solutions: what you clone to start. Solutions and
+their registry arms live on a personal branch layered on top, with changes
+flowing one way by merging `main` down. The `scadoshi` branch is Scotty's, with
+his solutions and working notes, if you want worked examples.
+
+One habit worth keeping regardless of whose branch you are on: verify claims
+rather than asserting them.
+Several decisions recorded in `design/` changed because something got probed or
+read rather than assumed. The solver's error contract was guessed wrong twice
+before anyone ran a curl against it, and the day page structure was confirmed
+across three pages before anything was built on it.
 
 ## Who
 
-scadoshi (Scotty) is a strong Rust developer. He's deep on ownership, traits,
-error-as-values, and making illegal states unrepresentable, so skip beginner
-Rust explanations.
+scadoshi (Scotty) is a strong Rust developer, deep on ownership, traits,
+error-as-values, and making illegal states unrepresentable. This is his home
+territory; the sibling repo sharpmas is where C# is being learned.
 
 ## How to work with him
 
@@ -37,31 +53,10 @@ either code comments or conversation. Write real sentences.
 When he asks for implementation, write the code. When he's still thinking out
 loud, coach and nudge instead of jumping to code.
 
-Verify claims rather than asserting them. Several decisions here changed because
-something got probed or read rather than assumed. The solver's error contract
-was guessed wrong twice before anyone ran a curl against it.
+Verify claims rather than asserting them. Several decisions in `design/` changed
+because something got probed or read rather than assumed.
 
-## What rustmas is
-
-Advent of Code tooling in Rust. One binary with a subcommand per mode, over a
-library arranged as ports and adapters: `domain` knows nothing about the network
-or the filesystem, `inbound` is how a request arrives, `outbound` is how it
-leaves.
-
-`fetch` downloads puzzle inputs and instructions into `cache/<year>/<NN>/`, one
-directory of plain files per day.
-
-`solve` runs the solutions, fetching any input it does not have. `--validate`
-checks each answer against a third-party solver, and `--submit` posts them to
-adventofcode.com for stars, sending only what the solver agreed with.
-
-Both subcommands take `-y`/`--year` and `-d`/`--day`. Omitting a flag means all
-of them, so they filter rather than look up.
-
-The library holds the validated `Year`, `Day`, and `Part` types, the two HTTP
-clients, and the solutions. `AocClient` and `SolverClient` are separate on
-purpose: the first is authenticated and grades once, the second is anonymous and
-repeatable.
+Update `todo.md` and add a journal entry at the end of a working session.
 
 ## Do not
 
