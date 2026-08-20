@@ -32,4 +32,4 @@ Come back and keep revising until it is solid. Known items, in order:
   a line the parser cannot split, and whether the message names the line and
   the day. The 2026-08-12 journal note has the reasoning.
 - 2019, all days in one run, when the mood strikes.
-- 2023 day 1 part two onward through the remaining day twos.
+- The day twos, now that every day one is done.
