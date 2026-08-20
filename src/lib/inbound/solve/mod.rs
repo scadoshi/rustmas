@@ -3,7 +3,7 @@ pub mod utils;
 
 use crate::{
     domain::{
-        address::{Day, Part},
+        address::{Day, Filter, Part},
         solution::{Solved, aoc_verdict::AocVerdict},
     },
     inbound::{
@@ -37,9 +37,8 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
 }
 
 /// How many parts a run over these filters would touch.
-fn part_count(year: Option<i32>, day: Option<i32>) -> usize {
-    Day::each(year, day)
-        .filter_map(Result::ok)
+fn part_count(filter: Filter) -> usize {
+    Day::matching(filter)
         .filter(|day| solver_for(day.year(), day.value()).is_some())
         .count()
         * 2
@@ -49,8 +48,9 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
     let validate = args.validate || args.submit;
     let solver = SolverClient::from_env()?;
+    let filter = Filter::new(args.year, args.day)?;
 
-    let count = part_count(args.year, args.day);
+    let count = part_count(filter);
     if args.submitting_everything() && !args.yes && count > 0 && !confirm(count)? {
         eprintln!("Nothing submitted.");
         return Ok(());
@@ -60,9 +60,7 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Otherwise built on first download, leaving cached runs offline.
     let mut aoc = args.submit.then(AocClient::from_env).transpose()?;
 
-    for day in Day::each(args.year, args.day) {
-        let day = day?;
-
+    for day in Day::matching(filter) {
         // Asked before fetching, so a run over every year downloads nothing for
         // days it cannot solve.
         let Some(solver_fn) = solver_for(day.year(), day.value()) else {
