@@ -43,13 +43,13 @@ pub trait Solution: Sized {
 #[derive(Debug)]
 pub struct Solved {
     pub parsed_in: Duration,
-    pub one: Outcome,
-    pub two: Outcome,
+    pub part_one: Outcome,
+    pub part_two: Outcome,
 }
 
 impl Solved {
     /// Parsing plus both parts. Excludes any network time.
-    pub fn total(&self) -> Duration {
-        self.parsed_in + self.one.elapsed() + self.two.elapsed()
+    pub fn total_elapsed(&self) -> Duration {
+        self.parsed_in + self.part_one.elapsed() + self.part_two.elapsed()
     }
 }
