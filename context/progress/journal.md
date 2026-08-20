@@ -3,9 +3,1030 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+# Journal
+
+Newest first. Names in older entries were updated when things got renamed, so
+they read consistently rather than historically.
+
 ## 2026-08-20
 
 Restructured the inbound side while walking the repo to relearn it. `fetch` and
+`solve` each had a `run.rs` holding one public function, reached as
+`fetch::run::run()`. Both folded into their `mod.rs`, so call sites read
+`fetch::run(args)`. `cli.rs` lost its duplicate clap imports on the way.
+
+That moved the solver registry: `solver_for` now lives in
+`inbound/solve/mod.rs`, which makes that file the branch-divergent one instead
+of `solve/run.rs`. `branches.md` updated to match. `main` got the same fold with
+its empty registry, applied by hand as the rule requires.
+
+Renamed `Solved.parse` to `parsed_in`. The old name read as a verb about to be
+called; `parsed_in` reads as data and rhymes with `elapsed` on `Outcome`. The
+sharpmas `Solved.Parse` should follow or the port drifts on a name for nothing.
+
+Also grew a plan while reading: the year and day args are filters, and a filter
+that matches nothing exits silently, so `-y 2030` is indistinguishable from a
+quiet success. That is the ambiguous-absence pattern at the CLI edge. The shape
+settled on with the sharpmas side of the brain: a `Filter` type in
+`domain/address/` holding validated parts, eagerly rejecting what it can
+(`-y 2030`, `-d 26`) and yielding plain `Day`s, which also deletes the
+`Result` from the iterator that only existed because days were built during
+iteration. Not built yet.
+
+### The Filter type, later the same day
+
+Built the plan from this morning. `Filter::new(year, day)` validates eagerly and
+`Day::matching(filter)` expands infallibly, so the two jobs that were tangled in
+`Day::each` are separate types now.
+
+```
+$ solve -y 2030        Error: year 2030 is outside 2015..=2025
+$ solve -d 26          Error: day 26 is outside 1..=25
+$ solve -y 2025 -d 13  Error: day 13 is outside 1..=12
+```
+
+The third line is the point: a paired filter is judged against the year's own
+day count, so the message teaches the bound that actually rejected it. Before
+this, all three exited silently, indistinguishable from a quiet success.
+
+What fell out along the way:
+
+- `Day::all()` yields plain days. The old iterator carried `Result` items only
+  because it ran fallible constructors on inputs its own ranges had already
+  proven, which is the panic-proofing rule's first case: proven locally, so
+  `expect` with the proof as the message. The `filter_map(Result::ok)` and
+  `day?` ceremony at every call site went with it.
+- A `collect` inside `flat_map` is nearly always a lifetime workaround wearing
+  an allocation costume. `Year` is `Copy`, so `move` on the inner closure was
+  the whole fix.
+- `OutOfRange` split into `YearOutOfRange` and `DayOutOfRange`, structs with
+  named fields, one producer each. Signatures stopped overpromising: `Year::new`
+  can only fail one way and now says so. `InvalidFilter` aggregates the pair
+  with `#[from]`, the `InvalidInstruction` shape on its third use.
+- The bound travels in the error, captured at the moment the check ran, since
+  thiserror's format string interpolates fields rather than calling functions.
+  One producer per variant makes the by-hand field a non-risk.
+- `has_second_puzzle` on `Day`, since day 25's second star is awarded rather
+  than puzzled and there is no text to keep fetching.
+- `Day` also learned `matching` takes the filter by value, which `Copy` makes
+  free.
+
+Port list for sharpmas, which is now several behind: `parsed_in` and the
+`part_one`/`part_two`/`total_elapsed` renames, `Answer.Unwritten`, the run fold
+into each command's module, `has_second_puzzle`, and this Filter shape end to
+end, eager errors included.
+
+## 2026-08-18
+
+`Direction` had no tests, which the C# port surfaced. Seven now: both turn
+directions, four turns returning to the start, `turned` agreeing with the pair
+it delegates to, parsing letters and words in either case, refusing anything
+else, and the error naming what it read.
+
+Worth noticing how the gap was found. Porting `Direction` to C# meant writing
+its tests from scratch, since nothing existed to translate, and only then did it
+show that the original had none either. `Point`, `Cell`, and `Turn` all had them,
+so this was one file overlooked rather than a policy.
+
+The four-turns test is the one that earns its place beyond the obvious. Each
+single step can be right while the ordering is wrong, and going all the way round
+from every starting point catches that where four separate assertions do not.
+
+Tests match rather than compare, since `Direction` has no `PartialEq` and
+`pose.rs` already decided that tests should not be the reason to add one.
+
+## 2026-08-15
+
+Art now gets a newline on both sides rather than only in front, so the timing
+lands on its own line instead of reading as another row of the picture. Decided
+while porting `Outcome` to sharpmas and applied here for parity.
+
+That left a space before `[0ns]` on a line that had already ended. The fix is
+`if !line.ends_with('\n')`, rather than asking whether the answer is
+[`Answer::Visual`]. Both behave the same today, but the rule is about the line,
+not the case, and `Outcome` otherwise never inspects which `Answer` it holds.
+`Display` builds the line as a `String` now so it has something to ask.
+
+Dropped the `notes` test helper. It stripped the timing by splitting on `" ["`,
+which art no longer contains, so it silently returned the whole line instead.
+Building the outcome with `Duration::ZERO` renders `[0ns]` and lets every test
+assert the whole line, which is simpler and has no assumption to break. One test
+keeps a real duration, since zero cannot show that the unit is picked.
+
+Tests use `foo` rather than a real answer now. A puzzle answer in a display test
+reads as though the value matters.
+
+## 2026-08-13
+
+2025 day 1, 984 and 5657. A dial of a hundred positions, 0 through 99, starting
+at 50. Part one counts the turns that land on zero, part two counts every time
+the dial goes over it.
+
+Built a `Dial` type for it, with `Turn`, an `Instruction`, wrapping arithmetic
+and eleven tests, then deleted the whole thing and inlined both parts against
+two free functions. The type was not wrong, it was just more structure than a
+day this size can justify, and it read as ceremony once the day was solved.
+Kept `Instructions` for the parsing, which does earn a type.
+
+What the deleted version was worth: it forced the wrapping and the overflow to
+be written somewhere they could be reasoned about rather than buried in a fold.
+Both survived the inlining as `wrapped` and `moved`.
+
+`DIAL_SIZE` is 100, not 99, and the reason is worth writing down because it read
+as an off-by-one for a while. `x % n` yields `0..=n-1`, so to keep 99 as a
+position the modulus has to be the number of positions rather than the last one.
+99 is a real position and must stay put, and 100 is the first value that wraps.
+Same identity as `(i + 1) % v.len()` on a `Vec`, where `len()` is one past the
+last index.
+
+Overflow is unreachable rather than handled. `wrapped` takes an `i64`, so a
+caller widens before it adds and folds back afterwards, and a distance of
+`i32::MAX` cannot overflow an `i32` that never holds it. Cheaper than wrapping
+both operands first, which was the earlier version and cost two divisions
+instead of one.
+
+### Counting crossings without walking them
+
+Part two started as a fold inside a fold: step the dial one position at a time
+and count each landing on zero. Correct, and 3.8ms in release against 17µs for
+part one, because it walks the sum of every distance rather than the number of
+instructions.
+
+The closed form counts the multiples of 100 in the interval the turn sweeps.
+Turning right from `p` by `d` that is `(p + d) / 100 - p / 100`. Turning left it
+is the same over `p - d ..= p - 1`, the `- 1` because the position it starts on
+is not one it passes. 38µs, so about a hundred times faster, and parsing now
+costs more than both parts together.
+
+The catch is that it has to be floor division, not `/`, which truncates toward
+zero. They agree on non-negative numbers, which is why part one never noticed,
+and the left sweep runs negative. Turning left 100 from position 50 sweeps
+`-50..=49` and crosses zero once: flooring gives `0 - (-1) = 1`, truncating
+gives `0 - 0 = 0` and loses it. `div_euclid` is floor division, and the formula
+was always written in floors.
+
+Wrapping the position first and then checking does not avoid this. Wrapping is
+what destroys the information, since it collapses three laps and no laps onto
+the same position. Reconstructing the count from a wrapped position needs the
+laps and the leftover sweep separately, which is the same arithmetic with more
+branches.
+
+### Two things that came up while naming
+
+`InvalidInstruction` over `ParseInstructionError`, for consistency with
+`InvalidTurn`. The distinction that would have argued the other way: `Invalid<T>`
+suits a failure that means a value is wrong, `Parse<T>Error` suits one where the
+text can also be structurally malformed, which is what `TooFewParts` is. Not
+worth a second convention for.
+
+`turn_counting_intersections_with` became `turn_counting_passes` before the type
+was deleted. Nothing intersects on a dial, and the parameter had been named
+`intersections_with`, repeating the method name back at itself, which is usually
+the sign the name describes the wrong thing.
+
+Missed a `#[test]` again, same as `cell.rs`. The compiler does say so, as a
+`function is never used` warning during `cargo test`. Worth reading those rather
+than scrolling past, since a test that silently does not run is the failure mode.
+
+The day ones are done for every year except 2019, which is still deliberately
+untouched.
+
+### Next
+
+Go back through every day and test the parsing. The 2026-08-12 note has the
+reasoning and what is worth checking on each one.
+
+The part-two-unlock fix from 2026-08-11 has been seen working since, so that one
+is closed.
+
+## 2026-08-12
+
+2023 day 1 part two, 54094. Spelled-out digits count, and they overlap, so
+`eightwo` is 8 and 2. Reading from every position rather than consuming a match
+handles that without a special case.
+
+The first attempt was a `Window` type: a five-character view, five being the
+longest word, slid along the line. It went in the bin. The last four positions
+of a line have no full window, `find` inside a window returns an offset relative
+to the window rather than the line, and overlapping windows have to be
+reconciled anyway. More bookkeeping than the thing it was replacing. A plain
+`number_at(&s[i..])` over `char_indices()` says the same thing with no type.
+
+Three things learned off that dead end, all worth keeping:
+
+- `const NAME: LazyCell<T>` builds a fresh value at every use site, since a
+  const is inlined rather than stored. Lazy in name only. `static` with
+  `LazyLock` is the one that initialises once.
+- Slicing a `str` takes byte offsets, not character counts. `0..s.chars()
+  .count()` looks equivalent and is not: on any multi-byte character the two
+  drift, and `&s[i..]` then either panics on a non-boundary or slices somewhere
+  unintended. `char_indices()` yields byte offsets that are always boundaries.
+  ASCII input hides the whole thing, which is what makes it worth writing down.
+- An unreachable match arm means the types can spell a state the code cannot
+  produce. The first version tracked `first` and `last` as two `Option`s that
+  were always set together, so two of the four arms were fiction. An iterator
+  with `next()` and `next_back()` deletes both the arms and the flags, and makes
+  part two read like part one.
+
+Both parts now go through one `solve_with(f)` taking a function pointer, so the
+sum and the error naming the offending line are written once. Same shape as
+2017's `matching(step)`.
+
+`Calibration` is implemented on `str` directly rather than over
+`S: AsRef<str>`, which is what lets `solve_with` take a bare
+`fn(&str) -> Option<u32>` with no closure or turbofish at the call site.
+
+## 2026-08-11
+
+2016 day 1 part two, an easy one. Walk the same instructions a block at a time
+instead of a segment at a time, keep visited points in a `HashSet`, and stop at
+the first repeat. 161. `Point` gained `PartialEq`, `Eq` and `Hash` to go in the
+set.
+
+Check the current position before stepping rather than after, so each segment's
+endpoint is tested at the start of the next one instead of being skipped or
+counted twice.
+
+Returns `Answer::None` when nothing repeats. The first version returned the
+final position's distance, which is part one's answer wearing part two's hat,
+and exactly the shape the day before was spent hunting.
+
+2017 day 1, both parts. Same loop twice with a different step: compare each
+digit against the next one round the circle, then against the one halfway
+around. 1097 and 1188.
+
+2018 day 1. Part one is the sum, 587. Part two wants the first frequency
+reached twice, and the list of changes repeats forever, so one pass over the
+input finds nothing and returns `Answer::None`. `iter().cycle()` says that in
+one word, and it keeps the `None` honest rather than unreachable: an empty
+input yields nothing from `cycle()`, so no answer is the truth. 83130.
+
+Found why part two's text kept arriving a run late. `ensure_entry` runs at the
+top of the day loop and the submission happens further down, so the run that
+earns a new star on part one reads the cache while part two is still locked,
+and never goes back. The next run picked it up, which made it look like the
+recheck was broken when it was only late.
+
+Fixed at the point where it is knowable: a `new star` on part one is the one
+moment part two is certain to have just unlocked, so that branch calls
+`ensure_entry` again. It reuses the existing "is part two missing" gate, so a
+day that already has it costs a cache read and no request.
+
+Not yet seen working. Proving it needs a real submission on a genuinely
+unsolved day, so the next `solve -s` on a fresh one should print `part two
+unlocked` in the same run instead of needing a second.
+
+2020 day 1 part one, 989824. Two numbers summing to 2020, found by putting the
+list in a `HashMap` and looking for `target - x`, so one pass rather than a
+pair of nested loops.
+
+Part two wants three numbers, and the first plan was a recursive `n_sum` that
+`two_sum` would become a case of. Dropped it: nothing here will ever want n=4,
+and a specialised `three_sum` is faster. Sort once, then for each `x` walk two
+pointers inward over the rest. O(n²) either way, but the inner step is an add
+and a compare over contiguous memory rather than a hash and a random probe.
+66432240.
+
+Worth keeping straight, since I got it wrong once: the `HashMap` stays the right
+call for `two_sum` on its own, where it is O(n) against sorting's O(n log n).
+Sorting only earns its keep once the search nests.
+
+2021 day 1, 1167 and 1130. `windows(2)` counting increases, then part two is
+the same count over `windows(3)` sums. Building the intermediate `Vec` is the
+readable version and the input is small enough that it does not matter.
+
+2022 day 1, 69310 and 206104. Split on blank lines into groups, sum each, take
+the max, then the top three.
+
+The day ones are done for every year written so far: 2015, 2016, 2017, 2018,
+2020, 2021, 2022. 2019 is not missing, it is being saved to do in one run.
+
+2024 day 1, 3246517 and 29379307. Sort both lists, zip for the distances, then
+count occurrences for the similarity score.
+
+Two things learned there, both about `Result` and iterators. `Result` implements
+`Sum`, so a fallible map can go straight into `.sum::<Result<_>>()?` and
+short-circuit on the first error, with no `collect` into a throwaway `Vec` first.
+A tuple of collections implements `FromIterator`, so a fallible map yielding
+pairs can `collect::<Result<(Vec<_>, Vec<_>), _>>()` and unzip in the same pass.
+Both replaced a `collect`-then-`?` that was only there to have somewhere to put
+the error.
+
+### How much panic-proofing is worth doing
+
+Settled this rather than sweeping blindly. Three cases, three answers:
+
+- Proven locally, leave alone. `w[0]` and `w[1]` inside a `windows(2)` closure.
+  The invariant is on the same line.
+- An assumption about the input, always handle. `totals[..3]`, `lines[0]`, a
+  bare `unwrap` on a parse. One line with `.context()?` and the message is the
+  label. This is where real bugs live.
+- Arithmetic overflow, change the type rather than handle it. `checked_add` in a
+  `try_fold` at every accumulation is miserable and `i64` deletes the whole
+  class for one character. Worth remembering that release builds wrap silently
+  rather than panicking, so the failure there is a confidently wrong answer
+  rather than a crash.
+
+### Reviewed every finished day
+
+`totals[..3]` in 2022 became a `get` with a message naming the actual count.
+2017 was parsing its input in both parts rather than in `new`, which the trait's
+own doc says not to do, and its two parts were the same loop with a different
+step, now one `matching(step)` helper. 2021 part two was building a `Vec` of
+window sums to compare consecutive triples, but comparing elements three apart
+says the same thing, since the shared terms cancel: `windows(4)` and `w[0] <
+w[3]`. Part two went from 177µs to 54µs and is now faster than part one.
+
+2018, 2020 and 2021 parsed lines without trimming first, so a trailing blank
+line would have failed the parse where 2022 and 2024 were already defended. All
+trim now. Every part returns `Answer::solved` rather than constructing
+`Answer::Value` by hand.
+
+### What gets a test
+
+Decided the line, having drifted toward writing example tests per day and then
+pulled back. Shared structures get tests, since a break there corrupts every day
+at once: `Point`, `Cell`, `Direction`, `Turn`, `Answer`, `Outcome`, and now
+`Calibration`. Day logic does not. It runs once, `--validate` checks it against
+an independent solver, and an example fixture repeats what that already proved.
+
+Also rejected a table of known answers as a regression guard. Pinning an answer
+the solver already confirmed adds nothing worth maintaining.
+
+The exception is an error path, which `--validate` can never reach, since it
+only ever sees a well-formed input.
+
+2023 day 1 part one, 54968. A `Calibration` trait over anything `AsRef<str>`,
+so the string does the work rather than the day. First digit from the front,
+last from the back, and one digit counts as both.
+
+`next()` then `next_back()` rather than `next()` then `last()`. Clippy caught it:
+`last` walks the whole iterator on a `DoubleEndedIterator`. The version it wants
+is also the one that stops early from both ends, so only the non-digit runs at
+either end get touched.
+
+A line with no digits errors and names the line number and its contents, rather
+than being quietly dropped by a `filter_map`. Same call as `totals[..3]`: the
+input's shape was the only thing holding it up.
+
+### On testing the parsing
+
+Walking back the line drawn earlier today. The rule was
+shared structures get tests and day logic does not, because `--validate` already
+checks the answer. That still holds for the puzzle logic. Parsing is different:
+it is the part that decides what a malformed input does, and `--validate` only
+ever feeds it the real input, which is always well formed. So those branches
+never run in normal use.
+
+They are reachable, just not conveniently: hand-corrupt `cache/<year>/<NN>/
+input.txt`, run it, restore. Fine as a one-off, poor as something to repeat.
+
+So the refined rule is that a test earns its place when it covers something more
+than one day depends on, or an error path nothing else exercises. Not the
+happy path of a day's puzzle logic, which is what `--validate` is for.
+
+Worth checking per day: what a trailing blank line does, what a line the parser
+cannot split does, and whether the message names which line and which day.
+
+## 2026-08-10
+
+A layering fix, prompted by translating `Outcome` into C# and noticing the Rust
+had a dependency pointing the wrong way. Same pattern as 2026-08-08: the
+translation keeps finding things the original got away with.
+
+The domain imported from `outbound` in exactly two places, which was smaller
+than it felt. `domain/solutions/outcome.rs` pulled both verdicts from
+`outbound::client`, and `domain/solutions/solution.rs` pulled `SolverClient`.
+
+Both verdicts moved into the domain. They were always domain vocabulary: neither
+mentions HTTP, neither carries a status code, and `Outcome` matches on them to
+render a line. They lived beside the clients purely because that is where they
+were first written. Now the clients map their replies onto them, which is the
+direction ports and adapters wants.
+
+`solve()` moved out to `outbound/client/solve.rs`. The alternative was a port
+trait the domain owns and `SolverClient` implements, which is the textbook
+answer and buys nothing here: `solve()` is orchestration rather than domain
+logic, its only callers are in `inbound/solve/`, and moving it removes the need
+for the domain to call out at all. Whether `outbound/client/` is the right
+destination is still open, since it is not a client. `inbound/solve/` sits next
+to the callers and would let the module docs stay as written.
+
+`solutions/` became `solution/`, matching the `Solution` trait now in its
+`mod.rs`. `aoc.rs` and `solver.rs` became `aoc_client.rs` and
+`solver_client.rs`.
+
+Worth remembering from the cleanup:
+
+- `cargo build` never checks intra-doc links. Both renames compiled fine while
+  three `[`Type`]` links pointed at nothing. Only `cargo doc` catches it, so run
+  it after any rename.
+- A module doc that has gone false is the signal the code moved somewhere it
+  should not have. `outbound/client/mod.rs` said "HTTP clients for the two
+  services" and could not honestly describe `solve.rs`.
+- The README's "Adding a solution" instructions were stale in four places. They
+  are checked now by actually following them against the tree and building, the
+  same way they were checked when they were wrong once before.
+
+The merge into this branch conflicted the way a directory rename always does.
+Git followed the files both branches touched, but `year_2015/` and `year_2016/`
+exist only here, so nothing told it they belonged under the new name and they
+stayed behind under `solutions/`. Rebase would not have helped: five of the ten
+commits touch that path, so it would ask the same question five times and
+rewrite pushed history. Point at the destination once and move on.
+
+Solutions were never at risk. `git diff` against the pre-merge tag showed the
+day files changed by exactly one line each, the `use`.
+
+Also fixed: the first merge commit went in without the import edits, because
+`git mv` stages a rename but not later edits to the moved file. The build passed
+anyway since the working tree had them. `git status` showing modified files
+straight after committing is the tell. Verified the fix by cloning the committed
+branch and building that, rather than trusting the working copy.
+
+Started `domain/solution/common/`, the pieces more than one puzzle needs.
+`Direction` is the four axis moves, parsing from a letter or a word. `Point` is
+cartesian, signed, `y` up. `Cell` is a grid index, unsigned, rows down from the
+top. Both get `checked_moved` and `saturating_moved`, so a solution picks
+whether leaving the grid is an error or a clamp.
+
+The two conventions are the whole reason they are separate types, and the tests
+proved the point by getting it wrong: the row assertions in `cell.rs` were
+copy-pasted from `point.rs`, so they expected `Up` to increase the row. Three of
+the four tests were also marked `#[ignore]` with no `#[test]`, which is not a
+skipped test but a plain function the harness never sees. That hid the one real
+failure. Both fixed, all four run.
+
+That work surfaced the missing piece: parsing can fail and there was nowhere
+for the failure to go. `Instruction::try_from` returns `InvalidInstruction`, but
+the parts returned a bare `Answer`, so the only honest option was `.unwrap()`.
+Which is what day 1 had.
+
+Parts are now `anyhow::Result<Answer>`, and `Outcome` holds the whole
+`Result` rather than just an `Answer`.
+
+Rejected putting an `Error` variant on `Answer`. Its doc comment says "what one
+part produced, nothing else", and an error is not something the part produced.
+Every match on `Answer` would have grown a case, `value()` would have to
+remember to exclude it, and nothing would stop a day from constructing one by
+hand as if it were an answer. `Result` says the same thing in the type and
+brings `?` with it.
+
+Rejected `Box<dyn Error>` for `anyhow::Error`: `Solution::new` and `solve`
+already return `anyhow::Result`, `anyhow` is `Send + Sync` where the box is not
+by default, and `.context()` is the whole reason to want the error in the first
+place.
+
+The part worth having thought about is where the error stops. Propagating it out
+of `solve` would have been less code, but a puzzle runner should never let a
+broken part two hide a working part one. So a failing part is caught into its
+own `Outcome`, prints as `error: <chain>` with its timing, and the other part
+runs regardless. Only a failure in `Solution::new` ends the day, since then
+neither part has anything to read. Errors carry no value, so they cannot be
+validated or submitted, and that falls out of the `value()` gate the visual and
+absent answers already went through rather than needing a new rule.
+
+2016 day 1 part one is done, and validates at 278. It parses in `new`, holds the
+`Instructions`, and walks them with a new `Pose`.
+
+`Pose` is a `Point` plus a `Direction`, because these instructions are relative:
+`R2` turns from wherever the last one left you pointing, so a position on its
+own is not enough state to walk. It went through three names before landing.
+`Position { facing, located_at }` was circular, since the inner field wanted the
+same word as the type. `Position { facing, location }` fixed that. `Pose` is the
+term for position plus orientation, and once the type carried that meaning the
+fields could take the plain nouns: `heading` and `position`. Worth the two
+renames. The first version read as a struct that had run out of names.
+
+The four-variant parameter was the day's real find. `Pose::saturating_turned`
+took a `Direction`, and matched `Up` and `Down` to no-ops, which felt silly
+enough to ask about. It was worse than silly. `Instruction` parsed its letter
+with `Direction::try_from`, which accepts `u` and `d`, so `U3` parsed happily,
+turned nowhere, and walked three blocks along whatever heading it already had. A
+malformed input became a confidently wrong answer, and `InvalidInstruction`
+never fired.
+
+So `Turn { Left, Right }` now lives in `common/`, with its own `TryFrom` that
+takes only `l` and `r`. `Instruction` holds a `Turn`, `Direction::turned(Turn)`
+joins the two turn methods, and `saturating_turned` became `turned`, since
+nothing saturates in a turn. The ignored arms are gone because there is nothing
+left to ignore, and `U3` now fails at parse time with the error that was already
+written for it. The lesson to keep: an argument type with dead arms is usually a
+parser accepting more than it should, one layer up.
+
+`Turn` shipped with two methods nobody called, `applied_to` and `reversed`, and
+both are gone again. `applied_to(direction)` was the worse of the two: it was
+`direction.turned(turn)` with the arguments swapped, so the same operation had
+two spellings. Speculative API on a type that exists to be parsed into.
+
+### Dead code to look at next
+
+Audited the rest while that was fresh. Nothing below is urgent and nothing is
+broken; this is a list to work through rather than a bug report. Verified by
+grepping for callers outside each item's own definition and test module.
+
+Probably keep, since each is the unused half of a deliberate pair:
+
+- `Cell`, the whole type. Never used by a day. It is the grid counterpart to
+  `Point` and no puzzle has needed a grid yet. The first maze or occupancy day
+  will want it.
+- `Point::checked_moved` and `Cell::checked_moved`. Tests only. Days so far use
+  `saturating_moved`; a day that must not leave the grid will want the other.
+- `Outcome::answer`. No callers, but it is the accessor for a private field.
+- `Outcome::error`. No callers. Written when parts became fallible, on the guess
+  that something would want to inspect the failure. Nothing does, since
+  `Display` reads the field directly. Delete unless a caller shows up.
+
+Deleted, being leftovers from earlier shapes rather than halves of anything:
+
+- `store::day_path`, which only wrapped `day_path_in` with the real cache root.
+  `day_path_in` took over its doc line.
+- `SolverClient::with_client`. `new` is the only way one gets built.
+- `fetch::utils::download_input`, which also took `Day` and `AocClient` out of
+  that module's imports. Downloading goes through `inbound/input.rs` now, and
+  this was the earlier path that nothing had removed.
+
+None of the three had a caller or a test, so nothing else moved.
+
+Also worth deciding rather than leaving: `Solution::input` is only ever called
+by a day on itself. If it goes, `new` stops having to retain the raw input, days
+store only what they parsed, and the `impl Into<String>` bound can relax to
+`&str`. See the `AsRef<str>` note that prompted it.
+
+Also swept every doc comment in the repo, 422 lines down to 290, and wrote
+`../rules/doc_comments.md` so it stays that way. The rule is one line by
+default, longer only for a decision that reads as a mistake, a rejected
+alternative, a trap, or a cross-reference that saves a search. Most of what came
+out was accessors restating their own names and rationale that had grown a
+paragraph past its point. Two blocks stayed long on purpose: the cache layout in
+`store/mod.rs`, which is a diagram rather than prose, and the module doc in
+`outbound/client/`, which answers why there are two clients instead of one.
+
+The rule grew one more line afterwards: doc comments describe the code as it is,
+never how it got there. That is what the journal is for, and a comment carrying
+both makes the reader hold two versions of the code at once.
+
+Last find of the day, and the best one, from noticing that `part_two.md` was
+missing from days that should have had it. It was never arriving. Part two stays
+locked until part one is solved, so the first fetch of any day gets only part
+one, and `write_entry` skips the file when there is nothing to write. Then
+`ensure_entry` returned early on a session match without ever asking whether
+`part_two` was `None`. Nothing went back for it. The refetch path was worse: it
+carried the cached instructions forward verbatim, so even a cookie change kept
+the incomplete copy.
+
+The shape of the bug is worth remembering. The cache had no way to say "complete
+but empty" apart from "not fetched yet", and the read path treated the presence
+of a directory as the presence of everything in it. An `Option` field that is
+legitimately `None` on first write will look identical to one that was never
+filled, and something has to decide which.
+
+Now a cache with no `part_two.md` counts as incomplete and is rechecked every
+run, guarded on a cookie existing so an offline run still uses what it has.
+Confirmed against the real cache rather than by reading: `cache/2016/01` was
+missing part two, one `fetch` printed `part two unlocked`, and the file is
+there. `2016/02` and `03` are still missing theirs, correctly, since those parts
+really are locked.
+
+The cost, worth watching: a day whose part two is locked now costs one page
+request per run, and there is no way to learn part two exists without asking.
+`solve` over a whole year is that many extra requests until the days are solved.
+If it gets chatty, narrow it to only chase part two once part one has an answer.
+
+Also fixed while in there: `get_input`'s doc comment had been sitting above
+`get_instructions`, leaving `get_input` undocumented.
+
+Then asked where else that shape would bite, and found three more of it.
+
+`read_opt` returned `Some("")` for a zero-byte file, so a half-written
+`part_two.md` counted as content and the new recheck would never fire again.
+Blank now reads as missing.
+
+`Answer::None` was carrying three meanings at once: no answer for this input,
+no such puzzle, and nobody has written this yet. A forgotten day printed exactly
+like day 25. Split off `Answer::Unwritten`, which prints `(unwritten)`.
+
+`cookie_from_env().ok()` threw away why it failed, so a typo'd `COOKIE` looked
+identical to no cookie and silently dropped the run into offline mode. Added
+`cookie_if_set`, which is `None` only for unset or blank and errors on
+unreadable.
+
+One I raised and then dropped: `Outcome`'s `verdict` and `submission` look like
+the same shape, but `solve` only attaches them when `value()` is `Some`, so the
+ambiguous case cannot arise. Left alone rather than changed for symmetry.
+
+Also tried special-casing day 25, on the grounds that its second star is awarded
+rather than puzzled, so the recheck would ask forever. That bought a `FINAL_DAY`
+const, a `Day::has_second_puzzle` method, a test, and a third clause in the
+condition, in exchange for never caching text that does eventually exist. Backed
+it out. The recheck ends when the year is finished, which is soon enough, and
+day 25 is now just a day.
+
+Added `year_template/`, a year and a day 01 stub to copy. It is registered in
+`solution/mod.rs` and therefore compiled: an uncompiled template drifts from the
+`Solution` trait silently, and this repo already has that failure recorded for
+the README's "Adding a solution" steps, which went stale in four places. A
+template is that same bug with a shorter fuse, since it gets copied rather than
+read. It gains no arm in `solver_for`, so nothing can dispatch to it.
+
+`branches.md` needed a carve-out for it. The old rule sent `year_*/` to
+`scadoshi` only, and the template matches that glob while being tooling rather
+than a solution. A fresh clone of `main` should have it.
+
+Then cleared the rest of the dead-code list, keeping `Cell` and both
+`checked_moved`s. Those are the unused half of a two-option API rather than
+rot, and a day that must not leave the grid will want them.
+
+`Outcome::answer` and `Outcome::error` are gone. Neither had a caller, `Display`
+reads the field directly, and `answer` returned a
+`Result<&Answer, &anyhow::Error>` nobody had asked for.
+
+`Solution::input` is gone too, and that one paid. It was only ever called by a
+day on itself, but being on the trait it obliged every day to retain the raw
+text. 2016 day 1 was holding a whole copy of its input purely to satisfy the
+method, having parsed it in `new` and never read it again. Dropping the method
+let that field go, and parsing the day went from about 165µs to 68µs.
+
+With nothing forcing ownership, `new` could finally take `impl AsRef<str>`
+instead of `impl Into<String>`. That was the right answer days ago and the
+wrong time to apply it: the reason `Into<String>` won then was `input()`, so the
+method had to go first. A day that parses into its own types now keeps no copy,
+and one whose parts read the raw text owns a `String` as a private field of its
+own choosing rather than a trait obligation.
+
+The README's "Adding a solution" steps were stale again, in the way the entry
+above predicted. They still showed `-> Answer` and `fn input`, which this same
+session had already changed. Rather than correct the copy, the section now says
+to copy `year_template/`, so there is one example and the compiler owns it.
+`context/design/solutions.md` had the same stale trait sketch and is updated.
+Checked the new steps by following them: copied the template to a scratch
+`year_2017`, built clean with no warnings, deleted it again.
+
+## 2026-08-08
+
+Tail end of the rework, mostly prompted by translating the same types into C#
+and noticing what the Rust was doing awkwardly.
+
+`Day::each` moved off the module and onto `Day`, since a `Day` already carries
+its `Year` and enumerating days is enumerating the pairs. It iterates validated
+`Year`s now rather than raw integers.
+
+`Day::new` takes a built `Year` rather than a number, so `each` stops
+constructing a year only for `new` to throw it away and rebuild one. `Year` is
+`Copy`, being one integer.
+
+The day bounds check dropped `(1..=n).contains(&day)` for two comparisons. That
+came straight from C# having no range type to lean on, which made the
+indirection obvious in both languages.
+
+`Part::to_wire_value` became `wire_value` taking `self`. Rust's `to_` signals
+expense and this allocates nothing, where C#'s `To*` only signals conversion.
+Same method, different right answer per language.
+
+Two stale doc links fixed, `latest_year` and `Session::from_env`, both left over
+from earlier moves. `cargo doc` is clean.
+
+## 2026-08-07
+
+Four of the six planned changes landed. The repo looks quite different.
+
+**One binary.** `fetch` and `solve` are subcommands now, so `--bin` is gone from
+every invocation. Cargo also stops parsing at the subcommand, which means the
+`--` separator is optional and cargo's own flags simply go first:
+`cargo run --release solve -y 2015 -d 1`.
+
+**Ports and adapters.** The library split into `domain`, `inbound`, and
+`outbound`. Fixing the wiring turned up empty `mod.rs` files, `run.rs` modules
+still declaring `args` from when they were `main.rs`, and every internal path
+needing a rewrite. Grouped `use crate::{a, b, c}` imports made that fiddly, since
+only the first element matches a naive replace.
+
+`calendar` became `address`, and `Part` moved inside it. Year and day being
+calendar-shaped was incidental to their real job, which is naming one puzzle, so
+`calendar` left `Part` sitting outside a module about dates. `coordinates` and
+`path` were the other candidates. `path` lost because `std::path` is imported in
+the same files.
+
+**Inputs at runtime.** `include_str!` is gone, so the project compiles with an
+empty cache and `solve` fetches what it needs. That also killed the dispatch
+macro, which existed mostly to build input paths from literals at expansion
+time. The registry is a plain match now, one arm per day, and it yields a
+function pointer rather than calling directly so an unregistered day is skipped
+before anything downloads.
+
+Two bugs of mine on the way. The first version fetched before checking the
+registry, which would have pulled all 262 inputs on an unfiltered run. The
+second gated submission on `if let Some(aoc)`, and since `ensure_entry` builds a
+client lazily, solving a day with a missing input and no `--submit` would have
+submitted anyway.
+
+Also replaced `Option<&SolverClient>` as an implicit validate flag with an
+explicit `validate: bool`. The client is always built now, since it needs no
+cookie and cannot fail, so there is no invalid combination to guard.
+
+**Session fingerprinting and instructions.** Each day is a directory of plain
+files: `input.txt`, `session` holding a SHA-256 of the cookie, and
+`part_one.md` / `part_two.md`. A session mismatch refetches the input and keeps
+the instructions, since puzzle text is the same for everyone.
+
+That landed as one JSON file per day first, which read badly: a 7000 character
+input and a page of markdown both collapse onto one escaped line. Splitting into
+plain files cost the guarantee that an input and its hash are written together,
+but a missing `session` reads as "refetch" anyway, so the failure mode is the
+same either way. `serde` and `serde_json` were added and removed within the
+hour.
+
+The day page splits on `<article class="day-desc">`, one per unlocked part,
+verified across three pages before building on it. `part_two.md` existing is
+what says part two is available, so nothing can disagree with the text beside
+it. `html2text` does the rendering, inside the client, so the store never sees a
+tag.
+
+## 2026-08-06 (end of day)
+
+Planned a rework, wrote none of it. Five changes in
+[`../todo.md`](../todo.md), and two of them undo decisions made earlier this
+week for reasons that no longer hold.
+
+Splitting `fetch` and `solve` into separate binaries was organisational, and
+nothing here is deployed separately, so the split only bought `--bin` on every
+command. They collapse into subcommands.
+
+Dropping `include_str!` is the larger reversal. Compile-time embedding was
+chosen deliberately and the build-ordering cost was accepted, but the goal now
+is for `solve` to fetch a missing input itself, and that cannot happen at
+compile time. Runtime reading removes the caveat entirely and simplifies the
+dispatch macro on the way out.
+
+Session fingerprinting comes from a real incident rather than a hypothetical:
+`inputs/2015/01.txt` gave `280` one day and `138` the next after the cookie
+changed, and nothing caught it except the answers moving. Hashing the cookie
+next to each input makes that detectable, and it changes the no-clobber rule
+that has held since the first session, since a session mismatch should
+overwrite.
+
+## 2026-08-06 (later)
+
+Wired `--submit` into `solve`, which completes the pipeline: fetch, solve,
+validate, submit. Submitting forces validation on and gates on the solver
+verdict, since a wrong answer to AOC costs an escalating cooldown and the solver
+check is free. `Unsupported` is deliberately let through rather than blocked,
+because that is the live-event case where a day is solved before the solver
+catches up, and it is exactly when submitting matters.
+
+Drove all of it. An already-solved day validates `Correct` then reports
+`already solved` from AOC. Temporarily breaking day 1 to return `999999999`
+produced `High` from the solver and the submission was skipped, so a wrong
+answer never reaches AOC. The unfiltered prompt declines on `n` and on closed
+stdin, and neither path made a request.
+
+`--yes` has no short flag, since `-y` is `--year` and a guard against 524 writes
+is worth typing out. The prompt states the count, writes to stderr, and treats
+EOF as no.
+
+Moved `submit` and `confirm` into `src/bin/solve/utils.rs`, leaving `main.rs` as
+the macro, `run`, and `main`.
+
+Then tidied the output, which had drifted. It printed two lines per part, one
+for solving and one for submitting, and rendered verdicts with `{:?}` rather
+than the `Display` impl written for them. `Answer::Value` now carries both
+verdicts and merges them, `submit` returns the answer rather than printing, and
+`run` submits before printing so a part is always one line. Also `year 2015 day
+1` rather than `2015 day 1`.
+
+    year 2015 day 1
+      part one: 138 (starred)
+      part two: 1771 (starred)
+
+A rejected answer shows the solver's objection and nothing else, since no
+submission happened: `999999999 (high)`.
+
+Added a 2016 day 1 stub and hit the first two-year collision. Both days would
+have been `Day01`, so every day's type is now `Puzzle` and the module path
+carries the coordinate. `Solver` was considered first and dropped, since
+`SolverClient` already means the third-party service here. Importing the year
+modules rather than the types is what avoids aliases.
+
+The stub returns `Answer::None` from both parts and is left for Scotty to
+write. It exists to drive `new star`, the one output branch never seen live,
+since both parts of 2015 day 1 are already solved on the scratch account. See
+[`../todo.md`](../todo.md).
+
+
+Split `Session` into `AocClient` and `SolverClient` under `src/lib/client/`,
+files named for who they talk to. `official.rs` was considered and rejected: it
+names a judgment rather than a fact, and would need an `unofficial.rs`
+counterpart saying even less.
+
+Keeping one struct was defensible, since "AoC" reads as the puzzle domain rather
+than the hostname, and it nearly stayed. What settled it was scope: the two
+differ in auth, contract, and failure semantics, and splitting made the cookie's
+reach obvious. `--validate` now needs no cookie at all, which was not true while
+one struct owned both.
+
+They share only the `User-Agent` builder, which moved to `client/mod.rs`. If
+they ever need to share a connection pool, `reqwest::Client` is reference
+counted internally, so cloning is enough and no wrapper struct is needed.
+
+`solve` in the library now takes `Option<&SolverClient>`, which reads better
+than before: the thing it optionally needs is a checker, not a session.
+
+
+Designed a local answer cache in detail, then dropped it before writing it.
+The case for it rested on AOC grading each part exactly once, which made a cache
+look like the only durable record of a correct answer. That was wrong: AOC is
+stateful and `AlreadySolved` is the record. The supposedly irreplaceable fact
+was one request away.
+
+What was left was worth very little against a file format, key parsing,
+staleness rules, and an invalidation problem, since answers are tied to one
+account's input and changing `COOKIE` invalidates everything. Reasoning kept in
+[`../design/verification.md`](../design/verification.md), including the one
+detail worth remembering: an entry would need to store the answer, not just the
+coordinate, or a refactor would still read as validated and the regression check
+would quietly become a one-time check.
+
+Removed `src/lib/cache/`, and `serde` and `serde_json` with it, since nothing
+else used them.
+
+Moved the `User-Agent` into configuration. `CONTACT` and `REPO_URL` are optional
+env vars, and there is deliberately no default naming this repo's author: a fork
+that left them unset would otherwise report Scotty as the contact for a
+stranger's traffic. Unset falls back to naming the tool alone. Added
+`.env.template` so the shape is visible without a `.env`.
+
+
+Built `submit_answer` and probed AOC's real replies using a scratch account
+Scotty set up, submitting to 2015 day 1 deliberately wrong before deliberately
+right, since AOC grades each part only once.
+
+Every reply is HTTP 200, wrong answers included, so the verdict is entirely in
+the body. Same shape as the solver client but for the opposite reason: that one
+returns 400 for everything. Full table in
+[`../references.md`](../references.md), with fixtures as unit tests.
+
+Two things the probing settled that guessing would not have. A directional reply
+contains the generic wrong-answer phrase as a prefix, so direction has to be
+matched first or every miss reads as generic. And the direction hint is
+optional: guessing 1 against 138 gave no hint at all, while 999999999 gave "too
+high". `too low` was never triggered and stays inferred.
+
+Added `Verdict::Cooldown(String)` and `Verdict::AlreadySolved`. Cooldown reports
+and moves on rather than sleeping, since the wait escalates past a minute and a
+CLI that silently blocks looks hung. It holds a string because AOC phrases the
+remaining time as prose.
+
+`AlreadySolved` is the cache-correction signal: it means the site knows a part is
+done when local state did not.
+
+
+Gave `fetch` the same `-y`/`--year` and `-d`/`--day` filters `solve` has, so a
+single puzzle can be pulled without walking every year. Verified live: `-y 2015
+-d 1` made one request, a re-run skipped it as cached, and `-d 25` fetched ten
+files rather than eleven, correctly passing over 2025 because that event only
+ran twelve days.
+
+Renamed the `init` binary to `fetch`. `init` implied one-time setup, but with
+year and day filters coming it becomes something you run repeatedly for a single
+puzzle. `sync` was the other candidate, since it matches the gap-filling
+caching, but `fetch` says what it does.
+
+Renamed `src/lib/utils.rs` to `calendar.rs`, which holds `FIRST_YEAR` and
+`latest_year()`. Both binaries keep their own local `utils.rs` for CLI bits.
+
+Trimmed doc comments across the repo. The `Solution` trait and `validate_answer`
+were the worst, both roughly a third of their old length now. Accessors that
+restated their own signature lost their docs entirely. Documented the consts
+that carry non-obvious meaning, and `Part` and `Verdict`, which had none.
+
+## 2026-08-06
+
+Finished the migration left half-done yesterday. `--validate` works end to end:
+`-y 2015 -d 1 --validate` gives `280 (Correct)` and `1797 (Correct)`, and
+without the flag it solves offline and never builds a `Session`.
+
+`Output` became `Answer`, with the verdict folded into the submittable variant
+so a visual answer cannot carry one. A day writes `Answer::solved(value)` and
+the runner attaches a verdict afterwards. That also let visual answers be
+returned rather than printed from inside the solver, which closes the
+side-effect problem that had been open since the trait was designed.
+
+Moved `solve` off `Session` and made it a free function taking
+`Option<&Session>`. The session was doing two jobs, HTTP adapter and
+orchestration, and it never needed its own cookie or client to run a solution.
+Passing `Option<&Session>` also deleted the `validate` bool, since "no session"
+and "do not validate" are the same thing, and it made the lazy-construction
+question answer itself.
+
+Deleted the duplicate `Answer` in `src/bin/solve/utils.rs` and the stale
+`src/lib/solutions/answer.rs`. Gave `Answer` a `Display` impl so `main` prints
+readable output instead of `{:?}`.
+
+## 2026-08-05
+
+Short session, stopped mid-change. The library compiles, the `solve` binary does
+not. See [`../todo.md`](../todo.md) for exactly what to fix.
+
+Started wiring validation into solving and hit the real decision straight away:
+does a `Session` know how to run a `Solution`, or does a `Solution` know how to
+talk to a `Session`? Went with the former. `Session::solve<S: Solution>` builds
+the solution, runs both parts, and validates each answer when asked. `Solution`
+gained an `input()` method so the session can reach the input it needs to post.
+
+Added `Answer`, a value plus an optional `Verdict`, so a part can carry its
+result and what the solver thought of it. It sits in
+`src/lib/solutions/answer.rs`. A duplicate definition is still sitting in
+`src/bin/solve/utils.rs` and should go.
+
+Left one known bug in place rather than fixing it blind, since it needs a
+signature change: `Session::solve` uses a single `part` argument for both
+validation calls, so part two is validated against the wrong part.
+
+One mechanical fix went in to get the library compiling: `validate_answer` takes
+`answer: impl AsRef<str>` now, so it needed an `as_ref()` before parsing and
+comparing.
+
+## 2026-08-04
+
+Wrote 2015 day 1. Part one folds over the characters, part two returns early at
+the first index where the floor hits -1.
+
+Decided how answer checking works, and why it needs two clients rather than one.
+AOC gives stars but answers each part only once, so it cannot be a repeatable
+check. The third-party solver is idempotent but cannot award anything. See
+[`../design/verification.md`](../design/verification.md).
+
+Brought `Part` back, as a plain enum this time rather than the struct that was
+deleted the day before, since submitting needs to name a part.
+
+Built `validate_answer` against the solver. First attempt keyed `Unsupported` off a
+404, which was wrong: probing showed the API returns 400 for every failure and
+puts the reason in the body. Rewrote it to read the body before classifying,
+which also meant dropping `error_for_status()`, since that consumes the body.
+Retries now only happen for transport failures and 5xx.
+
+Drove every branch against the live API. `Correct`, `TooLow`, `TooHigh`,
+`Incorrect`, and the 4xx rejection path all behave. `Unsupported` could not be
+reached, which led to cloning the solver's source and confirming why: its
+coverage stops at exactly the same day our `days_in_year` does.
+
+Recorded the solver contract in [`../references.md`](../references.md), verified
+against its source rather than guessed from responses.
+
+Tried a `build.rs` that warned when `inputs/` was missing, then removed it.
+`include_str!` already names the missing path, so it added little. Two things
+came out of the attempt worth keeping: a build script gates the whole package,
+so panicking would have blocked `fetch`, which is the binary you need to fix the
+problem; and it could only check that the directory was non-empty, since the
+days actually embedded live in the `solutions!` invocation, which a build script
+cannot read without parsing `main.rs`.
+
+Lost `inputs/` during that testing and re-downloaded it. Recovery was
+uneventful, which is the no-clobber caching working as intended.
+
+Verified day 1 end to end. `cargo run solve -y 2015 -d 1` gives `280`
+and `1797`, and the solver returns the same for both parts.
+
+Decided how validation gets wired into `solve`, though the wiring itself is not
+written. See [`../design/verification.md`](../design/verification.md) and
+[`../todo.md`](../todo.md). Short version: opt-in `-v`/`--validate` flag, the
+call happens where the input is already in scope, and the `Session` gets built
+lazily so `solve` does not start demanding a cookie it never uses.
+
+Settled the name at the end of the session. `check_answer` became
+`validate_answer` and the flag is `--validate`, because `cargo check` already
+means "compile without producing a binary" and `--check` reads like a build-only
+flag. The flag is declared but inert; nothing calls `validate_answer` yet.
+
+## 2026-08-03
+
+Reviewed the initial downloader. Found and fixed an existence-check inversion in
+the directory helpers: `!path.is_dir()` is true for a path that does not exist
+yet, so the first run tried to `remove_file` something absent and bailed before
+creating anything.
+
+Reframed the force-overwrite helpers as no-clobber `ensure_*` helpers, since
+neither inputs (immutable, remote-owned) nor source files (ours, accumulating
+work) should ever be truncated by a re-run.
+
+Scoped `fetch` to inputs only. Scaffolding solution modules has a different
+trigger and would have dragged `mod.rs` generation and parent-module wiring into
+a tool that just downloads files.
+
+Wired the download loop, which had been built but never called. Fixed
+`get_input` to reuse the pooled client, added `error_for_status()` so an error
+page cannot be cached as fake input, and added a `User-Agent`.
+
+Settled the solution model: a `Sized` trait, parse once in `new`, parts return
+`Option<String>`. Settled dispatch as a macro over one line per day, after
+working through why `dyn` does not apply and why `linkme` does not remove the
+central list.
+
+Chose compile-time `include_str!` for inputs and rejected a fetching `build.rs`.
+
+Set up the repo: README, MIT license, this context directory, and the remote.
+Three commits: `944a12a`, `faf0ed0`, `c60d2d2`.
+ while walking the repo to relearn it. `fetch` and
 `solve` each had a `run.rs` holding one public function, reached as
 `fetch::run::run()`. Both folded into their `mod.rs`, so call sites read
 `fetch::run(args)`. `cli.rs` lost its duplicate clap imports on the way.

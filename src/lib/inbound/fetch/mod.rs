@@ -2,7 +2,7 @@ pub mod args;
 pub mod utils;
 
 use crate::{
-    domain::address::Day,
+    domain::address::{Day, Filter},
     inbound::{fetch::args::FetchArgs, input::ensure_entry},
 };
 
@@ -14,8 +14,8 @@ pub fn run(args: &FetchArgs) -> anyhow::Result<()> {
     // Built on first download, so a fully cached run needs no cookie.
     let mut client = None;
 
-    for day in Day::each(args.year, args.day) {
-        ensure_entry(&mut client, &day?)?;
+    for day in Day::matching(Filter::new(args.year, args.day)?) {
+        ensure_entry(&mut client, &day)?;
     }
     Ok(())
 }

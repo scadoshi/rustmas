@@ -1,5 +1,6 @@
-use crate::domain::address::OutOfRange;
 use chrono::{Datelike, Utc};
+
+use crate::domain::address::YearOutOfRange;
 
 /// The first Advent of Code.
 pub const FIRST_YEAR: i32 = 2015;
@@ -14,9 +15,13 @@ impl Year {
     }
 
     /// Bounded by the latest *published* event, not the calendar year.
-    pub fn new(year: i32) -> Result<Self, OutOfRange> {
-        if year > Self::latest() || year < FIRST_YEAR {
-            return Err(OutOfRange);
+    pub fn new(year: i32) -> Result<Self, YearOutOfRange> {
+        let latest = Self::latest();
+        if year > latest || year < FIRST_YEAR {
+            return Err(YearOutOfRange {
+                given: year,
+                latest,
+            });
         }
         Ok(Self(year))
     }
