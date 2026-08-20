@@ -25,27 +25,27 @@ pub fn solve<S: Solution>(
     let parsed_in = start.elapsed();
 
     let start = Instant::now();
-    let one = solution.part_one();
-    let mut one = Outcome::new(one, start.elapsed());
+    let part_one = solution.part_one();
+    let mut part_one = Outcome::new(part_one, start.elapsed());
 
     let start = Instant::now();
-    let two = solution.part_two();
-    let mut two = Outcome::new(two, start.elapsed());
+    let part_two = solution.part_two();
+    let mut part_two = Outcome::new(part_two, start.elapsed());
 
     if validate {
-        if let Some(value) = one.value() {
+        if let Some(value) = part_one.value() {
             let verdict = client.validate_answer(day, input, Part::One, value)?;
-            one = one.with_verdict(verdict);
+            part_one = part_one.with_verdict(verdict);
         }
-        if let Some(value) = two.value() {
+        if let Some(value) = part_two.value() {
             let verdict = client.validate_answer(day, input, Part::Two, value)?;
-            two = two.with_verdict(verdict);
+            part_two = part_two.with_verdict(verdict);
         }
     }
 
     Ok(Solved {
         parsed_in,
-        one,
-        two,
+        part_one,
+        part_two,
     })
 }

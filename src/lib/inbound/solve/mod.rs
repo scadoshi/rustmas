@@ -95,13 +95,13 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 // missing input builds one too.
                 if args.submit {
                     let client = aoc.as_ref().expect("built up front when submitting");
-                    solved.one = submit(client, &day, Part::One, solved.one)?;
-                    solved.two = submit(client, &day, Part::Two, solved.two)?;
+                    solved.part_one = submit(client, &day, Part::One, solved.part_one)?;
+                    solved.part_two = submit(client, &day, Part::Two, solved.part_two)?;
                 }
 
                 // A new star on part one unlocks part two, which was still
                 // locked when this run read the cache.
-                if matches!(solved.one.submission(), Some(AocVerdict::Correct)) {
+                if matches!(solved.part_one.submission(), Some(AocVerdict::Correct)) {
                     ensure_entry(&mut aoc, &day)?;
                 }
 
@@ -109,11 +109,11 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                     "year {} day {} in {:?} ({:?} parsing)",
                     day.year(),
                     day.value(),
-                    solved.total(),
+                    solved.total_elapsed(),
                     solved.parsed_in
                 );
-                println!("  part one: {}", solved.one);
-                println!("  part two: {}", solved.two);
+                println!("  part one: {}", solved.part_one);
+                println!("  part two: {}", solved.part_two);
             }
             Err(e) => eprintln!("year {} day {} failed: {e:?}", day.year(), day.value()),
         }
