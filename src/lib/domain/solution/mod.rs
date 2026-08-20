@@ -51,7 +51,7 @@ pub trait Solution: Sized {
 /// One run of a day: both parts, and where the time went.
 #[derive(Debug)]
 pub struct Solved {
-    pub parse: Duration,
+    pub parsed_in: Duration,
     pub one: Outcome,
     pub two: Outcome,
 }
@@ -59,6 +59,6 @@ pub struct Solved {
 impl Solved {
     /// Parsing plus both parts. Excludes any network time.
     pub fn total(&self) -> Duration {
-        self.parse + self.one.elapsed() + self.two.elapsed()
+        self.parsed_in + self.one.elapsed() + self.two.elapsed()
     }
 }

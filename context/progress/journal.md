@@ -3,6 +3,31 @@
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-20
+
+Restructured the inbound side while walking the repo to relearn it. `fetch` and
+`solve` each had a `run.rs` holding one public function, reached as
+`fetch::run::run()`. Both folded into their `mod.rs`, so call sites read
+`fetch::run(args)`. `cli.rs` lost its duplicate clap imports on the way.
+
+That moved the solver registry: `solver_for` now lives in
+`inbound/solve/mod.rs`, which makes that file the branch-divergent one instead
+of `solve/run.rs`. `branches.md` updated to match. `main` got the same fold with
+its empty registry, applied by hand as the rule requires.
+
+Renamed `Solved.parse` to `parsed_in`. The old name read as a verb about to be
+called; `parsed_in` reads as data and rhymes with `elapsed` on `Outcome`. The
+sharpmas `Solved.Parse` should follow or the port drifts on a name for nothing.
+
+Also grew a plan while reading: the year and day args are filters, and a filter
+that matches nothing exits silently, so `-y 2030` is indistinguishable from a
+quiet success. That is the ambiguous-absence pattern at the CLI edge. The shape
+settled on with the sharpmas side of the brain: a `Filter` type in
+`domain/address/` holding validated parts, eagerly rejecting what it can
+(`-y 2030`, `-d 26`) and yielding plain `Day`s, which also deletes the
+`Result` from the iterator that only existed because days were built during
+iteration. Not built yet.
+
 ## 2026-08-18
 
 `Direction` had no tests, which the C# port surfaced. Seven now: both turn

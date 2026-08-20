@@ -22,7 +22,7 @@ pub fn solve<S: Solution>(
 ) -> anyhow::Result<Solved> {
     let start = Instant::now();
     let solution = S::new(input)?;
-    let parse = start.elapsed();
+    let parsed_in = start.elapsed();
 
     let start = Instant::now();
     let one = solution.part_one();
@@ -43,5 +43,9 @@ pub fn solve<S: Solution>(
         }
     }
 
-    Ok(Solved { parse, one, two })
+    Ok(Solved {
+        parsed_in,
+        one,
+        two,
+    })
 }

@@ -1,6 +1,5 @@
 use crate::inbound::{fetch, solve};
-use clap::Parser;
-use clap::Subcommand;
+use clap::{Parser, Subcommand};
 
 /// What the user asked for.
 #[derive(Subcommand)]
@@ -14,8 +13,8 @@ pub enum Command {
 impl Command {
     pub fn run(&self) -> anyhow::Result<()> {
         match self {
-            Self::Fetch(args) => fetch::run::run(args),
-            Self::Solve(args) => solve::run::run(args),
+            Self::Fetch(args) => fetch::run(args),
+            Self::Solve(args) => solve::run(args),
         }
     }
 }

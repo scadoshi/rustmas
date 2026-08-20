@@ -71,7 +71,7 @@ Only on `scadoshi`:
   hand on each side, like `solution/mod.rs` and `run.rs`. A merge conflicts on
   it every time `main` touches it, which is the price of the directory being
   scaffolding while its contents are not.
-- the arms in `solver_for`
+- the arms in `solver_for`, which lives in `src/lib/inbound/solve/mod.rs`
 - `context/progress/`, `context/todo.md`, and this file
 - the "Who" and "How to work with him" sections of `context/README.md`
 
