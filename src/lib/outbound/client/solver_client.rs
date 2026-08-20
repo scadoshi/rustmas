@@ -37,7 +37,10 @@ impl SolverClient {
     /// newline in `.env` is enough to cause.
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
-        headers.insert(USER_AGENT, HeaderValue::from_str(&Environment::user_agent())?);
+        headers.insert(
+            USER_AGENT,
+            HeaderValue::from_str(&Environment::user_agent())?,
+        );
         let client = Client::builder().default_headers(headers).build()?;
         Ok(Self { client })
     }
