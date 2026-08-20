@@ -40,11 +40,11 @@ impl AocClient {
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         let cookie = Environment::cookie()?;
-        headers.insert(USER_AGENT, HeaderValue::from_str(&Environment::user_agent())?);
         headers.insert(
-            COOKIE,
-            HeaderValue::from_str(&format!("session={cookie}"))?,
+            USER_AGENT,
+            HeaderValue::from_str(&Environment::user_agent())?,
         );
+        headers.insert(COOKIE, HeaderValue::from_str(&format!("session={cookie}"))?);
         let client = Client::builder().default_headers(headers).build()?;
         Ok(Self { cookie, client })
     }
