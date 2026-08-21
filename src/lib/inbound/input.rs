@@ -12,9 +12,10 @@ use crate::{
 /// Returns `day`'s cached input and instructions, downloading what is missing.
 ///
 /// A cache with no `part_two.md` counts as incomplete and is rechecked every
-/// run, since part two unlocks only once part one is solved. An input from
-/// another session is refetched, keeping its instructions. `client` is built
-/// only when something is downloaded.
+/// run, since part two unlocks only once part one is solved. Day 25 is the
+/// exception: its second star is awarded rather than puzzled, so nothing
+/// rechecks it. An input from another session is refetched, keeping its
+/// instructions. `client` is built only when something is downloaded.
 pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result<Entry> {
     // Absent when no cookie is configured, which leaves a cached entry usable
     // rather than unverifiable and therefore unusable.

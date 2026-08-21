@@ -26,13 +26,13 @@ impl Day {
 
     /// Whether this day's second star is a puzzle rather than a reward.
     ///
-    /// Day 25's is given for holding every other star, so its text stays hidden
-    /// until the year is finished and there is nothing to fetch before then.
+    /// Day 25's is given for holding every other star. The site shows it a
+    /// closing note rather than a puzzle, so the tool never fetches one.
     pub fn has_second_puzzle(&self) -> bool {
         self.value != FINAL_DAY
     }
 
-    /// Every published puzzle day, narrowed by the filters. `None` means all.
+    /// Every published puzzle day that `filter` allows.
     pub fn matching(filter: Filter) -> impl Iterator<Item = Day> {
         Day::all().filter(move |d| {
             filter
