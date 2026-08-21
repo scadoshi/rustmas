@@ -14,9 +14,9 @@ pub struct Outcome {
     /// Never includes a network round trip.
     elapsed: Duration,
     /// From the third-party solver. Repeatable, so it gates submission.
-    verdict: Option<SolverVerdict>,
+    solver_verdict: Option<SolverVerdict>,
     /// From adventofcode.com. Says whether the star exists.
-    submission: Option<AocVerdict>,
+    aoc_verdict: Option<AocVerdict>,
 }
 
 impl Outcome {
@@ -24,23 +24,23 @@ impl Outcome {
         Self {
             answer,
             elapsed,
-            verdict: None,
-            submission: None,
+            solver_verdict: None,
+            aoc_verdict: None,
         }
     }
 
     /// Attaches a solver verdict, ignored unless there is something to check.
-    pub fn with_verdict(mut self, verdict: SolverVerdict) -> Self {
+    pub fn with_solver_verdict(mut self, solver_verdict: SolverVerdict) -> Self {
         if self.value().is_some() {
-            self.verdict = Some(verdict);
+            self.solver_verdict = Some(solver_verdict);
         }
         self
     }
 
     /// Attaches what AOC said, ignored unless there is something to submit.
-    pub fn with_submission(mut self, submission: AocVerdict) -> Self {
+    pub fn with_aoc_verdict(mut self, aoc_verdict: AocVerdict) -> Self {
         if self.value().is_some() {
-            self.submission = Some(submission);
+            self.aoc_verdict = Some(aoc_verdict);
         }
         self
     }
@@ -54,12 +54,12 @@ impl Outcome {
         self.answer.as_ref().ok()?.value()
     }
 
-    pub fn verdict(&self) -> Option<&SolverVerdict> {
-        self.verdict.as_ref()
+    pub fn solver_verdict(&self) -> Option<&SolverVerdict> {
+        self.solver_verdict.as_ref()
     }
 
-    pub fn submission(&self) -> Option<&AocVerdict> {
-        self.submission.as_ref()
+    pub fn aoc_verdict(&self) -> Option<&AocVerdict> {
+        self.aoc_verdict.as_ref()
     }
 }
 
@@ -76,7 +76,7 @@ impl Display for Outcome {
 
         // AOC's word supersedes the solver's, so a starred part reads as starred
         // rather than repeating that the solver agreed.
-        let notes: String = match (&self.verdict, &self.submission) {
+        let notes: String = match (&self.solver_verdict, &self.aoc_verdict) {
             (_, Some(AocVerdict::Correct)) => "new star".to_string(),
             (_, Some(AocVerdict::AlreadySolved)) => "starred".to_string(),
             (Some(v), Some(s)) => format!("{}, {}", v, s),
@@ -115,7 +115,7 @@ mod tests {
     #[test]
     fn solver_verdict_alone_shows() {
         assert_eq!(
-            value().with_verdict(SolverVerdict::High).to_string(),
+            value().with_solver_verdict(SolverVerdict::High).to_string(),
             "foo (high) [0ns]"
         );
     }
@@ -123,7 +123,7 @@ mod tests {
     #[test]
     fn aoc_verdict_alone_shows() {
         assert_eq!(
-            value().with_submission(AocVerdict::Low).to_string(),
+            value().with_aoc_verdict(AocVerdict::Low).to_string(),
             "foo (low) [0ns]"
         );
     }
@@ -131,13 +131,13 @@ mod tests {
     #[test]
     fn aoc_supersedes_the_solver() {
         let starred = value()
-            .with_verdict(SolverVerdict::Correct)
-            .with_submission(AocVerdict::AlreadySolved);
+            .with_solver_verdict(SolverVerdict::Correct)
+            .with_aoc_verdict(AocVerdict::AlreadySolved);
         assert_eq!(starred.to_string(), "foo (starred) [0ns]");
 
         let fresh = value()
-            .with_verdict(SolverVerdict::Correct)
-            .with_submission(AocVerdict::Correct);
+            .with_solver_verdict(SolverVerdict::Correct)
+            .with_aoc_verdict(AocVerdict::Correct);
         assert_eq!(fresh.to_string(), "foo (new star) [0ns]");
     }
 
@@ -145,8 +145,8 @@ mod tests {
     #[test]
     fn both_verdicts_show_when_aoc_did_not_grade() {
         let cooled = value()
-            .with_verdict(SolverVerdict::Correct)
-            .with_submission(AocVerdict::Cooldown("1m 0s".to_string()));
+            .with_solver_verdict(SolverVerdict::Correct)
+            .with_aoc_verdict(AocVerdict::Cooldown("1m 0s".to_string()));
         assert_eq!(
             cooled.to_string(),
             "foo (correct, rate limited, 1m 0s left to wait) [0ns]"
@@ -165,10 +165,10 @@ mod tests {
     fn unsubmittable_answers_never_take_a_verdict() {
         for answer in [Answer::Visual("art".to_string()), Answer::None] {
             let outcome = Outcome::new(Ok(answer), Duration::ZERO)
-                .with_verdict(SolverVerdict::Correct)
-                .with_submission(AocVerdict::Correct);
-            assert!(outcome.verdict().is_none());
-            assert!(outcome.submission().is_none());
+                .with_solver_verdict(SolverVerdict::Correct)
+                .with_aoc_verdict(AocVerdict::Correct);
+            assert!(outcome.solver_verdict().is_none());
+            assert!(outcome.aoc_verdict().is_none());
         }
     }
 
@@ -215,10 +215,10 @@ mod tests {
     #[test]
     fn failed_parts_never_take_a_verdict() {
         let outcome = failed()
-            .with_verdict(SolverVerdict::Correct)
-            .with_submission(AocVerdict::Correct);
+            .with_solver_verdict(SolverVerdict::Correct)
+            .with_aoc_verdict(AocVerdict::Correct);
         assert!(outcome.value().is_none());
-        assert!(outcome.verdict().is_none());
-        assert!(outcome.submission().is_none());
+        assert!(outcome.solver_verdict().is_none());
+        assert!(outcome.aoc_verdict().is_none());
     }
 }

@@ -18,6 +18,7 @@ const ARTICLE: &str = r#"<article class="day-desc">"#;
 const AOC_BASE_URL: &str = "https://adventofcode.com";
 
 /// An authenticated handle to adventofcode.com, pooling one client.
+#[derive(Debug)]
 pub struct AocClient {
     cookie: String,
     client: Client,
@@ -37,6 +38,7 @@ impl AocClient {
     /// Reads the environment, loading `.env` if present. Only `COOKIE` is
     /// required, so a fresh clone runs without the rest. Both headers go on the
     /// client rather than each request, so nothing can send one without them.
+    /// Connected now, so a bad cookie fails before any work is done.
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         let cookie = Environment::cookie()?;
@@ -174,11 +176,33 @@ fn wait_from(body: &str) -> String {
         .unwrap_or_else(|| "unknown".to_string())
 }
 
+/// An [`AocClient`] built on first use, so nothing offline pays for one.
+///
+/// Holding one does not mean a cookie exists: that is checked the first time
+/// [`LazyAocClient::connected`] runs, which for a fully cached run is never.
+#[derive(Debug, Default)]
+pub struct LazyAocClient(Option<AocClient>);
+
+impl LazyAocClient {
+    /// Connected now, so a bad cookie fails before any work is done.
+    pub fn from_env() -> anyhow::Result<Self> {
+        Ok(Self(Some(AocClient::from_env()?)))
+    }
+
+    /// The client, built now if it never was. Idempotent, so calling it
+    /// eagerly and again later costs one construction.
+    pub fn connected(&mut self) -> anyhow::Result<&AocClient> {
+        if self.0.is_none() {
+            *self = LazyAocClient::from_env()?;
+        }
+        Ok(self.0.as_ref().expect("built just above"))
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::domain::solution::aoc_verdict::AocVerdict;
-
     use super::{verdict_from, wait_from};
+    use crate::domain::solution::aoc_verdict::AocVerdict;
 
     // Fixtures are the real replies AOC gave for 2015 day 1 on a scratch
     // account, trimmed to the sentence that carries the verdict.

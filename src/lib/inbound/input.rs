@@ -1,7 +1,7 @@
 use crate::{
     domain::address::Day,
     outbound::{
-        client::{aoc_client::AocClient, environment::Environment},
+        client::{aoc_client::LazyAocClient, environment::Environment},
         store::{
             self,
             cache::{Entry, Input, Instructions},
@@ -16,14 +16,14 @@ use crate::{
 /// exception: its second star is awarded rather than puzzled, so nothing
 /// rechecks it. An input from another session is refetched, keeping its
 /// instructions. `client` is built only when something is downloaded.
-pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result<Entry> {
+pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Entry> {
     // Absent when no cookie is configured, which leaves a cached entry usable
     // rather than unverifiable and therefore unusable.
     let cookie = Environment::cookie_if_set()?;
 
     let Some(cached) = store::read_entry(day)? else {
         let input = fetch_input(client, day, cookie.as_deref())?;
-        let (part_one, part_two) = connected(client)?.get_instructions(day)?;
+        let (part_one, part_two) = client.connected()?.get_instructions(day)?;
         let entry = Entry {
             input,
             instructions: Instructions { part_one, part_two },
@@ -58,7 +58,7 @@ pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result
     };
 
     let instructions = if chase_part_two {
-        let (part_one, part_two) = connected(client)?.get_instructions(day)?;
+        let (part_one, part_two) = client.connected()?.get_instructions(day)?;
         if part_two.is_some() {
             println!(
                 "part two unlocked for year {} day {}",
@@ -81,22 +81,14 @@ pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result
 
 /// Downloads `day`'s input and tags it with the session that got it.
 fn fetch_input(
-    client: &mut Option<AocClient>,
+    client: &mut LazyAocClient,
     day: &Day,
     cookie: Option<&str>,
 ) -> anyhow::Result<Input> {
-    let data = connected(client)?.get_input(day)?;
+    let data = client.connected()?.get_input(day)?;
     let cookie = match cookie {
         Some(cookie) => cookie.to_string(),
         None => Environment::cookie()?,
     };
     Ok(Input::new(cookie, data))
-}
-
-/// Builds the client on first use, so nothing offline pays for a connection.
-fn connected(client: &mut Option<AocClient>) -> anyhow::Result<&AocClient> {
-    if client.is_none() {
-        *client = Some(AocClient::from_env()?);
-    }
-    Ok(client.as_ref().expect("built just above"))
 }

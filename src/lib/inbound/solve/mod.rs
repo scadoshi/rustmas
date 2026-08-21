@@ -16,7 +16,7 @@ use crate::{
             utils::{confirm, submit},
         },
     },
-    outbound::client::{aoc_client::AocClient, solve::solve, solver_client::SolverClient},
+    outbound::client::{aoc_client::LazyAocClient, solve::solve, solver_client::SolverClient},
 };
 
 /// A day's solver, once its concrete type is known.
@@ -67,7 +67,10 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
 
     // Built up front when submitting, so a bad cookie fails before any solving.
     // Otherwise built on first download, leaving cached runs offline.
-    let mut aoc = args.submit.then(AocClient::from_env).transpose()?;
+    let mut aoc = LazyAocClient::default();
+    if args.submit {
+        aoc.connected()?;
+    }
 
     for day in Day::matching(filter) {
         // Asked before fetching, so a run over every year downloads nothing for
@@ -92,14 +95,14 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 // Gated on the flag, not on the client existing: fetching a
                 // missing input builds one too.
                 if args.submit {
-                    let client = aoc.as_ref().expect("built up front when submitting");
+                    let client = aoc.connected()?;
                     solved.part_one = submit(client, &day, Part::One, solved.part_one)?;
                     solved.part_two = submit(client, &day, Part::Two, solved.part_two)?;
                 }
 
                 // A new star on part one unlocks part two, which was still
                 // locked when this run read the cache.
-                if matches!(solved.part_one.submission(), Some(AocVerdict::Correct)) {
+                if matches!(solved.part_one.aoc_verdict(), Some(AocVerdict::Correct)) {
                     ensure_entry(&mut aoc, &day)?;
                 }
 
