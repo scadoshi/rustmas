@@ -17,14 +17,14 @@ pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyho
         return Ok(outcome);
     };
     if !matches!(
-        outcome.verdict(),
+        outcome.solver_verdict(),
         Some(SolverVerdict::Correct) | Some(SolverVerdict::Unsupported)
     ) {
         return Ok(outcome);
     }
 
     let verdict = aoc.submit_answer(day, part, value)?;
-    Ok(outcome.with_submission(verdict))
+    Ok(outcome.with_aoc_verdict(verdict))
 }
 
 /// Asks before an unfiltered submit run, which would post every solved day.

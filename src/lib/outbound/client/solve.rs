@@ -35,11 +35,11 @@ pub fn solve<S: Solution>(
     if validate {
         if let Some(value) = part_one.value() {
             let verdict = client.validate_answer(day, input, Part::One, value)?;
-            part_one = part_one.with_verdict(verdict);
+            part_one = part_one.with_solver_verdict(verdict);
         }
         if let Some(value) = part_two.value() {
             let verdict = client.validate_answer(day, input, Part::Two, value)?;
-            part_two = part_two.with_verdict(verdict);
+            part_two = part_two.with_solver_verdict(verdict);
         }
     }
 
