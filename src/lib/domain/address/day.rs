@@ -111,7 +111,10 @@ mod tests {
         assert_eq!(day.len(), (Year::latest() - FIRST_YEAR + 1) as usize);
         assert!(day.iter().all(|day| day.value() == 1));
 
-        assert_eq!(Day::matching(filter(Some(2015), Some(1))).count(), 1);
+        let mut both = Day::matching(filter(Some(2015), Some(1)));
+        let only = both.next().expect("one day matches a full pair");
+        assert_eq!((only.year(), only.value()), (2015, 1));
+        assert!(both.next().is_none());
     }
 
     /// Day 25's second star is awarded for the other 49, so there is no text
