@@ -11,20 +11,12 @@ The 2026-08-20 session added the eager `Filter` (`-y 2030` errors instead of
 matching nothing in silence), split the address errors per producer, made day
 expansion infallible, and renamed `Solved`'s fields. The journal has the detail.
 
-## Next: a revision pass on the Filter work
+## Next
 
-Come back and keep revising until it is solid. Known items, in order:
-
-- **Wire `has_second_puzzle` into `ensure_entry`.** It is dead code today: the
-  `chase_part_two` gate still asks only whether `part_two.md` is missing, so a
-  cached day 25 costs a network request every run, forever, chasing text that
-  cannot exist. One clause: `&& day.has_second_puzzle()`.
-- **Check the first-fetch path for day 25** while in there: a fresh fetch should
-  already write nothing for part two, but confirm rather than assume.
-- **Pin `matching` with both sides.** The test asserts `count() == 1` but never
-  that it is the right day. One `assert_eq!` on year and value.
-- Optional, marginal: `Year`'s own tests assert `is_err()` only; the message
-  content is covered through the filter test and each error has one producer.
+The Filter revision pass from 2026-08-20 is done: the day 25 gate is wired so
+nothing rechecks a part two that cannot exist, the pair filter is pinned to the
+day it yields, and both error messages are asserted in full. Nothing queued
+beyond what follows.
 
 ## Still open from before
 
