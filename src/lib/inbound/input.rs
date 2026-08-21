@@ -37,7 +37,8 @@ pub fn ensure_entry(client: &mut Option<AocClient>, day: &Day) -> anyhow::Result
         .is_some_and(|cookie| !cached.input.is_from(cookie));
     // No cookie means nothing to ask with, so an incomplete cache stays as is
     // rather than failing the run.
-    let chase_part_two = cached.instructions.part_two.is_none() && cookie.is_some();
+    let chase_part_two =
+        cached.instructions.part_two.is_none() && day.has_second_puzzle() && cookie.is_some();
 
     if !stale_session && !chase_part_two {
         return Ok(cached);

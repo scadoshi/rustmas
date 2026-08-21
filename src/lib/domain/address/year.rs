@@ -57,6 +57,17 @@ mod tests {
         assert!(Year::new(Year::latest()).is_ok());
     }
 
+    /// The message names the value and the live bounds, since it is the only
+    /// clue the user gets about what to type instead.
+    #[test]
+    fn the_error_names_the_value_and_the_bounds() {
+        let error = Year::new(2030).unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            format!("year 2030 is outside 2015..={}", Year::latest())
+        );
+    }
+
     /// 2025 ran twelve days rather than the usual twenty five.
     #[test]
     fn knows_how_long_each_event_ran() {
