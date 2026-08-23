@@ -1,9 +1,16 @@
 use chrono::{Datelike, Utc};
-
-use crate::domain::address::YearOutOfRange;
+use thiserror::Error;
 
 /// The first Advent of Code.
 pub const FIRST_YEAR: i32 = 2015;
+
+/// Returned when a year falls outside the published events.
+#[derive(Debug, Error)]
+#[error("year {given} is outside {FIRST_YEAR}..={latest}")]
+pub struct YearOutOfRange {
+    pub given: i32,
+    pub latest: i32,
+}
 
 /// A validated event year, from [`FIRST_YEAR`] through [`Year::latest`].
 #[derive(Debug, Clone, Copy)]
