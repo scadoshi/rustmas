@@ -1,11 +1,20 @@
 use crate::domain::address::{
-    DayOutOfRange,
     filter::Filter,
     year::{FIRST_YEAR, Year},
 };
+use thiserror::Error;
 
 /// Christmas Day, whose second star is awarded rather than puzzled.
 pub(crate) const FINAL_DAY: i32 = 25;
+
+/// Returned when a day falls outside its bound, which is the year's own day
+/// count when a year is known and 25 otherwise.
+#[derive(Debug, Error)]
+#[error("day {given} is outside 1..={bound}")]
+pub struct DayOutOfRange {
+    pub given: i32,
+    pub bound: i32,
+}
 
 /// A validated day within a validated [`Year`], which it always carries.
 #[derive(Debug, Clone, Copy)]
