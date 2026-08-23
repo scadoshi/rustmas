@@ -8,6 +8,20 @@ they read consistently rather than historically.
 Newest first. Names in older entries were updated when things got renamed, so
 they read consistently rather than historically.
 
+## 2026-08-23
+
+Written on the plane while porting the Filter to sharpmas: `DayOutOfRange` and
+`YearOutOfRange` moved out of `address/mod.rs` and into `day.rs` and `year.rs`,
+each beside its one producer. They are a day's error and a year's error, not
+shared vocabulary, so the shared file was the wrong home. `mod.rs` still
+re-exports both, so call sites did not move.
+
+The port itself landed on the sharpmas side, with everything on its catch-up
+list; its 2026-08-23 journal file has the detail. One note that travelled back:
+the C# guard helpers already name the given value and the live bound in their
+messages, so the eager-error payoff carried over without rustmas's custom
+message strings, just in the local dialect.
+
 ## 2026-08-20
 
 Restructured the inbound side while walking the repo to relearn it. `fetch` and
