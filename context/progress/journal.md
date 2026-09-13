@@ -60,8 +60,9 @@ line printed above it, and the slowest part names the only part there was. That
 rule lives in `Totals`, in `has_summary` and the `Display` guard, rather than at
 the call site, so nothing can print a summary by forgetting to ask.
 
-All of this is tool code rather than solution code, so it belongs on `main` and
-should merge down.
+All of this is tool code rather than solution code, so it landed on `main` and
+merged down. The merge conflicted on the three files `branches.md` says it
+always will: `common/mod.rs`, `solution/mod.rs`, and `inbound/solve/mod.rs`.
 
 ### The comment pass, later the same day
 
@@ -75,7 +76,7 @@ Two things the scan turned up that were worth more than the trimming:
   declares `domain`, `inbound`, `outbound`, and nothing else, so neither
   compiles. They were left behind by 854fe02, the fold-run-into-module
   restructure. `solve.rs` is stale enough that it would not build: it calls
-  `with_verdict` and names the fields `one` and `two`. Both want deleting.
+  `with_verdict` and names the fields `one` and `two`. Both deleted.
 - Most of what the scan called a multi-line comment is one sentence wrapped at
   80 columns, which is not the thing anyone objects to. The real count is
   blocks with a blank `///` line and a paragraph under it, which was about
