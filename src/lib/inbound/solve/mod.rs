@@ -21,11 +21,9 @@ type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;
 
 /// The solver for a day, or `None` when nobody has written one.
 ///
-/// Returns a pointer rather than calling, so the registry can be asked whether
-/// a day exists without holding its input. That is what lets a run skip
-/// unwritten days before downloading and lets `--submit` count first.
-///
-/// One line per day. This is the only list of what has been solved.
+/// Returns a pointer rather than calling, so a run skips unwritten days before
+/// downloading and `--submit` counts first. One line per day, and the only
+/// list of what has been solved.
 fn solver_for(year: i32, day: i32) -> Option<Solver> {
     match (year, day) {
         // One arm per day. Import the year module and `solve` at the top of this
@@ -57,15 +55,13 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
     }
 
     // Built up front when submitting, so a bad cookie fails before any solving.
-    // Otherwise built on first download, leaving cached runs offline.
     let mut aoc = LazyAocClient::default();
     if args.submit {
         aoc.connected()?;
     }
 
     for day in Day::matching(filter) {
-        // Asked before fetching, so a run over every year downloads nothing for
-        // days it cannot solve.
+        // Asked before fetching, so unsolvable days download nothing.
         let Some(solver_fn) = solver_for(day.year(), day.value()) else {
             if args.day.is_some() {
                 eprintln!(
@@ -81,18 +77,15 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
         let input = entry.input.data();
         match solver_fn(&solver, validate, input, &day) {
             Ok(mut solved) => {
-                // Submit before printing, so each part reports what both
-                // checkers said on one line.
-                // Gated on the flag, not on the client existing: fetching a
-                // missing input builds one too.
+                // Before printing, so each part reports both checkers on one
+                // line. Gated on the flag, not on the client existing.
                 if args.submit {
                     let client = aoc.connected()?;
                     solved.part_one = submit(client, &day, Part::One, solved.part_one)?;
                     solved.part_two = submit(client, &day, Part::Two, solved.part_two)?;
                 }
 
-                // A new star on part one unlocks part two, which was still
-                // locked when this run read the cache.
+                // A new star on part one unlocks part two, locked until now.
                 if matches!(solved.part_one.aoc_verdict(), Some(AocVerdict::Correct)) {
                     ensure_entry(&mut aoc, &day)?;
                 }

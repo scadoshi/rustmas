@@ -1,13 +1,5 @@
-//! Where downloaded things live on disk.
-//!
-//! One directory per day, every file readable on its own:
-//!
-//! ```text
-//! cache/2015/01/input.txt     the puzzle input, verbatim
-//! cache/2015/01/session       hash of the cookie that fetched it
-//! cache/2015/01/part_one.md   puzzle text
-//! cache/2015/01/part_two.md   puzzle text, absent until part one is solved
-//! ```
+//! Where downloaded things live on disk. One directory per day, every file
+//! readable on its own. `context/architecture.md` has the layout.
 
 pub mod cache;
 
@@ -43,8 +35,8 @@ fn day_path_in(root: &Path, day: &Day) -> PathBuf {
 
 /// Reads `day`'s cache, or `None` when nothing has been downloaded.
 ///
-/// Returns what is on disk whatever session it came from, but a missing session
-/// file reads as `None`: an input nothing can vouch for is one to fetch again.
+/// A missing session file reads as `None`, since an input nothing can vouch
+/// for is one to fetch again.
 pub fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
     read_entry_in(&project_root()?.join(CACHE_PATH), day)
 }
@@ -89,8 +81,7 @@ fn write_entry_in(root: &Path, day: &Day, entry: &Entry) -> anyhow::Result<()> {
 
 /// Reads a file, or `None` when it is missing or blank.
 ///
-/// Blank counts as missing so a half-written file reads as absent and is
-/// fetched again, rather than as content nothing will ever replace.
+/// Blank counts as missing, so a half-written file gets fetched again.
 fn read_opt(path: &Path) -> anyhow::Result<Option<String>> {
     if !path.is_file() {
         return Ok(None);

@@ -35,8 +35,7 @@ impl Day {
 
     /// Whether this day's second star is a puzzle rather than a reward.
     ///
-    /// Day 25's is given for holding every other star. The site shows it a
-    /// closing note rather than a puzzle, so the tool never fetches one.
+    /// Day 25's is given for holding every other star, so nothing fetches it.
     pub fn has_second_puzzle(&self) -> bool {
         self.value != FINAL_DAY
     }

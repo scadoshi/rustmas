@@ -32,8 +32,8 @@ pub struct SolverClient {
 impl SolverClient {
     /// Builds a client carrying the `User-Agent`, loading `.env` if present.
     ///
-    /// Nothing here is required, since the solver needs no authentication. It
-    /// fails only when the user agent cannot be a header value, which a stray
+    /// Nothing is required, since the solver needs no authentication. Fails
+    /// only when the user agent cannot be a header value, which a stray
     /// newline in `.env` is enough to cause.
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
@@ -51,10 +51,9 @@ impl SolverClient {
 
     /// Checks `answer` against the solver.
     ///
-    /// Numeric answers compare as numbers and report a direction; anything else
-    /// compares as text. Every failure is a 400 with the reason in the body, so
-    /// classification reads the body. Only transport failures and 5xx try the
-    /// next host, since all three run the same code.
+    /// Numeric answers compare as numbers and report a direction, anything
+    /// else as text. Every failure is a 400 with the reason in the body. Only
+    /// transport failures and 5xx try the next host.
     pub fn validate_answer(
         &self,
         day: &Day,
@@ -82,8 +81,8 @@ impl SolverClient {
                 }
             };
 
-            // Read the body before classifying. The solver puts the reason
-            // there, and `error_for_status` would consume it.
+            // The solver puts the reason in the body, which
+            // `error_for_status` would consume.
             let status = response.status();
             let body = match response.text() {
                 Ok(body) => body,

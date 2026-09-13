@@ -6,8 +6,7 @@ use std::{fmt::Display, time::Duration};
 /// One part's answer and everything learned about it afterwards.
 ///
 /// A failure is held rather than propagated, so one broken part does not hide
-/// the other's answer. Only [`Answer::Value`] can carry a verdict, which the
-/// attaching methods enforce and which rules errors out for free.
+/// the other's answer. Only [`Answer::Value`] can carry a verdict.
 #[derive(Debug)]
 pub struct Outcome {
     answer: anyhow::Result<Answer>,
@@ -69,13 +68,11 @@ impl Display for Outcome {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut line = match &self.answer {
             Ok(answer) => answer.to_string(),
-            // `{:#}` puts the whole chain on the line rather than just the
-            // outermost message.
+            // `{:#}` puts the whole chain on the line.
             Err(e) => format!("error: {e:#}"),
         };
 
-        // AOC's word supersedes the solver's, so a starred part reads as starred
-        // rather than repeating that the solver agreed.
+        // AOC's word supersedes the solver's.
         let notes: String = match (&self.solver_verdict, &self.aoc_verdict) {
             (_, Some(AocVerdict::Correct)) => "new star".to_string(),
             (_, Some(AocVerdict::AlreadySolved)) => "starred".to_string(),
@@ -175,8 +172,7 @@ mod tests {
     #[test]
     fn visual_answers_render_their_art() {
         let outcome = Outcome::new(Ok(Answer::Visual("###".to_string())), Duration::ZERO);
-        // Art is the one answer with no space before the timing, since it ends
-        // its own line.
+        // Art ends its own line, so it takes no space before the timing.
         assert_eq!(outcome.to_string(), "\n###\n[0ns]");
     }
 

@@ -1,8 +1,7 @@
 use crate::domain::solution::{Solution, answer::Answer};
 
 pub struct Puzzle {
-    // Keep the raw text only if the parts read it. A day that parses into its
-    // own types should hold those instead and drop this field.
+    // Keep this only if the parts read the raw text; drop it if you parse.
     #[allow(dead_code)]
     input: String,
 }
