@@ -8,10 +8,9 @@ pub struct InvalidDirection(String);
 
 /// One of the four moves along an axis. Parses from a letter or the full word.
 ///
-/// `Up` and `Down` mean opposite things to the two position types:
-/// [`Point`](super::point::Point) counts `y` upward,
-/// [`Cell`](super::cell::Cell) counts rows down from the top. Variants are
-/// declared clockwise, which is what makes the turns one step along the list.
+/// `Up` and `Down` mean opposite things to [`Point`](super::point::Point) and
+/// [`Cell`](super::cell::Cell). Variants are declared clockwise, which is what
+/// makes a turn one step along the list.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Direction {
     #[default]

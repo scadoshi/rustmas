@@ -27,10 +27,9 @@ fn moved(position: i32, turn: Turn, distance: i32) -> i32 {
 
 /// How many times a turn goes over zero, counted rather than walked.
 ///
-/// The multiples of [`DIAL_SIZE`] in the swept interval. Turning left sweeps
-/// `position - distance ..= position - 1`, since the position it starts on is
-/// not one it passes. [`i64::div_euclid`] rather than `/` because that interval
-/// runs negative and `-1 / 100` truncates to zero.
+/// The multiples of [`DIAL_SIZE`] in the swept interval. [`i64::div_euclid`]
+/// rather than `/`, since that interval runs negative and `-1 / 100` truncates
+/// to zero.
 fn zeros_crossed(position: i32, turn: Turn, distance: i32) -> i64 {
     let distance = i64::from(distance);
     let position = i64::from(position);

@@ -4,9 +4,8 @@ type Dir = Direction;
 
 /// An unsigned grid index, rows counting down from the top-left.
 ///
-/// So `Up` decreases the row, the opposite of
-/// [`Point`](super::point::Point), which is what to use for signed
-/// coordinates on an unbounded plane.
+/// So `Up` decreases the row. For signed coordinates on an unbounded plane,
+/// use [`Point`](super::point::Point).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Cell {
     column: u32,
