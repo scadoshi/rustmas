@@ -8,6 +8,8 @@ No solutions ship with it. Clone it, add your `.env`, and write your first day.
 Scotty's own solutions live on the `scadoshi` branch if you want worked
 examples.
 
+![Solving a day and checking both answers against an independent solver](demo/demo.gif)
+
 ## Quick start
 
 **1. Add your session cookie.** Log in at
