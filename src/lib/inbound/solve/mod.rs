@@ -4,7 +4,7 @@ pub mod utils;
 use crate::{
     domain::{
         address::{Day, Filter, Part},
-        solution::{Solved, aoc_verdict::AocVerdict},
+        solution::{Solved, aoc_verdict::AocVerdict, totals::Totals},
     },
     inbound::{
         input::ensure_entry,
@@ -60,6 +60,7 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
         aoc.connected()?;
     }
 
+    let mut totals = Totals::default();
     for day in Day::matching(filter) {
         // Asked before fetching, so unsolvable days download nothing.
         let Some(solver_fn) = solver_for(day.year(), day.value()) else {
@@ -99,9 +100,16 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 );
                 println!("  part one: {}", solved.part_one);
                 println!("  part two: {}", solved.part_two);
+
+                totals.add(&day, &solved);
             }
             Err(e) => eprintln!("year {} day {} failed: {e:?}", day.year(), day.value()),
         }
+    }
+    // Below two days the summary would only restate the lines above it.
+    if totals.days() > 1 {
+        println!();
+        print!("{totals}");
     }
     Ok(())
 }

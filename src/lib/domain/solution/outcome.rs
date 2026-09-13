@@ -60,6 +60,17 @@ impl Outcome {
     pub fn aoc_verdict(&self) -> Option<&AocVerdict> {
         self.aoc_verdict.as_ref()
     }
+
+    /// How long this part took, if it produced an answer.
+    ///
+    /// `None` for a stub, a failure, and day 25's second star, none of which
+    /// did work worth totalling.
+    pub fn solve_time(&self) -> Option<Duration> {
+        match self.answer.as_ref().ok()? {
+            Answer::Value(_) | Answer::Visual(_) => Some(self.elapsed),
+            Answer::None | Answer::Unwritten => None,
+        }
+    }
 }
 
 impl Display for Outcome {

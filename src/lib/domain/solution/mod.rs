@@ -8,6 +8,7 @@ pub mod aoc_verdict;
 pub mod common;
 pub mod outcome;
 pub mod solver_verdict;
+pub mod totals;
 // One `pub mod year_YYYY;` per year you write solutions for.
 // Compiled but never dispatched, so a copy starts from something that builds.
 pub mod year_template;
