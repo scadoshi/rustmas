@@ -8,6 +8,8 @@ This is Scotty's working branch, with his solutions attached. The `main` branch
 is the same tool with no solutions, which is the one to clone if you want a
 starting point.
 
+![Solving a day and checking both answers against an independent solver](demo/demo.gif)
+
 ## Quick start
 
 **1. Add your session cookie.** Log in at
