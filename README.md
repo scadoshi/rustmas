@@ -55,11 +55,8 @@ fn part_one(&self) -> anyhow::Result<Answer> {
 ```
 
 Register it: `solution/mod.rs` needs `pub mod year_2015;`, and `solver_for` in
-`src/lib/inbound/solve/run.rs` needs an arm:
-
-```rust
-(2015, 1) => solve::<year_2015::day_01::Puzzle>,
-```
+`src/lib/inbound/solve/mod.rs` needs an arm. The commented example inside that
+match shows the form to copy.
 
 That match is the only list of what has been solved. Then:
 
@@ -90,6 +87,18 @@ Timings never include the network.
 | `(none)` | The part has no answer, such as day 25 part two |
 | `(unwritten)` | Nobody has written this part yet |
 | `error: ...` | The part failed. The other part still ran |
+
+A run covering more than one day ends with where the time went:
+
+```
+total time spent parsing: 429.416µs
+average parse time per day: 214.708µs
+total time spent solving: 670.458µs
+average solve time per part: 167.614µs
+slowest part: year 2015 day 2 part two [526.334µs]
+```
+
+One day gets none of it, since every line would restate the line above it.
 
 ## Worth knowing
 
