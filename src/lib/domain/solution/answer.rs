@@ -2,8 +2,7 @@ use std::fmt::Display;
 
 /// What one part of a puzzle produced. Nothing else.
 ///
-/// Verdicts and timings come from elsewhere and live in
-/// [`super::outcome::Outcome`].
+/// Verdicts and timings live in [`super::outcome::Outcome`].
 #[derive(Debug)]
 pub enum Answer {
     /// A submittable answer.

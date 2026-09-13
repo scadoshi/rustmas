@@ -11,14 +11,11 @@ use crate::{
 
 /// Returns `day`'s cached input and instructions, downloading what is missing.
 ///
-/// A cache with no `part_two.md` counts as incomplete and is rechecked every
-/// run, since part two unlocks only once part one is solved. Day 25 is the
-/// exception: its second star is awarded rather than puzzled, so nothing
-/// rechecks it. An input from another session is refetched, keeping its
-/// instructions. `client` is built only when something is downloaded.
+/// Missing `part_two.md` means incomplete, so it is rechecked every run until
+/// part one is solved. Day 25 is the exception, its second star being awarded
+/// rather than puzzled. An input from another session is refetched.
 pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Entry> {
-    // Absent when no cookie is configured, which leaves a cached entry usable
-    // rather than unverifiable and therefore unusable.
+    // Absent when no cookie is configured, leaving a cached entry usable.
     let cookie = Environment::cookie_if_set()?;
 
     let Some(cached) = store::read_entry(day)? else {
@@ -36,8 +33,7 @@ pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Ent
     let stale_session = cookie
         .as_deref()
         .is_some_and(|cookie| !cached.input.is_from(cookie));
-    // No cookie means nothing to ask with, so an incomplete cache stays as is
-    // rather than failing the run.
+    // No cookie means nothing to ask with, so an incomplete cache stays.
     let chase_part_two =
         cached.instructions.part_two.is_none() && day.has_second_puzzle() && cookie.is_some();
 

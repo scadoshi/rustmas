@@ -10,10 +10,8 @@ use std::time::Instant;
 /// Runs both parts, checking each answer against the solver when `validate`.
 ///
 /// Validation runs after both parts are measured, so no timing includes a
-/// network round trip, and only a submittable answer is checked at all.
-///
-/// A failing part goes into its own [`Outcome`] rather than being propagated,
-/// so the other part still runs. Only [`Solution::new`] failing ends the day.
+/// network round trip. A failing part goes into its own [`Outcome`], so the
+/// other still runs; only [`Solution::new`] failing ends the day.
 pub fn solve<S: Solution>(
     client: &SolverClient,
     validate: bool,

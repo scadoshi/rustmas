@@ -16,14 +16,13 @@ pub enum InvalidFilter {
 
 /// A validated narrowing of the published days. `None` means all of them.
 ///
-/// Validation happens here, eagerly, so expanding a filter cannot fail and an
-/// impossible one errors up front rather than sweeping the range and matching
-/// nothing in silence.
+/// Validated eagerly, so expanding cannot fail and an impossible filter errors
+/// up front rather than matching nothing in silence.
 #[derive(Debug, Clone, Copy)]
 pub struct Filter {
     year: Option<Year>,
-    /// An `i32` rather than a [`Day`], since a day filter with no year is not
-    /// an address: day 13 is valid for 2015 and not for 2025.
+    /// An `i32` rather than a [`Day`], since day 13 with no year is not an
+    /// address: valid for 2015, not for 2025.
     day: Option<i32>,
 }
 

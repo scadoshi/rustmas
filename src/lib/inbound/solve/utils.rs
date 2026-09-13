@@ -9,9 +9,9 @@ use std::io::{self, Write};
 
 /// Submits the answer if the solver backed it, with AOC's reply attached.
 ///
-/// A wrong answer costs an escalating cooldown, so the solver verdict gates the
-/// send. [`SolverVerdict::Unsupported`] goes through anyway, since the solver
-/// cannot judge it either way. Rejected answers come back untouched.
+/// A wrong answer costs an escalating cooldown, so the verdict gates the send.
+/// [`SolverVerdict::Unsupported`] goes through anyway, and rejected answers
+/// come back untouched.
 pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyhow::Result<Outcome> {
     let Some(value) = outcome.value() else {
         return Ok(outcome);

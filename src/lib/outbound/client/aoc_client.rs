@@ -35,9 +35,8 @@ impl AocClient {
 
     /// Builds a client carrying the cookie and `User-Agent` on every request.
     ///
-    /// Reads the environment, loading `.env` if present. Only `COOKIE` is
-    /// required, so a fresh clone runs without the rest. Both headers go on the
-    /// client rather than each request, so nothing can send one without them.
+    /// Only `COOKIE` is required, so a fresh clone runs without the rest. Both
+    /// headers go on the client, so nothing can send a request without them.
     /// Connected now, so a bad cookie fails before any work is done.
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
@@ -116,9 +115,8 @@ impl AocClient {
 
     /// Submits `answer` to adventofcode.com and reads the graded reply.
     ///
-    /// Everything is a 200, so the verdict comes entirely from the body. A part
-    /// grades once, which is why a correct answer is worth caching. A wrong one
-    /// may or may not come with a direction hint.
+    /// Everything is a 200, so the verdict comes entirely from the body. A
+    /// part grades once, which is why a correct answer is worth caching.
     pub fn submit_answer(
         &self,
         day: &Day,
@@ -204,8 +202,7 @@ mod tests {
     use super::{verdict_from, wait_from};
     use crate::domain::solution::aoc_verdict::AocVerdict;
 
-    // Fixtures are the real replies AOC gave for 2015 day 1 on a scratch
-    // account, trimmed to the sentence that carries the verdict.
+    // Real replies AOC gave for 2015 day 1, trimmed to the verdict sentence.
     const CORRECT: &str = "That's the right answer!  You are <span class=\"day-success\">one gold star</span> closer to powering the weather machine.";
     const HIGH: &str = "That's not the right answer; your answer is too high.  If you're stuck, make sure you're using the full input data";
     const LOW: &str = "That's not the right answer; your answer is too low.  If you're stuck, make sure you're using the full input data";
