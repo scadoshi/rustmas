@@ -12,9 +12,9 @@ they read consistently rather than historically.
 
 Added a run summary under the per-day lines, and fixed the first draft of it.
 
-That draft collected two `Vec<Duration>` in `solve::run` and divided each by
-its length at the end. `Duration / 0u32` panics rather than giving zero, so any
-filter matching no written day crashed the run after printing a 0ns total:
+That draft collected two `Vec<Duration>` in `solve::run` and divided each by its
+length. `Duration / 0u32` panics rather than giving zero, so any filter matching
+no written day crashed after printing a 0ns total:
 
 ```
 $ solve -y 2019
@@ -25,73 +25,47 @@ thread 'main' panicked: divide by zero error when dividing duration by scalar
 
 `-d 5` and a run where every day errored did the same.
 
-The aggregation moved into `Totals` in `domain/solution/totals.rs`, folding in
-one `Solved` at a time. Two running accumulators instead of two vectors that
-were only ever asked for their sum and their length, the empty case handled in
-one place instead of at each division, and the arithmetic testable, which it
-was not while it lived as `println!` inside a loop. `run` prints the block only
-when a day actually ran.
+The aggregation moved into `Totals` in `domain/solution/totals.rs`. Two running
+accumulators instead of two vectors only ever asked for their sum and their
+length, and the empty case handled once rather than at each division. The real
+win was testability. As `println!` inside a loop there was nowhere to put a
+test, and the first test anybody writes is the empty one.
 
-The predicate the draft filtered on was `Outcome::is_ok_and_unwritten`, which
-returned true when the answer was `Ok` and *not* `Unwritten`. The name promised
-a stub and delivered the opposite. Replaced by `Outcome::solve_time`, returning
-`Option<Duration>`: one call rather than a predicate the caller has to remember
-to pair with `elapsed()`, and an exhaustive match over `Answer`, so a new
-variant has to be told whether it counts. It also drops `Answer::None` from the
-denominator, which had day 25's second star contributing a measurement of
-nothing to the mean.
+The draft filtered on `Outcome::is_ok_and_unwritten`, which returned true when
+the answer was `Ok` and *not* `Unwritten`. The name promised a stub and
+delivered the opposite. Now `Outcome::solve_time` returns `Option<Duration>`:
+one call rather than a predicate you have to remember to pair with `elapsed()`,
+an exhaustive match so a new `Answer` variant has to be told whether it counts,
+and `Answer::None` out of the denominator, where day 25's second star had been
+contributing a measurement of nothing.
 
-The summary keeps both means and names the slowest part, since a mean over a
-set containing one brute-force day describes no day in it:
+Both means stayed, plus the slowest part, since a mean over a set holding one
+brute-force day describes no day in it. `Part` grew a `Display` for that line,
+`one` and `two`. `wire_value` stays the one to send.
 
-```
-total time spent parsing: 429.416µs
-average parse time per day: 214.708µs
-total time spent solving: 670.458µs
-average solve time per part: 167.614µs
-slowest part: year 2015 day 2 part two [526.334µs]
-```
+The block is silent below two days, gated by `if totals.days() > 1` in `run`.
+That started inside `Totals` and moved out: when to print is a question about
+output, so it belongs in `inbound`. The tell was needing three lines of doc to
+justify a `Display` that rendered empty.
 
-`Part` grew a `Display` for that last line, wording it `one` and `two` to match
-how the per-part lines already read. `wire_value` stays the one to send.
-
-The block is silent below two days. On a single day every line restates the day
-line printed above it, and the slowest part names the only part there was. That
-rule lives in `Totals`, in `has_summary` and the `Display` guard, rather than at
-the call site, so nothing can print a summary by forgetting to ask.
-
-All of this is tool code rather than solution code, so it landed on `main` and
-merged down. The merge conflicted on the three files `branches.md` says it
-always will: `common/mod.rs`, `solution/mod.rs`, and `inbound/solve/mod.rs`.
+Landed on `main` and merged down, conflicting on the three files `branches.md`
+says it always will.
 
 ### The comment pass, later the same day
 
-Scanned for runs of two or more consecutive comment lines: 95 blocks across
-3,912 lines. Cut 48 comment lines from the existing files without losing a
-fact that is not written down somewhere else.
+95 comment blocks across 3,912 lines, 48 lines cut. The rule was already in
+`doc_comments.md`: a second paragraph earns its place only for a trap, a
+rejected alternative, a decision that looks like a mistake, or a cross-reference
+that saves a search. Everything answering none of the four went. Biggest single
+cut was the cache tree in `store/mod.rs`, eight lines reproducing
+`architecture.md` verbatim.
 
-Two things the scan turned up that were worth more than the trimming:
-
-- `src/lib/solve.rs` and `src/lib/cli.rs` are not in the module tree. `lib.rs`
-  declares `domain`, `inbound`, `outbound`, and nothing else, so neither
-  compiles. They were left behind by 854fe02, the fold-run-into-module
-  restructure. `solve.rs` is stale enough that it would not build: it calls
-  `with_verdict` and names the fields `one` and `two`. Both deleted.
-- Most of what the scan called a multi-line comment is one sentence wrapped at
-  80 columns, which is not the thing anyone objects to. The real count is
-  blocks with a blank `///` line and a paragraph under it, which was about
-  fifty.
-
-The rule that did the work was already in `doc_comments.md`: a second paragraph
-earns its place only for a trap, a rejected alternative, a decision that looks
-like a mistake, or a cross-reference that saves a search. Everything that
-answered none of the four went. The largest single cut was the cache tree in
-`store/mod.rs`, eight lines reproducing `architecture.md` verbatim, replaced by
-a pointer to it.
-
-What is left is mostly the shape the rule endorses: a summary line, a blank,
-and two lines naming the trap. Cutting further would start deleting the content
-the rule exists to protect.
+Two things the scan turned up beat the trimming. `src/lib/solve.rs` and
+`src/lib/cli.rs` were not in the module tree, so neither compiled; `solve.rs`
+still called `with_verdict` and named the fields `one` and `two`. Left behind by
+854fe02, both deleted. And most of what the scan called a multi-line comment is
+one sentence wrapped at 80 columns. The real count is blocks with a blank `///`
+and a paragraph under it, about fifty.
 
 ## 2026-08-23
 
