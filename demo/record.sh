@@ -49,7 +49,10 @@ open_window() {
   tmux list-clients -t "$SESSION" -F '#{client_tty}' 2>/dev/null | while read -r t; do
     tmux detach-client -t "$t" 2>/dev/null || true
   done
-  ghostty -e tmux attach -t "$SESSION" >/dev/null 2>&1 &
+  # Bigger than the default 13, which gives 183 columns at fullscreen and glyphs
+  # under 5px wide once a clip is scaled to 900 for a README GIF. 22 gives 112
+  # columns, so the text survives the downscale.
+  ghostty --font-size="${FONT_SIZE:-22}" -e tmux attach -t "$SESSION" >/dev/null 2>&1 &
   sleep 3.5
 
   local before after

@@ -6,6 +6,19 @@
 
 CAP=0.0; MAIN=0.1; SIDE=0.2
 
+# A short prompt for the demo panes only, set before capture starts so the command
+# that sets it never appears. The default prompt is 31 characters of username and
+# host, which is a quarter of a pane once the font is big enough to read in a GIF.
+# %1~ tracks the directory, so it stays right when an act cds elsewhere.
+set_prompt() {
+  # PROMPT_EOL_MARK is the reverse-video % zsh prints when output ends mid-line.
+  # Harmless in daily use, distracting at the top of every pane in a recording.
+  tmux send-keys -t "$1" "export PS1='%1~ \$ ' PROMPT_EOL_MARK=''" Enter
+  tmux send-keys -t "$1" 'clear' Enter
+  sleep 0.15
+  tmux clear-history -t "$1"   # drop the scrollback too, or the old prompt shows through
+}
+
 build_layout() {
   tmux kill-session -t "$SESSION" 2>/dev/null || true
   rm -f "$CAPTION_FILE"; : > "$CAPTION_FILE"
@@ -22,7 +35,7 @@ build_layout() {
   tmux select-pane -t "$CAP"  -T 'rustmas'
   tmux select-pane -t "$MAIN" -T 'rustmas'
 
-  tmux send-keys -t "$MAIN" 'clear' Enter
+  set_prompt "$MAIN"
   tmux send-keys -t "$CAP" "source demo/lib.sh; caption_loop" Enter
   sleep 0.6
 }
@@ -35,6 +48,7 @@ want_side_pane() {
   if [ "$1" = "yes" ] && [ "$have" -lt 3 ]; then
     tmux split-window -h -l 50% -t "$SESSION":0.1
     tmux select-pane -t "$SESSION":0.2 -T 'cache/'
+    set_prompt "$SESSION":0.2
     SIDE="$SESSION":0.2
   elif [ "$1" = "no" ] && [ "$have" -ge 3 ]; then
     tmux kill-pane -t "$SESSION":0.2 2>/dev/null || true
