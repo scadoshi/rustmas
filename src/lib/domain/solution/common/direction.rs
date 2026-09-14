@@ -54,10 +54,10 @@ impl TryFrom<char> for Direction {
     type Error = InvalidDirection;
     fn try_from(value: char) -> Result<Self, Self::Error> {
         match value.to_ascii_lowercase() {
-            'u' => Ok(Self::Up),
-            'r' => Ok(Self::Right),
-            'd' => Ok(Self::Down),
-            'l' => Ok(Self::Left),
+            'u' | '^' => Ok(Self::Up),
+            'r' | '>' => Ok(Self::Right),
+            'd' | 'v' => Ok(Self::Down),
+            'l' | '<' => Ok(Self::Left),
             other => Err(InvalidDirection(other.to_string())),
         }
     }
@@ -67,10 +67,10 @@ impl TryFrom<&str> for Direction {
     type Error = InvalidDirection;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value.to_lowercase().as_str() {
-            "up" | "u" => Ok(Self::Up),
-            "right" | "r" => Ok(Self::Right),
-            "down" | "d" => Ok(Self::Down),
-            "left" | "l" => Ok(Self::Left),
+            "up" | "u" | "^" => Ok(Self::Up),
+            "right" | "r" | ">" => Ok(Self::Right),
+            "down" | "d" | "v" => Ok(Self::Down),
+            "left" | "l" | "<" => Ok(Self::Left),
             other => Err(InvalidDirection(other.to_owned())),
         }
     }
@@ -136,6 +136,7 @@ mod tests {
     fn reads_letters_and_words_in_either_case() {
         assert!(is(Direction::try_from("u").unwrap(), Direction::Up));
         assert!(is(Direction::try_from("UP").unwrap(), Direction::Up));
+        assert!(is(Direction::try_from("<").unwrap(), Direction::Left));
         assert!(is(Direction::try_from("Left").unwrap(), Direction::Left));
         assert!(is(Direction::try_from('R').unwrap(), Direction::Right));
         assert!(is(Direction::try_from('d').unwrap(), Direction::Down));
