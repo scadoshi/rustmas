@@ -137,6 +137,7 @@ mod tests {
         assert!(is(Direction::try_from("u").unwrap(), Direction::Up));
         assert!(is(Direction::try_from("UP").unwrap(), Direction::Up));
         assert!(is(Direction::try_from("<").unwrap(), Direction::Left));
+        assert!(is(Direction::try_from('>').unwrap(), Direction::Right));
         assert!(is(Direction::try_from("Left").unwrap(), Direction::Left));
         assert!(is(Direction::try_from('R').unwrap(), Direction::Right));
         assert!(is(Direction::try_from('d').unwrap(), Direction::Down));
