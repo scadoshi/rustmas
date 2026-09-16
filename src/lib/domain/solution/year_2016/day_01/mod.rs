@@ -1,10 +1,13 @@
+pub mod instruction;
+pub mod pose;
+
 use std::collections::HashSet;
 
 use crate::domain::solution::{
     Solution,
     answer::Answer,
     common::point::Point,
-    year_2016::{instruction::Instructions, pose::Pose},
+    year_2016::day_01::{instruction::Instructions, pose::Pose},
 };
 
 pub struct Puzzle {
