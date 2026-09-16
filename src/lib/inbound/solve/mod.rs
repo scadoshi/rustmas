@@ -31,6 +31,7 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
     Some(match (year, day) {
         (2015, 1) => solve::<year_2015::day_01::Puzzle>,
         (2015, 2) => solve::<year_2015::day_02::Puzzle>,
+        (2015, 3) => solve::<year_2015::day_03::Puzzle>,
         (2016, 1) => solve::<year_2016::day_01::Puzzle>,
         (2017, 1) => solve::<year_2017::day_01::Puzzle>,
         (2018, 1) => solve::<year_2018::day_01::Puzzle>,
