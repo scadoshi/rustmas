@@ -20,7 +20,8 @@ starting point.
 cp .env.template .env    # paste the cookie into COOKIE=
 ```
 
-Only `COOKIE` is required. `CONTACT` and `REPO_URL` shape the `User-Agent`,
+Only `COOKIE` is required, and it is 128 hex characters, checked on startup so
+a half-copied one says so. `CONTACT` and `REPO_URL` shape the `User-Agent`,
 since the site asks automated clients to be reachable.
 
 **2. Run something.** One binary, one subcommand per mode. Cargo stops parsing

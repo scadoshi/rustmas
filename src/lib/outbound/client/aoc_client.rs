@@ -3,7 +3,7 @@ use crate::{
         address::{Day, Part},
         solution::aoc_verdict::AocVerdict,
     },
-    outbound::client::environment::Environment,
+    outbound::client::{environment::Environment, session_cookie::SessionCookie},
 };
 use anyhow::Context;
 use reqwest::{
@@ -20,12 +20,12 @@ const AOC_BASE_URL: &str = "https://adventofcode.com";
 /// An authenticated handle to adventofcode.com, pooling one client.
 #[derive(Debug)]
 pub struct AocClient {
-    cookie: String,
+    cookie: SessionCookie,
     client: Client,
 }
 
 impl AocClient {
-    pub fn cookie(&self) -> &str {
+    pub fn cookie(&self) -> &SessionCookie {
         &self.cookie
     }
 

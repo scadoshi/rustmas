@@ -3,6 +3,7 @@
 //! Each client asks for what it needs, so a caller never spells a key itself
 //! and the set of things `.env` must hold is readable from one file.
 
+use crate::outbound::client::session_cookie::SessionCookie;
 use anyhow::Context;
 
 /// Optional env var: an address AOC can reach you at, for the `User-Agent`.
@@ -29,8 +30,9 @@ impl Environment {
     /// Errors only when a value exists and cannot be read, which keeps "not
     /// configured" separate from "configured wrongly".
     fn get(key: &str) -> anyhow::Result<Option<String>> {
-        // `.env` is optional: values may already live in the real environment.
-        dotenvy::dotenv().ok();
+        // `.env` wins over the real environment, so editing it always takes
+        // effect. A stale export otherwise masks it silently.
+        dotenvy::dotenv_override().ok();
         match std::env::var(key) {
             Ok(value) => Ok(Some(value.trim().to_string()).filter(|s| !s.is_empty())),
             Err(std::env::VarError::NotPresent) => Ok(None),
@@ -54,13 +56,18 @@ impl Environment {
 
     /// The session cookie, or `None` when unset. For callers that can work
     /// offline, where no cookie means skip the network rather than fail.
-    pub fn cookie_if_set() -> anyhow::Result<Option<String>> {
-        Self::get(COOKIE_KEY)
+    ///
+    /// A value that is set but malformed is an error, not a `None`, so a
+    /// mistyped cookie never reads as "not configured".
+    pub fn cookie_if_set() -> anyhow::Result<Option<SessionCookie>> {
+        Self::get(COOKIE_KEY)?
+            .map(|value| SessionCookie::try_from(value.as_str()))
+            .transpose()
     }
 
     /// The session cookie, required. Paired with [`Environment::cookie_if_set`]
     /// so the requirement is named here rather than at every call site.
-    pub fn cookie() -> anyhow::Result<String> {
+    pub fn cookie() -> anyhow::Result<SessionCookie> {
         Self::cookie_if_set()?.with_context(|| format!("{COOKIE_KEY} is not set"))
     }
 }
