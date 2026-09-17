@@ -52,6 +52,29 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Unwritten)
+        let grid = Rectangle::new(vec![
+            vec![None, None, Some('1'), None, None],
+            vec![None, Some('2'), Some('3'), Some('4'), None],
+            vec![Some('5'), Some('6'), Some('7'), Some('8'), Some('9')],
+            vec![None, Some('A'), Some('B'), Some('C'), None],
+            vec![None, None, Some('D'), None, None],
+        ])?;
+        let code: String = self
+            .input
+            .iter()
+            .scan(
+                CellOnGrid::new(Cell::new(1, 1), &grid)?,
+                |cursor, directions| {
+                    *cursor = directions.iter().fold(*cursor, |cursor, direction| {
+                        cursor
+                            .checked_moved(*direction, 1)
+                            .filter(|c| c.value().is_some())
+                            .unwrap_or(cursor)
+                    });
+                    Some(cursor.value().unwrap_or_default())
+                },
+            )
+            .collect();
+        Ok(Answer::Value(code))
     }
 }
