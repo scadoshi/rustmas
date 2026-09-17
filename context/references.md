@@ -84,6 +84,13 @@ entirely from the body. The message sits in `<article><p>`.
 | `That's not the right answer` with no direction | `Incorrect` |
 | `You gave an answer too recently` | `Cooldown`, with `You have <wait> left to wait` |
 | `You don't seem to be solving the right level` | `AlreadySolved` |
+| `auth/login` | `NotLoggedIn` |
+
+Verified live on 2026-09-17. With no valid session the POST answers **303** to
+the puzzle page, which `reqwest` follows to a 200, so the body is the puzzle and
+not a verdict. Its nav links `auth/login`, where a logged-in one links
+`auth/logout`. Matched first, since nothing was graded. A malformed cookie is a
+**500** instead, which the status check already rejects.
 
 Order matters when matching. A directional reply reads "That's not the right
 answer; your answer is too high", so it contains the generic phrase too. Check

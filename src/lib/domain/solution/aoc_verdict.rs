@@ -14,6 +14,8 @@ pub enum AocVerdict {
     Cooldown(String),
     /// The part is already solved, so nothing was graded.
     AlreadySolved,
+    /// The session cookie is missing or expired, so nothing was graded.
+    NotLoggedIn,
 }
 
 impl Display for AocVerdict {
@@ -25,6 +27,7 @@ impl Display for AocVerdict {
             Self::High => write!(f, "high"),
             Self::Cooldown(wait) => write!(f, "rate limited, {wait} left to wait"),
             Self::AlreadySolved => write!(f, "already solved"),
+            Self::NotLoggedIn => write!(f, "not logged in"),
         }
     }
 }
