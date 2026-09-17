@@ -1,7 +1,9 @@
 use crate::{
     domain::address::Day,
     outbound::{
-        client::{aoc_client::LazyAocClient, environment::Environment},
+        client::{
+            aoc_client::LazyAocClient, environment::Environment, session_cookie::SessionCookie,
+        },
         store::{
             self,
             cache::{Entry, Input, Instructions},
@@ -19,7 +21,7 @@ pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Ent
     let cookie = Environment::cookie_if_set()?;
 
     let Some(cached) = store::read_entry(day)? else {
-        let input = fetch_input(client, day, cookie.as_deref())?;
+        let input = fetch_input(client, day, cookie.as_ref())?;
         let (part_one, part_two) = client.connected()?.get_instructions(day)?;
         let entry = Entry {
             input,
@@ -31,7 +33,7 @@ pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Ent
     };
 
     let stale_session = cookie
-        .as_deref()
+        .as_ref()
         .is_some_and(|cookie| !cached.input.is_from(cookie));
     // No cookie means nothing to ask with, so an incomplete cache stays.
     let chase_part_two =
@@ -42,7 +44,7 @@ pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Ent
     }
 
     let input = if stale_session {
-        let input = fetch_input(client, day, cookie.as_deref())?;
+        let input = fetch_input(client, day, cookie.as_ref())?;
         println!(
             "refetched input for year {} day {}",
             day.year(),
@@ -79,11 +81,11 @@ pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Ent
 fn fetch_input(
     client: &mut LazyAocClient,
     day: &Day,
-    cookie: Option<&str>,
+    cookie: Option<&SessionCookie>,
 ) -> anyhow::Result<Input> {
     let data = client.connected()?.get_input(day)?;
     let cookie = match cookie {
-        Some(cookie) => cookie.to_string(),
+        Some(cookie) => cookie.clone(),
         None => Environment::cookie()?,
     };
     Ok(Input::new(cookie, data))

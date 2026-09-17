@@ -6,5 +6,6 @@
 
 pub mod aoc_client;
 pub mod environment;
+pub mod session_cookie;
 pub mod solve;
 pub mod solver_client;
