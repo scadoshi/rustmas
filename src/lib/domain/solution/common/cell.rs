@@ -25,6 +25,14 @@ impl Cell {
         self.row
     }
 
+    pub fn with_column(self, column: usize) -> Self {
+        Self { column, ..self }
+    }
+
+    pub fn with_row(self, row: usize) -> Self {
+        Self { row, ..self }
+    }
+
     /// Moves `distance` in `direction`, `None` if that would leave the grid.
     pub fn checked_moved(self, direction: Direction, distance: usize) -> Option<Self> {
         Some(Self {

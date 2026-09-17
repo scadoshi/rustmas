@@ -4,6 +4,8 @@
 //! corrupts every day at once, so everything in this module earns tests.
 
 pub mod cell;
+pub mod cursor;
 pub mod direction;
+pub mod grid;
 pub mod point;
 pub mod turn;
