@@ -145,9 +145,13 @@ impl AocClient {
 /// Classifies AOC's HTML reply to a submission.
 ///
 /// Direction is checked before the generic wrong-answer phrase, since "too
-/// high" replies contain that phrase too. Strings verified live; see
-/// `context/references.md`.
+/// high" replies contain that phrase too. A logged-out submission redirects to
+/// the puzzle page, which grades nothing, so that is checked first. Strings
+/// verified live; see `context/references.md`.
 fn verdict_from(body: &str) -> AocVerdict {
+    if body.contains("auth/login") {
+        return AocVerdict::NotLoggedIn;
+    }
     if body.contains("That's the right answer") {
         return AocVerdict::Correct;
     }
@@ -210,6 +214,8 @@ mod tests {
     const COOLDOWN: &str = "You gave an answer too recently; you have to wait after submitting an answer before trying again.  You have 1m 0s left to wait.";
     const SOLVED: &str =
         "You don't seem to be solving the right level.  Did you already complete it?";
+    // The nav of the puzzle page a logged-out submission redirects to.
+    const LOGGED_OUT: &str = "<li><a href=\"/2016/auth/login\">[Log In]</a></li></ul></nav></div><div><h1 class=\"title-event\">";
 
     #[test]
     fn classifies_replies() {
@@ -219,6 +225,15 @@ mod tests {
         assert!(matches!(verdict_from(WRONG), AocVerdict::Incorrect));
         assert!(matches!(verdict_from(SOLVED), AocVerdict::AlreadySolved));
         assert!(matches!(verdict_from(COOLDOWN), AocVerdict::Cooldown(_)));
+        assert!(matches!(verdict_from(LOGGED_OUT), AocVerdict::NotLoggedIn));
+    }
+
+    /// A graded reply never carries the login link, so no verdict is stolen.
+    #[test]
+    fn logged_out_does_not_shadow_a_real_verdict() {
+        for body in [CORRECT, HIGH, LOW, WRONG, COOLDOWN, SOLVED] {
+            assert!(!matches!(verdict_from(body), AocVerdict::NotLoggedIn));
+        }
     }
 
     /// A directional reply also contains the generic phrase, so order matters.

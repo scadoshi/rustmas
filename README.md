@@ -84,6 +84,7 @@ Timings never include the network.
 | `high`, `low`, `incorrect` | The solver disagrees, so nothing was submitted |
 | `new star` | Advent of Code just accepted it |
 | `starred` | Advent of Code says the part was already solved |
+| `not logged in` | The session cookie is missing or expired, so nothing was graded |
 | `unsupported` | The solver has no implementation for this puzzle |
 | `rate limited, 1m 0s left to wait` | Advent of Code refused to grade |
 | `(none)` | The part has no answer, such as day 25 part two |
