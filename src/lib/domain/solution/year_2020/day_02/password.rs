@@ -135,7 +135,7 @@ mod tests {
 
     #[test]
     fn password_valid_position() {
-        assert!(Password::try_from("1-3 a: abcd").unwrap().valid_count());
-        assert!(!Password::try_from("1-3 a: abad").unwrap().valid_count());
+        assert!(Password::try_from("1-3 a: abcd").unwrap().valid_position());
+        assert!(!Password::try_from("1-3 a: abad").unwrap().valid_position());
     }
 }
