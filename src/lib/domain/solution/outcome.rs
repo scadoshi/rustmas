@@ -1,7 +1,10 @@
 use crate::domain::solution::{
     answer::Answer, aoc_verdict::AocVerdict, solver_verdict::SolverVerdict,
 };
-use std::{fmt::Display, time::Duration};
+use std::{
+    fmt::{Display, Write},
+    time::Duration,
+};
 
 /// One part's answer and everything learned about it afterwards.
 ///
@@ -95,7 +98,7 @@ impl Display for Outcome {
             (None, None) => String::new(),
         };
         if !notes.is_empty() {
-            line.push_str(&format!(" ({notes})"));
+            let _ = write!(line, " ({notes})");
         }
 
         // Art ends its own line, so the timing needs no space in front of it.
