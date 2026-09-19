@@ -174,8 +174,7 @@ fn verdict_from(body: &str) -> AocVerdict {
 fn wait_from(body: &str) -> String {
     body.split_once("You have ")
         .and_then(|(_, rest)| rest.split_once(" left to wait"))
-        .map(|(wait, _)| wait.trim().to_string())
-        .unwrap_or_else(|| "unknown".to_string())
+        .map_or_else(|| "unknown".to_string(), |(wait, _)| wait.trim().to_string())
 }
 
 /// An [`AocClient`] built on first use, so nothing offline pays for one.

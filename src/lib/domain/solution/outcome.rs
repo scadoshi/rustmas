@@ -29,6 +29,7 @@ impl Outcome {
     }
 
     /// Attaches a solver verdict, ignored unless there is something to check.
+    #[must_use]
     pub fn with_solver_verdict(mut self, solver_verdict: SolverVerdict) -> Self {
         if self.value().is_some() {
             self.solver_verdict = Some(solver_verdict);
@@ -37,6 +38,7 @@ impl Outcome {
     }
 
     /// Attaches what AOC said, ignored unless there is something to submit.
+    #[must_use]
     pub fn with_aoc_verdict(mut self, aoc_verdict: AocVerdict) -> Self {
         if self.value().is_some() {
             self.aoc_verdict = Some(aoc_verdict);
@@ -87,7 +89,7 @@ impl Display for Outcome {
         let notes: String = match (&self.solver_verdict, &self.aoc_verdict) {
             (_, Some(AocVerdict::Correct)) => "new star".to_string(),
             (_, Some(AocVerdict::AlreadySolved)) => "starred".to_string(),
-            (Some(v), Some(s)) => format!("{}, {}", v, s),
+            (Some(v), Some(s)) => format!("{v}, {s}"),
             (Some(v), None) => v.to_string(),
             (None, Some(s)) => s.to_string(),
             (None, None) => String::new(),

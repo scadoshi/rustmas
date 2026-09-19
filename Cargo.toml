@@ -21,3 +21,21 @@ html2text = "0.17.1"
 reqwest = { version = "0.13.4", features = ["blocking", "form"] }
 sha2 = "0.11.0"
 thiserror = "2.0.19"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+# `doc_comments.md` bans these headers, so the lints asking for them go too.
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+must_use_candidate = "allow"
+# A puzzle runner reads its own cached input, and a failing day is reported and
+# skipped rather than taking the run down.
+cast_possible_truncation = "allow"
+cast_sign_loss = "allow"
+cast_precision_loss = "allow"
+# `&Day` by reference reads the same everywhere and saves no measurable time.
+trivially_copy_pass_by_ref = "allow"
+# Fires on pairs like `solver` and `solver_fn`, which are meant to be a pair.
+similar_names = "allow"
+# `solver_for` has no arms on `main`, since the days live on a solutions branch.
+match_single_binding = "allow"
