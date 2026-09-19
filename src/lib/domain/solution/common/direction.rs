@@ -12,7 +12,7 @@ pub struct InvalidDirection(String);
 /// `Up` and `Down` mean opposite things to [`Point`](super::point::Point) and
 /// [`Cell`](super::cell::Cell). Variants are declared clockwise, which is what
 /// makes a turn one step along the list.
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub enum Direction {
     #[default]
     Up,
