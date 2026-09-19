@@ -28,6 +28,8 @@ pedantic = { level = "warn", priority = -1 }
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 must_use_candidate = "allow"
+# Same noise one level down: every `moved`/`with_` on a day type returns `Self`.
+return_self_not_must_use = "allow"
 # A puzzle runner reads its own cached input, and a failing day is reported and
 # skipped rather than taking the run down.
 cast_possible_truncation = "allow"
