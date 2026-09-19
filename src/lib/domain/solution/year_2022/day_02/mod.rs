@@ -1,25 +1,37 @@
 pub mod game;
 
-use crate::domain::solution::{Solution, answer::Answer};
+use crate::domain::solution::{Solution, answer::Answer, year_2022::day_02::game::RawGame};
 
 pub struct Puzzle {
-    // Keep this only if the parts read the raw text; drop it if you parse.
-    #[allow(dead_code)]
-    input: String,
+    games: Vec<RawGame>,
 }
 
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input.as_ref().to_owned(),
+            games: input
+                .as_ref()
+                .lines()
+                .map(RawGame::try_from)
+                .collect::<Result<Vec<_>, _>>()?,
         })
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Unwritten)
+        let total: u32 = self
+            .games
+            .iter()
+            .map(|g| Ok(g.to_game_other_is_player()?.player_score()))
+            .sum::<anyhow::Result<u32>>()?;
+        Ok(Answer::Value(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Unwritten)
+        let total: u32 = self
+            .games
+            .iter()
+            .map(|g| Ok(g.to_game_other_is_result()?.player_score()))
+            .sum::<anyhow::Result<u32>>()?;
+        Ok(Answer::Value(total.to_string()))
     }
 }
