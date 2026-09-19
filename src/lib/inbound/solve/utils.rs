@@ -18,7 +18,7 @@ pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyho
     };
     if !matches!(
         outcome.solver_verdict(),
-        Some(SolverVerdict::Correct) | Some(SolverVerdict::Unsupported)
+        Some(SolverVerdict::Correct | SolverVerdict::Unsupported)
     ) {
         return Ok(outcome);
     }
