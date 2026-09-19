@@ -6,7 +6,7 @@ type Dir = Direction;
 ///
 /// So `Up` decreases the row. For signed coordinates on an unbounded plane,
 /// use [`Point`](super::point::Point).
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct Cell {
     column: usize,
     row: usize,
