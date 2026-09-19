@@ -10,9 +10,10 @@
 
 ### Check before committing, not after
 
-`cargo test`, then `cargo build` for warnings, then `cargo doc --no-deps`. The
-build never checks intra-doc links, so a rename compiles fine while `[`Type`]`
-links point at nothing.
+`cargo test`, then `cargo build` for warnings, then `cargo clippy --all-targets`,
+then `cargo doc --no-deps`. Each sees what the others miss: clippy reads past a
+clean build, and the build never checks intra-doc links, so a rename compiles
+fine while `[`Type`]` links point at nothing.
 
 If a change touches instructions, follow them rather than reading them. The
 README's "Adding a solution" steps have gone stale three times, twice while
