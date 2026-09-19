@@ -35,7 +35,7 @@ fn spiral() -> impl Iterator<Item = Point> {
 }
 
 /// The eight squares touching `point`, corners included.
-fn neighbours(point: Point) -> impl Iterator<Item = Point> {
+fn neighbors(point: Point) -> impl Iterator<Item = Point> {
     (-1..=1).flat_map(move |dx| {
         (-1..=1)
             .filter(move |dy| dx != 0 || *dy != 0)
@@ -50,7 +50,7 @@ impl Solution for Puzzle {
         })
     }
 
-    /// Walk the spiral to the target square and measure it back to the centre.
+    /// Walk the spiral to the target square and measure it back to the center.
     fn part_one(&self) -> anyhow::Result<Answer> {
         match spiral().nth(self.target.saturating_sub(1)) {
             Some(point) => Ok(Answer::solved(point.distance_from_origin().to_string())),
@@ -58,13 +58,13 @@ impl Solution for Puzzle {
         }
     }
 
-    /// Each square holds the sum of its filled neighbours, so walk until one
+    /// Each square holds the sum of its filled neighbors, so walk until one
     /// passes the target.
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut values: HashMap<Point, usize> = HashMap::from([(Point::default(), 1)]);
         for point in spiral().skip(1) {
-            let value: usize = neighbours(point)
-                .filter_map(|neighbour| values.get(&neighbour))
+            let value: usize = neighbors(point)
+                .filter_map(|neighbor| values.get(&neighbor))
                 .sum();
             if value > self.target {
                 return Ok(Answer::solved(value.to_string()));

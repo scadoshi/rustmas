@@ -7,15 +7,15 @@ pub enum InvalidGame {
     MissingColon,
     #[error("expected `Game` followed by an id")]
     MissingId,
-    #[error("expected a count followed by a colour, like `3 blue`")]
-    MissingColour,
+    #[error("expected a count followed by a color, like `3 blue`")]
+    MissingColor,
     #[error("expected red, green or blue, read {0:?}")]
-    UnknownColour(String),
+    UnknownColor(String),
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
-/// One handful drawn from the bag: how many cubes of each colour showed.
+/// One handful drawn from the bag: how many cubes of each color showed.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Handful {
     pub red: u32,
@@ -26,21 +26,21 @@ pub struct Handful {
 impl FromStr for Handful {
     type Err = InvalidGame;
 
-    /// Parses `3 blue, 4 red`; a colour not named counts as zero.
+    /// Parses `3 blue, 4 red`; a color not named counts as zero.
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         value
             .split(',')
             .try_fold(Self::default(), |mut handful, cubes| {
-                let (count, colour) = cubes
+                let (count, color) = cubes
                     .trim()
                     .split_once(' ')
-                    .ok_or(InvalidGame::MissingColour)?;
+                    .ok_or(InvalidGame::MissingColor)?;
                 let count = count.parse()?;
-                match colour.trim() {
+                match color.trim() {
                     "red" => handful.red = count,
                     "green" => handful.green = count,
                     "blue" => handful.blue = count,
-                    other => return Err(InvalidGame::UnknownColour(other.to_owned())),
+                    other => return Err(InvalidGame::UnknownColor(other.to_owned())),
                 }
                 Ok(handful)
             })
@@ -53,7 +53,7 @@ impl Handful {
         self.red <= bag.red && self.green <= bag.green && self.blue <= bag.blue
     }
 
-    /// The most of each colour seen across `self` and `other`.
+    /// The most of each color seen across `self` and `other`.
     pub fn max(self, other: Self) -> Self {
         Self {
             red: self.red.max(other.red),
@@ -149,11 +149,11 @@ mod tests {
         ));
         assert!(matches!(
             "Game 1: blue".parse::<Game>(),
-            Err(InvalidGame::MissingColour)
+            Err(InvalidGame::MissingColor)
         ));
         assert!(matches!(
             "Game 1: 3 teal".parse::<Game>(),
-            Err(InvalidGame::UnknownColour(_))
+            Err(InvalidGame::UnknownColor(_))
         ));
         assert!(matches!(
             "Game x: 3 blue".parse::<Game>(),

@@ -8,7 +8,7 @@ pub struct InvalidPassport;
 /// Every field a passport must carry. `cid` is optional, which is the loophole.
 const REQUIRED: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 
-const EYE_COLOURS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+const EYE_COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 
 /// One passport's fields, exactly as written.
 #[derive(Debug)]
@@ -67,7 +67,7 @@ fn field_is_valid(key: &str, value: &str) -> bool {
         "hcl" => value
             .strip_prefix('#')
             .is_some_and(|hex| hex.len() == 6 && hex.chars().all(|c| c.is_ascii_hexdigit())),
-        "ecl" => EYE_COLOURS.contains(&value),
+        "ecl" => EYE_COLORS.contains(&value),
         "pid" => value.len() == 9 && value.chars().all(|c| c.is_ascii_digit()),
         _ => true,
     }
