@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -117,9 +118,9 @@ pub struct RawGame {
     other: char,
 }
 
-impl TryFrom<&str> for RawGame {
-    type Error = InvalidGame;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for RawGame {
+    type Err = InvalidGame;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let (opponent, other) = value
             .split_once(char::is_whitespace)
             .ok_or(InvalidGame::MissingSeparator)?;
@@ -212,27 +213,27 @@ mod tests {
 
     #[test]
     fn raw_game_keeps_the_second_column_unread() {
-        let raw = RawGame::try_from("A Y").unwrap();
+        let raw = "A Y".parse::<RawGame>().unwrap();
         assert_eq!(raw.opponent, Play::Rock);
         assert_eq!(raw.other, 'Y');
     }
 
     #[test]
-    fn raw_game_try_from_str_err() {
+    fn raw_game_from_str_err() {
         assert!(matches!(
-            RawGame::try_from("AY"),
+            "AY".parse::<RawGame>(),
             Err(InvalidGame::MissingSeparator)
         ));
         assert!(matches!(
-            RawGame::try_from("AA Y"),
+            "AA Y".parse::<RawGame>(),
             Err(InvalidGame::MalformedOpponent)
         ));
         assert!(matches!(
-            RawGame::try_from("A YY"),
+            "A YY".parse::<RawGame>(),
             Err(InvalidGame::MalformedOther)
         ));
         assert!(matches!(
-            RawGame::try_from("F Y"),
+            "F Y".parse::<RawGame>(),
             Err(InvalidGame::Opponent(_))
         ));
     }
@@ -242,7 +243,7 @@ mod tests {
     fn the_example_scores_15_then_12() {
         let raws: Vec<RawGame> = ["A Y", "B X", "C Z"]
             .iter()
-            .map(|l| RawGame::try_from(*l).unwrap())
+            .map(|l| l.parse::<RawGame>().unwrap())
             .collect();
         let as_player: u32 = raws
             .iter()

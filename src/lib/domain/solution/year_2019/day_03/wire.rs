@@ -2,7 +2,7 @@ use crate::domain::solution::common::{
     direction::{Direction, InvalidDirection},
     point::Point,
 };
-use std::{collections::HashMap, num::ParseIntError};
+use std::{collections::HashMap, num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -22,11 +22,11 @@ pub enum InvalidWire {
 #[derive(Debug)]
 pub struct Wire(HashMap<Point, usize>);
 
-impl TryFrom<&str> for Wire {
-    type Error = InvalidWire;
+impl FromStr for Wire {
+    type Err = InvalidWire;
 
     /// Parses `R8,U5,L5,D3`, walking it from the origin.
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let mut visited = HashMap::new();
         let mut point = Point::default();
         let mut steps = 0;
@@ -66,8 +66,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn wire_try_from_str_walks_each_segment() {
-        let wire = Wire::try_from("U3,R2").unwrap();
+    fn wire_from_str_walks_each_segment() {
+        let wire = "U3,R2".parse::<Wire>().unwrap();
         let mut visited: Vec<(Point, usize)> = wire.0.into_iter().collect();
         visited.sort_by_key(|(_, steps)| *steps);
         assert_eq!(
@@ -83,17 +83,17 @@ mod tests {
     }
 
     #[test]
-    fn wire_try_from_str_err() {
+    fn wire_from_str_err() {
         assert!(matches!(
-            Wire::try_from("R2,,U1"),
+            "R2,,U1".parse::<Wire>(),
             Err(InvalidWire::EmptyStep)
         ));
         assert!(matches!(
-            Wire::try_from("X2"),
+            "X2".parse::<Wire>(),
             Err(InvalidWire::Direction(_))
         ));
         assert!(matches!(
-            Wire::try_from("Rx"),
+            "Rx".parse::<Wire>(),
             Err(InvalidWire::ParseInt(_))
         ));
     }
@@ -101,15 +101,15 @@ mod tests {
     /// A wire that doubles back keeps the step count of its first visit.
     #[test]
     fn first_visit_wins() {
-        let wire = Wire::try_from("R2,L2,R1").unwrap();
+        let wire = "R2,L2,R1".parse::<Wire>().unwrap();
         assert_eq!(wire.0[&Point::new(1, 0)], 1);
     }
 
     /// The worked example from the puzzle: nearest crossing 6, fewest steps 30.
     #[test]
     fn the_example_crossings() {
-        let a = Wire::try_from("R8,U5,L5,D3").unwrap();
-        let b = Wire::try_from("U7,R6,D4,L4").unwrap();
+        let a = "R8,U5,L5,D3".parse::<Wire>().unwrap();
+        let b = "U7,R6,D4,L4".parse::<Wire>().unwrap();
         let nearest = a.crossings(&b).map(|(p, _)| p.distance_from_origin()).min();
         let fewest = a.crossings(&b).map(|(_, steps)| steps).min();
         assert_eq!((nearest, fewest), (Some(6), Some(30)));

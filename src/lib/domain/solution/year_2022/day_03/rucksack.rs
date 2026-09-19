@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -27,9 +28,9 @@ pub fn priority(item: char) -> Option<u32> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Items(u64);
 
-impl TryFrom<&str> for Items {
-    type Error = InvalidRucksack;
-    fn try_from(items: &str) -> Result<Self, Self::Error> {
+impl FromStr for Items {
+    type Err = InvalidRucksack;
+    fn from_str(items: &str) -> Result<Self, Self::Err> {
         items.chars().try_fold(Self(0), |set, item| {
             priority(item)
                 .map(|p| Self(set.0 | 1 << (p - 1)))
@@ -59,17 +60,17 @@ pub struct Rucksack {
     pub right: Items,
 }
 
-impl TryFrom<&str> for Rucksack {
-    type Error = InvalidRucksack;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Rucksack {
+    type Err = InvalidRucksack;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let value = value.trim();
         if !value.len().is_multiple_of(2) {
             return Err(InvalidRucksack::OddLength);
         }
         let (left, right) = value.split_at(value.len() / 2);
         Ok(Self {
-            left: Items::try_from(left)?,
-            right: Items::try_from(right)?,
+            left: left.parse()?,
+            right: right.parse()?,
         })
     }
 }
@@ -95,13 +96,13 @@ mod tests {
     }
 
     #[test]
-    fn rucksack_try_from_str_err() {
+    fn rucksack_from_str_err() {
         assert!(matches!(
-            Rucksack::try_from("abc"),
+            "abc".parse::<Rucksack>(),
             Err(InvalidRucksack::OddLength)
         ));
         assert!(matches!(
-            Rucksack::try_from("a1"),
+            "a1".parse::<Rucksack>(),
             Err(InvalidRucksack::NotAnItem('1'))
         ));
     }
@@ -109,7 +110,7 @@ mod tests {
     /// The puzzle's first example: `p` is in both halves, priority 16.
     #[test]
     fn the_shared_item_between_compartments() {
-        let sack = Rucksack::try_from("vJrwpWtwJgWrhcsFMMfFFhFp").unwrap();
+        let sack = "vJrwpWtwJgWrhcsFMMfFFhFp".parse::<Rucksack>().unwrap();
         assert_eq!(sack.left.common(sack.right).single_priority().unwrap(), 16);
     }
 

@@ -1,6 +1,8 @@
 pub mod password;
 
-use crate::domain::solution::{Solution, answer::Answer, year_2020::day_02::password::Password};
+use crate::domain::solution::{
+    Solution, answer::Answer, common::parse, year_2020::day_02::password::Password,
+};
 
 pub struct Puzzle {
     passwords: Vec<Password>,
@@ -9,11 +11,7 @@ pub struct Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            passwords: input
-                .as_ref()
-                .lines()
-                .map(Password::try_from)
-                .collect::<Result<Vec<_>, _>>()?,
+            passwords: parse::lines(input.as_ref())?,
         })
     }
 

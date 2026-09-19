@@ -3,6 +3,7 @@ pub mod rucksack;
 use crate::domain::solution::{
     Solution,
     answer::Answer,
+    common::parse,
     year_2022::day_03::rucksack::{Items, Rucksack},
 };
 use anyhow::anyhow;
@@ -17,11 +18,7 @@ pub struct Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            rucksacks: input
-                .as_ref()
-                .lines()
-                .map(Rucksack::try_from)
-                .collect::<Result<_, _>>()?,
+            rucksacks: parse::lines(input.as_ref())?,
         })
     }
 

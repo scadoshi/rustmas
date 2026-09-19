@@ -1,6 +1,8 @@
 pub mod triangle;
 
-use crate::domain::solution::{Solution, answer::Answer, year_2016::day_03::triangle::Triangle};
+use crate::domain::solution::{
+    Solution, answer::Answer, common::parse, year_2016::day_03::triangle::Triangle,
+};
 
 pub struct Puzzle {
     triangles: Vec<Triangle>,
@@ -19,11 +21,7 @@ fn by_column(rows: &[Triangle]) -> impl Iterator<Item = Triangle> + '_ {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            triangles: input
-                .as_ref()
-                .lines()
-                .map(Triangle::try_from)
-                .collect::<Result<Vec<_>, _>>()?,
+            triangles: parse::lines(input.as_ref())?,
         })
     }
 

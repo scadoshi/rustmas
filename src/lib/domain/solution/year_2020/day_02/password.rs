@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Clone, Copy)]
@@ -17,9 +18,9 @@ pub enum InvalidPolicy {
     MalformedLetter,
 }
 
-impl TryFrom<&str> for Policy {
-    type Error = InvalidPolicy;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Policy {
+    type Err = InvalidPolicy;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let mut parts = value.split_whitespace();
         let (Some(rng), Some(ltr)) = (parts.next(), parts.next()) else {
             return Err(InvalidPolicy::TooFewParts);
@@ -56,12 +57,12 @@ pub struct Password {
     value: String,
 }
 
-impl TryFrom<&str> for Password {
-    type Error = InvalidPassword;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Password {
+    type Err = InvalidPassword;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let (policy, password) = value.split_once(':').ok_or(InvalidPassword::MissingColon)?;
         let value = password.trim().to_owned();
-        let policy = Policy::try_from(policy)?;
+        let policy = policy.parse()?;
         Ok(Self { policy, value })
     }
 }
@@ -90,52 +91,52 @@ mod tests {
     use super::*;
 
     #[test]
-    fn policy_try_from_str_ok() {
-        let policy = Policy::try_from("1-3 a").unwrap();
+    fn policy_from_str_ok() {
+        let policy = "1-3 a".parse::<Policy>().unwrap();
         assert_eq!(policy.lo, 1);
         assert_eq!(policy.hi, 3);
         assert_eq!(policy.letter, 'a');
     }
 
     #[test]
-    fn policy_try_from_str_err() {
+    fn policy_from_str_err() {
         assert!(matches!(
-            Policy::try_from("1-3"),
+            "1-3".parse::<Policy>(),
             Err(InvalidPolicy::TooFewParts)
         ));
         assert!(matches!(
-            Policy::try_from("13 a"),
+            "13 a".parse::<Policy>(),
             Err(InvalidPolicy::MalformedRange)
         ));
         assert!(matches!(
-            Policy::try_from("1-3 abc"),
+            "1-3 abc".parse::<Policy>(),
             Err(InvalidPolicy::MalformedLetter)
         ));
     }
 
     #[test]
-    fn password_try_from_str_ok() {
-        let password = Password::try_from("1-3 a: abcd").unwrap();
+    fn password_from_str_ok() {
+        let password = "1-3 a: abcd".parse::<Password>().unwrap();
         assert_eq!(password.value, "abcd");
     }
 
     #[test]
-    fn password_try_from_str_err() {
+    fn password_from_str_err() {
         assert!(matches!(
-            Password::try_from("1-3 a abcd"),
+            "1-3 a abcd".parse::<Password>(),
             Err(InvalidPassword::MissingColon)
         ));
     }
 
     #[test]
     fn password_valid_count() {
-        assert!(Password::try_from("1-3 a: abcd").unwrap().valid_count());
-        assert!(!Password::try_from("1-3 a: aaaabcd").unwrap().valid_count());
+        assert!("1-3 a: abcd".parse::<Password>().unwrap().valid_count());
+        assert!(!"1-3 a: aaaabcd".parse::<Password>().unwrap().valid_count());
     }
 
     #[test]
     fn password_valid_position() {
-        assert!(Password::try_from("1-3 a: abcd").unwrap().valid_position());
-        assert!(!Password::try_from("1-3 a: abad").unwrap().valid_position());
+        assert!("1-3 a: abcd".parse::<Password>().unwrap().valid_position());
+        assert!(!"1-3 a: abad".parse::<Password>().unwrap().valid_position());
     }
 }

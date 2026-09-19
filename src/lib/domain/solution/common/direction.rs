@@ -1,4 +1,5 @@
 use crate::domain::solution::common::turn::Turn;
+use std::str::FromStr;
 use thiserror::Error;
 
 /// Returned when text does not name a direction. Carries what was read.
@@ -63,9 +64,9 @@ impl TryFrom<char> for Direction {
     }
 }
 
-impl TryFrom<&str> for Direction {
-    type Error = InvalidDirection;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Direction {
+    type Err = InvalidDirection;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         match value.to_lowercase().as_str() {
             "up" | "u" | "^" => Ok(Self::Up),
             "right" | "r" | ">" => Ok(Self::Right),
@@ -134,19 +135,19 @@ mod tests {
 
     #[test]
     fn reads_letters_and_words_in_either_case() {
-        assert!(is(Direction::try_from("u").unwrap(), Direction::Up));
-        assert!(is(Direction::try_from("UP").unwrap(), Direction::Up));
-        assert!(is(Direction::try_from("<").unwrap(), Direction::Left));
+        assert!(is("u".parse::<Direction>().unwrap(), Direction::Up));
+        assert!(is("UP".parse::<Direction>().unwrap(), Direction::Up));
+        assert!(is("<".parse::<Direction>().unwrap(), Direction::Left));
         assert!(is(Direction::try_from('>').unwrap(), Direction::Right));
-        assert!(is(Direction::try_from("Left").unwrap(), Direction::Left));
+        assert!(is("Left".parse::<Direction>().unwrap(), Direction::Left));
         assert!(is(Direction::try_from('R').unwrap(), Direction::Right));
         assert!(is(Direction::try_from('d').unwrap(), Direction::Down));
     }
 
     #[test]
     fn refuses_anything_else() {
-        assert!(Direction::try_from("north").is_err());
-        assert!(Direction::try_from("").is_err());
+        assert!("north".parse::<Direction>().is_err());
+        assert!("".parse::<Direction>().is_err());
         assert!(Direction::try_from('x').is_err());
     }
 
@@ -154,7 +155,7 @@ mod tests {
     /// about which line of the input was wrong.
     #[test]
     fn the_error_says_what_it_read() {
-        let error = Direction::try_from("north").unwrap_err();
+        let error = "north".parse::<Direction>().unwrap_err();
         assert!(error.to_string().contains("north"));
     }
 }

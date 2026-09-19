@@ -1,5 +1,5 @@
 use crate::domain::solution::common::turn::{InvalidTurn, Turn};
-use std::{num::ParseIntError, ops::Deref, vec::IntoIter};
+use std::{num::ParseIntError, ops::Deref, str::FromStr, vec::IntoIter};
 use thiserror::Error;
 
 /// The ways a single instruction can fail to parse.
@@ -22,10 +22,13 @@ pub(super) struct Instruction {
     pub distance: i32,
 }
 
-impl TryFrom<&str> for Instruction {
-    type Error = InvalidInstruction;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let turn = Turn::try_from(value.get(0..1).ok_or(InvalidInstruction::TooShort)?)?;
+impl FromStr for Instruction {
+    type Err = InvalidInstruction;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        let turn = value
+            .get(0..1)
+            .ok_or(InvalidInstruction::TooShort)?
+            .parse()?;
         let distance: i32 = value
             .get(1..)
             .ok_or(InvalidInstruction::TooShort)?
@@ -52,12 +55,12 @@ impl IntoIterator for Instructions {
     }
 }
 
-impl TryFrom<&str> for Instructions {
-    type Error = InvalidInstruction;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Instructions {
+    type Err = InvalidInstruction;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let instructions: Vec<Instruction> = value
             .split(',')
-            .map(|s| Instruction::try_from(s.trim()))
+            .map(|s| s.trim().parse())
             .collect::<Result<Vec<_>, _>>()?;
         Ok(Self(instructions))
     }
@@ -69,11 +72,11 @@ mod tests {
 
     #[test]
     fn parses_a_turn_and_a_distance() {
-        let instruction = Instruction::try_from("R2").unwrap();
+        let instruction = "R2".parse::<Instruction>().unwrap();
         assert_eq!(instruction.turn, Turn::Right);
         assert_eq!(instruction.distance, 2);
 
-        let instruction = Instruction::try_from("L347").unwrap();
+        let instruction = "L347".parse::<Instruction>().unwrap();
         assert_eq!(instruction.turn, Turn::Left);
         assert_eq!(instruction.distance, 347);
     }
@@ -83,7 +86,7 @@ mod tests {
     fn a_heading_is_not_a_valid_instruction() {
         for input in ["U3", "D3", "up3"] {
             assert!(matches!(
-                Instruction::try_from(input),
+                input.parse::<Instruction>(),
                 Err(InvalidInstruction::Turn(_))
             ));
         }
@@ -92,22 +95,22 @@ mod tests {
     #[test]
     fn rejects_a_missing_or_unparseable_distance() {
         assert!(matches!(
-            Instruction::try_from("R"),
+            "R".parse::<Instruction>(),
             Err(InvalidInstruction::Distance(_))
         ));
         assert!(matches!(
-            Instruction::try_from("Rx"),
+            "Rx".parse::<Instruction>(),
             Err(InvalidInstruction::Distance(_))
         ));
         assert!(matches!(
-            Instruction::try_from(""),
+            "".parse::<Instruction>(),
             Err(InvalidInstruction::TooShort)
         ));
     }
 
     #[test]
     fn splits_on_commas_and_trims_the_spaces() {
-        let instructions = Instructions::try_from("R2, L3,R5").unwrap();
+        let instructions = "R2, L3,R5".parse::<Instructions>().unwrap();
         assert_eq!(instructions.len(), 3);
         assert_eq!(instructions[1].turn, Turn::Left);
         assert_eq!(instructions[1].distance, 3);
@@ -116,6 +119,6 @@ mod tests {
     /// A partly parsed walk would give a confidently wrong answer.
     #[test]
     fn one_bad_instruction_fails_them_all() {
-        assert!(Instructions::try_from("R2, U3, L5").is_err());
+        assert!("R2, U3, L5".parse::<Instructions>().is_err());
     }
 }

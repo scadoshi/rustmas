@@ -1,4 +1,5 @@
 use crate::domain::solution::common::direction::Direction as PointDirection;
+use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -12,9 +13,9 @@ pub enum Direction {
     Up,
 }
 
-impl TryFrom<&str> for Direction {
-    type Error = InvalidDirection;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Direction {
+    type Err = InvalidDirection;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         Ok(match value.to_lowercase().as_str() {
             "forward" => Self::Forward,
             "down" => Self::Down,
@@ -39,29 +40,29 @@ mod tests {
     use super::*;
 
     #[test]
-    fn direction_try_from_str_ok() {
+    fn direction_from_str_ok() {
         assert!(matches!(
-            Direction::try_from("forward").unwrap(),
+            "forward".parse::<Direction>().unwrap(),
             Direction::Forward
         ));
         assert!(matches!(
-            Direction::try_from("ForWARD").unwrap(),
+            "ForWARD".parse::<Direction>().unwrap(),
             Direction::Forward
         ));
         assert!(matches!(
-            Direction::try_from("DoWN").unwrap(),
+            "DoWN".parse::<Direction>().unwrap(),
             Direction::Down
         ));
         assert!(matches!(
-            Direction::try_from("down").unwrap(),
+            "down".parse::<Direction>().unwrap(),
             Direction::Down
         ));
-        assert!(matches!(Direction::try_from("UP").unwrap(), Direction::Up));
-        assert!(matches!(Direction::try_from("up").unwrap(), Direction::Up));
+        assert!(matches!("UP".parse::<Direction>().unwrap(), Direction::Up));
+        assert!(matches!("up".parse::<Direction>().unwrap(), Direction::Up));
     }
 
     #[test]
-    fn direction_try_from_str_err() {
-        assert!(matches!(Direction::try_from("left"), Err(InvalidDirection)));
+    fn direction_from_str_err() {
+        assert!(matches!("left".parse::<Direction>(), Err(InvalidDirection)));
     }
 }

@@ -1,6 +1,8 @@
 pub mod game;
 
-use crate::domain::solution::{Solution, answer::Answer, year_2022::day_02::game::RawGame};
+use crate::domain::solution::{
+    Solution, answer::Answer, common::parse, year_2022::day_02::game::RawGame,
+};
 
 pub struct Puzzle {
     games: Vec<RawGame>,
@@ -9,11 +11,7 @@ pub struct Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            games: input
-                .as_ref()
-                .lines()
-                .map(RawGame::try_from)
-                .collect::<Result<Vec<_>, _>>()?,
+            games: parse::lines(input.as_ref())?,
         })
     }
 

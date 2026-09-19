@@ -1,4 +1,4 @@
-use std::num::ParseIntError;
+use std::{num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -31,11 +31,11 @@ pub struct Record {
     pub event: Event,
 }
 
-impl TryFrom<&str> for Record {
-    type Error = InvalidRecord;
+impl FromStr for Record {
+    type Err = InvalidRecord;
 
     /// Parses `[1518-11-01 00:05] falls asleep`.
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let (timestamp, rest) = value
             .trim()
             .strip_prefix('[')
@@ -71,36 +71,38 @@ mod tests {
     use super::*;
 
     #[test]
-    fn record_try_from_str_ok() {
-        let record = Record::try_from("[1518-11-01 00:05] falls asleep").unwrap();
+    fn record_from_str_ok() {
+        let record = "[1518-11-01 00:05] falls asleep".parse::<Record>().unwrap();
         assert_eq!(record.timestamp, "1518-11-01 00:05");
         assert_eq!(record.minute, 5);
         assert_eq!(record.event, Event::FallsAsleep);
 
-        let record = Record::try_from("[1518-11-01 00:00] Guard #10 begins shift").unwrap();
+        let record = "[1518-11-01 00:00] Guard #10 begins shift"
+            .parse::<Record>()
+            .unwrap();
         assert_eq!(record.minute, 0);
         assert_eq!(record.event, Event::BeginsShift(10));
 
-        let record = Record::try_from("[1518-11-01 00:25] wakes up").unwrap();
+        let record = "[1518-11-01 00:25] wakes up".parse::<Record>().unwrap();
         assert_eq!(record.event, Event::WakesUp);
     }
 
     #[test]
-    fn record_try_from_str_err() {
+    fn record_from_str_err() {
         assert!(matches!(
-            Record::try_from("1518-11-01 00:05 falls asleep"),
+            "1518-11-01 00:05 falls asleep".parse::<Record>(),
             Err(InvalidRecord::MissingTimestamp)
         ));
         assert!(matches!(
-            Record::try_from("[1518-11-01] falls asleep"),
+            "[1518-11-01] falls asleep".parse::<Record>(),
             Err(InvalidRecord::MissingMinute)
         ));
         assert!(matches!(
-            Record::try_from("[1518-11-01 00:05] naps"),
+            "[1518-11-01 00:05] naps".parse::<Record>(),
             Err(InvalidRecord::UnknownEvent)
         ));
         assert!(matches!(
-            Record::try_from("[1518-11-01 00:xx] wakes up"),
+            "[1518-11-01 00:xx] wakes up".parse::<Record>(),
             Err(InvalidRecord::ParseInt(_))
         ));
     }

@@ -10,7 +10,7 @@ pub struct Puzzle {
 
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
-        let mut wires = input.as_ref().lines().map(Wire::try_from);
+        let mut wires = input.as_ref().lines().map(str::parse::<Wire>);
         let (Some(first), Some(second)) = (wires.next(), wires.next()) else {
             return Err(anyhow!("expected two wires, one per line"));
         };

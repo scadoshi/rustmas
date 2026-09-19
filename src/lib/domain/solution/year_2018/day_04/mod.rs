@@ -3,6 +3,7 @@ pub mod record;
 use crate::domain::solution::{
     Solution,
     answer::Answer,
+    common::parse,
     year_2018::day_04::record::{Event, Record},
 };
 use std::collections::HashMap;
@@ -45,11 +46,7 @@ impl Puzzle {
 
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
-        let mut records: Vec<Record> = input
-            .as_ref()
-            .lines()
-            .map(Record::try_from)
-            .collect::<Result<_, _>>()?;
+        let mut records: Vec<Record> = parse::lines(input.as_ref())?;
         records.sort_unstable_by(|a, b| a.timestamp.cmp(&b.timestamp));
         Ok(Self { records })
     }

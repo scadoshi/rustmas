@@ -44,7 +44,7 @@ fn zeros_crossed(position: i32, turn: Turn, distance: i32) -> i64 {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            instructions: Instructions::try_from(input.as_ref())?,
+            instructions: input.as_ref().parse()?,
         })
     }
 

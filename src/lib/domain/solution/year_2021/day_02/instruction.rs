@@ -1,4 +1,4 @@
-use std::num::ParseIntError;
+use std::{num::ParseIntError, str::FromStr};
 
 use crate::domain::solution::year_2021::day_02::direction::{Direction, InvalidDirection};
 use thiserror::Error;
@@ -21,9 +21,9 @@ pub struct Instruction {
     pub distance: i32,
 }
 
-impl TryFrom<&str> for Instruction {
-    type Error = InvalidInstruction;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Instruction {
+    type Err = InvalidInstruction;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let mut parts = value.split_whitespace();
         let (Some(dir), Some(dist)) = (parts.next(), parts.next()) else {
             return Err(InvalidInstruction::TooFewParts);
@@ -31,7 +31,7 @@ impl TryFrom<&str> for Instruction {
         if parts.next().is_some() {
             return Err(InvalidInstruction::TooManyParts);
         }
-        let direction = Direction::try_from(dir)?;
+        let direction = dir.parse()?;
         let distance: i32 = dist.parse()?;
         Ok(Self {
             direction,
@@ -45,28 +45,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn instruction_try_from_str_ok() {
-        let instruction = Instruction::try_from("forward 1").unwrap();
+    fn instruction_from_str_ok() {
+        let instruction = "forward 1".parse::<Instruction>().unwrap();
         assert!(matches!(instruction.direction, Direction::Forward));
         assert_eq!(instruction.distance, 1);
     }
 
     #[test]
-    fn instruction_try_from_str_err() {
+    fn instruction_from_str_err() {
         assert!(matches!(
-            Instruction::try_from("foo"),
+            "foo".parse::<Instruction>(),
             Err(InvalidInstruction::TooFewParts)
         ));
         assert!(matches!(
-            Instruction::try_from("foo bar baz"),
+            "foo bar baz".parse::<Instruction>(),
             Err(InvalidInstruction::TooManyParts)
         ));
         assert!(matches!(
-            Instruction::try_from("left 2"),
+            "left 2".parse::<Instruction>(),
             Err(InvalidInstruction::Direction(_))
         ));
         assert!(matches!(
-            Instruction::try_from("up one"),
+            "up one".parse::<Instruction>(),
             Err(InvalidInstruction::Distance(_))
         ));
     }

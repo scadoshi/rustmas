@@ -1,6 +1,8 @@
 pub mod passport;
 
-use crate::domain::solution::{Solution, answer::Answer, year_2020::day_04::passport::Passport};
+use crate::domain::solution::{
+    Solution, answer::Answer, common::parse, year_2020::day_04::passport::Passport,
+};
 
 pub struct Puzzle {
     passports: Vec<Passport>,
@@ -20,12 +22,7 @@ impl Solution for Puzzle {
     /// Passports are blocks separated by a blank line.
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            passports: input
-                .as_ref()
-                .split("\n\n")
-                .filter(|block| !block.trim().is_empty())
-                .map(Passport::try_from)
-                .collect::<Result<_, _>>()?,
+            passports: parse::blocks(input.as_ref())?,
         })
     }
 

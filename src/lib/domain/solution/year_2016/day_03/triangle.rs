@@ -1,4 +1,4 @@
-use std::num::ParseIntError;
+use std::{num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -12,9 +12,9 @@ pub enum InvalidTriangle {
 #[derive(Debug, Clone, Copy)]
 pub struct Triangle(pub [u32; 3]);
 
-impl TryFrom<&str> for Triangle {
-    type Error = InvalidTriangle;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Triangle {
+    type Err = InvalidTriangle;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let sides: Vec<u32> = value
             .split_whitespace()
             .map(str::parse)
@@ -39,22 +39,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn triangle_try_from_str_ok() {
-        assert_eq!(Triangle::try_from(" 5  10  25 ").unwrap().0, [5, 10, 25]);
+    fn triangle_from_str_ok() {
+        assert_eq!(" 5  10  25 ".parse::<Triangle>().unwrap().0, [5, 10, 25]);
     }
 
     #[test]
-    fn triangle_try_from_str_err() {
+    fn triangle_from_str_err() {
         assert!(matches!(
-            Triangle::try_from("5 10"),
+            "5 10".parse::<Triangle>(),
             Err(InvalidTriangle::SideCount)
         ));
         assert!(matches!(
-            Triangle::try_from("5 10 25 30"),
+            "5 10 25 30".parse::<Triangle>(),
             Err(InvalidTriangle::SideCount)
         ));
         assert!(matches!(
-            Triangle::try_from("5 10 x"),
+            "5 10 x".parse::<Triangle>(),
             Err(InvalidTriangle::ParseInt(_))
         ));
     }

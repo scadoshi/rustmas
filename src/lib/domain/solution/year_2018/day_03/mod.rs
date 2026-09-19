@@ -1,7 +1,7 @@
 pub mod claim;
 
 use crate::domain::solution::{
-    Solution, answer::Answer, common::cell::Cell, year_2018::day_03::claim::Claim,
+    Solution, answer::Answer, common::cell::Cell, common::parse, year_2018::day_03::claim::Claim,
 };
 use std::collections::HashMap;
 
@@ -23,11 +23,7 @@ impl Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            claims: input
-                .as_ref()
-                .lines()
-                .map(Claim::try_from)
-                .collect::<Result<Vec<_>, _>>()?,
+            claims: parse::lines(input.as_ref())?,
         })
     }
 

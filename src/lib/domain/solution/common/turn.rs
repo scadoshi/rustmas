@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use thiserror::Error;
 
 /// Returned when text does not name a turn. Carries what was read.
@@ -26,9 +27,9 @@ impl TryFrom<char> for Turn {
     }
 }
 
-impl TryFrom<&str> for Turn {
-    type Error = InvalidTurn;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Turn {
+    type Err = InvalidTurn;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         match value.to_lowercase().as_str() {
             "left" | "l" => Ok(Self::Left),
             "right" | "r" => Ok(Self::Right),
@@ -45,8 +46,8 @@ mod tests {
     fn parses_letters_and_words_in_either_case() {
         assert_eq!(Turn::try_from('l').unwrap(), Turn::Left);
         assert_eq!(Turn::try_from('R').unwrap(), Turn::Right);
-        assert_eq!(Turn::try_from("left").unwrap(), Turn::Left);
-        assert_eq!(Turn::try_from("RIGHT").unwrap(), Turn::Right);
+        assert_eq!("left".parse::<Turn>().unwrap(), Turn::Left);
+        assert_eq!("RIGHT".parse::<Turn>().unwrap(), Turn::Right);
     }
 
     /// The reason the type exists: a heading is not a turn, so it does not
@@ -57,13 +58,13 @@ mod tests {
             assert!(Turn::try_from(heading).is_err());
         }
         for heading in ["up", "down", "u", "d", ""] {
-            assert!(Turn::try_from(heading).is_err());
+            assert!(heading.parse::<Turn>().is_err());
         }
     }
 
     #[test]
     fn the_error_says_what_it_read() {
-        let error = Turn::try_from("sideways").unwrap_err();
+        let error = "sideways".parse::<Turn>().unwrap_err();
         assert!(error.to_string().contains("sideways"));
     }
 }

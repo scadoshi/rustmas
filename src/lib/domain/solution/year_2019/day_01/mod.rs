@@ -1,4 +1,4 @@
-use crate::domain::solution::{Solution, answer::Answer};
+use crate::domain::solution::{Solution, answer::Answer, common::parse};
 
 pub struct Puzzle {
     masses: Vec<u32>,
@@ -12,11 +12,7 @@ fn fuel_for(mass: u32) -> u32 {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            masses: input
-                .as_ref()
-                .lines()
-                .map(str::parse)
-                .collect::<Result<_, _>>()?,
+            masses: parse::lines(input.as_ref())?,
         })
     }
 

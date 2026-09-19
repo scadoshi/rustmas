@@ -1,5 +1,5 @@
 use crate::domain::solution::common::cell::Cell;
-use std::num::ParseIntError;
+use std::{num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -19,11 +19,11 @@ pub struct Claim {
     height: usize,
 }
 
-impl TryFrom<&str> for Claim {
-    type Error = InvalidClaim;
+impl FromStr for Claim {
+    type Err = InvalidClaim;
 
     /// Parses `#1 @ 55,885: 22x10`.
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let (id, rest) = value
             .trim()
             .strip_prefix('#')
@@ -56,30 +56,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn claim_try_from_str_ok() {
-        let claim = Claim::try_from("#1 @ 55,885: 22x10").unwrap();
+    fn claim_from_str_ok() {
+        let claim = "#1 @ 55,885: 22x10".parse::<Claim>().unwrap();
         assert_eq!(claim.id, 1);
         assert_eq!((claim.left, claim.top), (55, 885));
         assert_eq!((claim.width, claim.height), (22, 10));
     }
 
     #[test]
-    fn claim_try_from_str_err() {
+    fn claim_from_str_err() {
         for line in ["1 @ 55,885: 22x10", "#1 55,885: 22x10", "#1 @ 55,885 22x10"] {
             assert!(
-                matches!(Claim::try_from(line), Err(InvalidClaim::Malformed)),
+                matches!(line.parse::<Claim>(), Err(InvalidClaim::Malformed)),
                 "{line}"
             );
         }
         assert!(matches!(
-            Claim::try_from("#x @ 55,885: 22x10"),
+            "#x @ 55,885: 22x10".parse::<Claim>(),
             Err(InvalidClaim::ParseInt(_))
         ));
     }
 
     #[test]
     fn cells_cover_the_rectangle_from_its_corner() {
-        let cells: Vec<(usize, usize)> = Claim::try_from("#1 @ 1,3: 3x2")
+        let cells: Vec<(usize, usize)> = "#1 @ 1,3: 3x2"
+            .parse::<Claim>()
             .unwrap()
             .cells()
             .map(|cell| (cell.column(), cell.row()))

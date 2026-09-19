@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -14,11 +14,11 @@ const EYE_COLOURS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
 #[derive(Debug)]
 pub struct Passport(HashMap<String, String>);
 
-impl TryFrom<&str> for Passport {
-    type Error = InvalidPassport;
+impl FromStr for Passport {
+    type Err = InvalidPassport;
 
     /// Parses a block of `key:value` pairs, across any number of lines.
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         value
             .split_whitespace()
             .map(|field| {
@@ -78,15 +78,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn passport_try_from_str_reads_fields_across_lines() {
-        let passport = Passport::try_from("ecl:gry pid:860033327\nbyr:1937 iyr:2017").unwrap();
+    fn passport_from_str_reads_fields_across_lines() {
+        let passport = "ecl:gry pid:860033327\nbyr:1937 iyr:2017"
+            .parse::<Passport>()
+            .unwrap();
         assert_eq!(passport.0["pid"], "860033327");
         assert_eq!(passport.0["byr"], "1937");
     }
 
     #[test]
-    fn passport_try_from_str_err() {
-        assert!(Passport::try_from("ecl:gry pid").is_err());
+    fn passport_from_str_err() {
+        assert!("ecl:gry pid".parse::<Passport>().is_err());
     }
 
     #[test]
@@ -94,9 +96,9 @@ mod tests {
         let all = "ecl:gry pid:860033327 eyr:2020 hcl:#fffffd byr:1937 iyr:2017 cid:147 hgt:183cm";
         let no_cid = "hcl:#ae17e1 iyr:2013 eyr:2024 ecl:brn pid:760753108 byr:1931 hgt:179cm";
         let no_hgt = "iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884 hcl:#cfa07d byr:1929";
-        assert!(Passport::try_from(all).unwrap().is_complete());
-        assert!(Passport::try_from(no_cid).unwrap().is_complete());
-        assert!(!Passport::try_from(no_hgt).unwrap().is_complete());
+        assert!(all.parse::<Passport>().unwrap().is_complete());
+        assert!(no_cid.parse::<Passport>().unwrap().is_complete());
+        assert!(!no_hgt.parse::<Passport>().unwrap().is_complete());
     }
 
     /// The field examples the puzzle gives, valid and invalid side by side.
@@ -131,7 +133,7 @@ mod tests {
     fn is_valid_needs_every_field_to_pass() {
         let good = "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980 hcl:#623a2f";
         let bad = "eyr:1972 cid:100 hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926";
-        assert!(Passport::try_from(good).unwrap().is_valid());
-        assert!(!Passport::try_from(bad).unwrap().is_valid());
+        assert!(good.parse::<Passport>().unwrap().is_valid());
+        assert!(!bad.parse::<Passport>().unwrap().is_valid());
     }
 }

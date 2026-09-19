@@ -1,4 +1,4 @@
-use std::num::ParseIntError;
+use std::{num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -21,11 +21,11 @@ pub struct Room {
     checksum: String,
 }
 
-impl TryFrom<&str> for Room {
-    type Error = InvalidRoom;
+impl FromStr for Room {
+    type Err = InvalidRoom;
 
     /// Parses `aaaaa-bbb-z-y-x-123[abxyz]`.
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let (head, checksum) = value
             .trim()
             .strip_suffix(']')
@@ -79,25 +79,25 @@ mod tests {
     use super::*;
 
     #[test]
-    fn room_try_from_str_ok() {
-        let room = Room::try_from("aaaaa-bbb-z-y-x-123[abxyz]").unwrap();
+    fn room_from_str_ok() {
+        let room = "aaaaa-bbb-z-y-x-123[abxyz]".parse::<Room>().unwrap();
         assert_eq!(room.encrypted_name, "aaaaa-bbb-z-y-x");
         assert_eq!(room.id, 123);
         assert_eq!(room.checksum, "abxyz");
     }
 
     #[test]
-    fn room_try_from_str_err() {
+    fn room_from_str_err() {
         assert!(matches!(
-            Room::try_from("aaaaa-bbb-123"),
+            "aaaaa-bbb-123".parse::<Room>(),
             Err(InvalidRoom::MissingChecksum)
         ));
         assert!(matches!(
-            Room::try_from("noname[abxyz]"),
+            "noname[abxyz]".parse::<Room>(),
             Err(InvalidRoom::MissingId)
         ));
         assert!(matches!(
-            Room::try_from("aaaaa-bbb-xyz[abxyz]"),
+            "aaaaa-bbb-xyz[abxyz]".parse::<Room>(),
             Err(InvalidRoom::ParseInt(_))
         ));
     }
@@ -110,10 +110,11 @@ mod tests {
             "a-b-c-d-e-f-g-h-987[abcde]",
             "not-a-real-room-404[oarel]",
         ] {
-            assert!(Room::try_from(line).unwrap().is_real(), "{line}");
+            assert!(line.parse::<Room>().unwrap().is_real(), "{line}");
         }
         assert!(
-            !Room::try_from("totally-real-room-200[decoy]")
+            !"totally-real-room-200[decoy]"
+                .parse::<Room>()
                 .unwrap()
                 .is_real()
         );
@@ -122,7 +123,8 @@ mod tests {
     #[test]
     fn decrypted_name_rotates_by_the_id() {
         assert_eq!(
-            Room::try_from("qzmt-zixmtkozy-ivhz-343[zimth]")
+            "qzmt-zixmtkozy-ivhz-343[zimth]"
+                .parse::<Room>()
                 .unwrap()
                 .decrypted_name(),
             "very encrypted name"

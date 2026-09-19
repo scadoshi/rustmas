@@ -1,4 +1,4 @@
-use crate::domain::solution::{Solution, answer::Answer};
+use crate::domain::solution::{Solution, answer::Answer, common::parse};
 use std::{cmp::Ordering, collections::HashMap};
 
 const TARGET: i32 = 2020;
@@ -40,12 +40,7 @@ pub struct Puzzle {
 
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
-        let nums: Vec<i32> = input
-            .as_ref()
-            .trim()
-            .lines()
-            .map(str::parse)
-            .collect::<Result<Vec<i32>, _>>()?;
+        let nums: Vec<i32> = parse::lines(input.as_ref())?;
         Ok(Self { nums })
     }
 

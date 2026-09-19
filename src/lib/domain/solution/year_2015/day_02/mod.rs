@@ -1,9 +1,7 @@
 pub mod dimensions;
 
-use anyhow::Context;
-
 use crate::domain::solution::{
-    Solution, answer::Answer, year_2015::day_02::dimensions::Dimensions,
+    Solution, answer::Answer, common::parse, year_2015::day_02::dimensions::Dimensions,
 };
 
 pub struct Puzzle {
@@ -13,13 +11,7 @@ pub struct Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input
-                .as_ref()
-                .trim()
-                .lines()
-                .map(Dimensions::try_from)
-                .collect::<Result<Vec<_>, _>>()
-                .with_context(|| "Parsing dimensions")?,
+            input: parse::lines(input.as_ref())?,
         })
     }
 

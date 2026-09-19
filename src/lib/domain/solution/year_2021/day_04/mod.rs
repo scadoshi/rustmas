@@ -42,7 +42,7 @@ impl Solution for Puzzle {
             .collect::<Result<_, _>>()?;
         let boards = blocks
             .filter(|block| !block.trim().is_empty())
-            .map(Board::try_from)
+            .map(str::parse)
             .collect::<Result<_, _>>()?;
         Ok(Self { draws, boards })
     }

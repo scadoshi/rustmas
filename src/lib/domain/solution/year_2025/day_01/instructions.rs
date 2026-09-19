@@ -1,5 +1,5 @@
 use crate::domain::solution::common::turn::{InvalidTurn, Turn};
-use std::num::ParseIntError;
+use std::{num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 /// Returned when a line does not name a turn and a distance.
@@ -19,9 +19,9 @@ pub(super) struct Instruction {
     pub(super) distance: i32,
 }
 
-impl TryFrom<&str> for Instruction {
-    type Error = InvalidInstruction;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Instruction {
+    type Err = InvalidInstruction;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let mut chars = value.trim().chars();
         let turn = Turn::try_from(chars.next().ok_or(InvalidInstruction::TooFewParts)?)?;
         let distance = chars.as_str().parse::<i32>()?;
@@ -39,14 +39,14 @@ impl Instructions {
     }
 }
 
-impl TryFrom<&str> for Instructions {
-    type Error = InvalidInstruction;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl FromStr for Instructions {
+    type Err = InvalidInstruction;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         Ok(Self(
             value
                 .trim()
                 .lines()
-                .map(Instruction::try_from)
+                .map(str::parse)
                 .collect::<Result<Vec<_>, _>>()?,
         ))
     }

@@ -1,4 +1,13 @@
-use anyhow::anyhow;
+use std::{num::ParseIntError, str::FromStr};
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum InvalidDimensions {
+    #[error("expected three sizes separated by `x`, like `2x3x4`")]
+    WrongCount,
+    #[error(transparent)]
+    ParseInt(#[from] ParseIntError),
+}
 
 pub struct Dimensions {
     length: u32,
@@ -44,27 +53,21 @@ impl Dimensions {
     }
 }
 
-impl TryFrom<&str> for Dimensions {
-    type Error = anyhow::Error;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let mut iter = value.trim().split('x').map(str::parse::<u32>);
-        let err_str = "Invalid dimension input";
-        let include_str = "include length, width and height)";
-        let (Some(length), Some(width), Some(height)) = (iter.next(), iter.next(), iter.next())
+impl FromStr for Dimensions {
+    type Err = InvalidDimensions;
+
+    /// Parses `2x3x4` as length, width and height.
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        let mut sizes = value.trim().split('x');
+        let (Some(length), Some(width), Some(height), None) =
+            (sizes.next(), sizes.next(), sizes.next(), sizes.next())
         else {
-            return Err(anyhow!(
-                "{err_str} (not enough parts; must {include_str}: {value:?}"
-            ));
+            return Err(InvalidDimensions::WrongCount);
         };
-        if iter.next().is_some() {
-            return Err(anyhow!(
-                "{err_str} (too many parts; must only {include_str}: {value:?}"
-            ));
-        }
         Ok(Self {
-            length: length?,
-            width: width?,
-            height: height?,
+            length: length.parse()?,
+            width: width.parse()?,
+            height: height.parse()?,
         })
     }
 }
@@ -80,8 +83,8 @@ mod tests {
     }
 
     #[test]
-    fn try_from_str_ok() {
-        let dimensions = Dimensions::try_from("1x2x3");
+    fn from_str_ok() {
+        let dimensions = "1x2x3".parse::<Dimensions>();
         assert!(dimensions.is_ok());
         let dimensions = dimensions.unwrap();
         assert_eq!(dimensions.length, 1);
@@ -90,11 +93,11 @@ mod tests {
     }
 
     #[test]
-    fn try_from_str_err() {
-        assert!(Dimensions::try_from("foo").is_err());
-        assert!(Dimensions::try_from("").is_err());
-        assert!(Dimensions::try_from("1x2xfoo").is_err());
-        assert!(Dimensions::try_from("1x2x3x4").is_err());
+    fn from_str_err() {
+        assert!("foo".parse::<Dimensions>().is_err());
+        assert!("".parse::<Dimensions>().is_err());
+        assert!("1x2xfoo".parse::<Dimensions>().is_err());
+        assert!("1x2x3x4".parse::<Dimensions>().is_err());
     }
 
     #[test]

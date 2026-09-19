@@ -5,7 +5,7 @@ use crate::domain::solution::common::{
         rectangle::{InvalidRectangle, Rectangle},
     },
 };
-use std::num::ParseIntError;
+use std::{num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -23,11 +23,11 @@ pub enum InvalidBoard {
 #[derive(Debug, Clone)]
 pub struct Board(Rectangle<Option<u8>>);
 
-impl TryFrom<&str> for Board {
-    type Error = InvalidBoard;
+impl FromStr for Board {
+    type Err = InvalidBoard;
 
     /// Parses a block of whitespace-separated numbers, one row per line.
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         let rows = value
             .lines()
             .filter(|line| !line.trim().is_empty())
@@ -79,17 +79,17 @@ mod tests {
     use super::*;
 
     fn board() -> Board {
-        Board::try_from("1 2 3\n4 5 6\n7 8 9").unwrap()
+        "1 2 3\n4 5 6\n7 8 9".parse::<Board>().unwrap()
     }
 
     #[test]
-    fn board_try_from_str_err() {
+    fn board_from_str_err() {
         assert!(matches!(
-            Board::try_from("1 2\n3"),
+            "1 2\n3".parse::<Board>(),
             Err(InvalidBoard::Shape(_))
         ));
         assert!(matches!(
-            Board::try_from("1 x\n3 4"),
+            "1 x\n3 4".parse::<Board>(),
             Err(InvalidBoard::ParseInt(_))
         ));
     }
