@@ -70,6 +70,7 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
         (2024, 3) => solve::<year_2024::day_03::Puzzle>,
         (2024, 4) => solve::<year_2024::day_04::Puzzle>,
         (2024, 5) => solve::<year_2024::day_05::Puzzle>,
+        (2024, 6) => solve::<year_2024::day_06::Puzzle>,
         (2025, 1) => solve::<year_2025::day_01::Puzzle>,
         _ => return None,
     })
