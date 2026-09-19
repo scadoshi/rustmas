@@ -14,11 +14,11 @@ pub struct Rectangle<T> {
 
 #[derive(Debug, Error)]
 pub enum InvalidRectangle {
-    #[error("width must be greater than 0")]
+    #[error("expected at least one column")]
     WidthIsZero,
-    #[error("height must be greater than 0")]
+    #[error("expected at least one row")]
     HeightIsZero,
-    #[error("all rows must have same width")]
+    #[error("expected every row the same width")]
     VariableWidth,
 }
 

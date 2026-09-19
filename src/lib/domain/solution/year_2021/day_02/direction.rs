@@ -2,7 +2,7 @@ use crate::domain::solution::common::direction::Direction as PointDirection;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-#[error("invalid direction")]
+#[error("expected forward, down or up")]
 pub struct InvalidDirection;
 
 #[derive(Debug, Clone, Copy)]

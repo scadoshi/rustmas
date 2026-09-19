@@ -9,11 +9,11 @@ pub struct Policy {
 
 #[derive(Debug, Error)]
 pub enum InvalidPolicy {
-    #[error("too few parts")]
+    #[error("expected a range and a letter separated by whitespace")]
     TooFewParts,
-    #[error("malformed range string")]
+    #[error("expected a range like `1-3`")]
     MalformedRange,
-    #[error("malformed letter string")]
+    #[error("expected a single letter")]
     MalformedLetter,
 }
 
@@ -44,7 +44,7 @@ impl TryFrom<&str> for Policy {
 
 #[derive(Debug, Error)]
 pub enum InvalidPassword {
-    #[error("missing colon")]
+    #[error("expected a colon between the policy and the password")]
     MissingColon,
     #[error(transparent)]
     Policy(#[from] InvalidPolicy),

@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-#[error("invalid play")]
+#[error("expected a play, `a` to `c` or `x` to `z`")]
 pub struct InvalidPlay;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -52,7 +52,7 @@ impl Play {
 }
 
 #[derive(Debug, Error)]
-#[error("invalid game result")]
+#[error("expected a result, `x`, `y` or `z`")]
 pub struct InvalidGameResult;
 
 #[derive(Debug, Clone, Copy, PartialEq)]

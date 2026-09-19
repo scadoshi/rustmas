@@ -2,7 +2,7 @@ use thiserror::Error;
 
 /// Returned when text does not name a turn. Carries what was read.
 #[derive(Debug, Error)]
-#[error("invalid turn: {0:?}")]
+#[error("expected `l`, `r`, `left` or `right`, read {0:?}")]
 pub struct InvalidTurn(String);
 
 /// A quarter turn, either way. Parses from `l`/`r` or the full words.

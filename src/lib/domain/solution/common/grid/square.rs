@@ -10,11 +10,11 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum InvalidSquare {
-    #[error("dimension must be greater than zero")]
+    #[error("expected at least one row and one column")]
     DimensionIsZero,
-    #[error("width and height must be equal")]
+    #[error("expected as many rows as columns")]
     WidthAndHeightInequal,
-    #[error("all rows must have same width")]
+    #[error("expected every row the same width")]
     VariableWidth,
 }
 

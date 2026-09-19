@@ -5,7 +5,7 @@ use thiserror::Error;
 /// Returned when a line does not name a turn and a distance.
 #[derive(Debug, Error)]
 pub(super) enum InvalidInstruction {
-    #[error("empty line")]
+    #[error("expected a turn letter followed by a distance")]
     TooFewParts,
     #[error(transparent)]
     Turn(#[from] InvalidTurn),

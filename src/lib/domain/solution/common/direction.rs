@@ -3,7 +3,7 @@ use thiserror::Error;
 
 /// Returned when text does not name a direction. Carries what was read.
 #[derive(Debug, Error)]
-#[error("invalid direction: {0:?}")]
+#[error("expected a direction like `up`, `u` or `^`, read {0:?}")]
 pub struct InvalidDirection(String);
 
 /// One of the four moves along an axis. Parses from a letter or the full word.

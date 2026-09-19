@@ -6,9 +6,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum InvalidJagged {
-    #[error("height must be greater than zero")]
+    #[error("expected at least one row")]
     HeightIsZero,
-    #[error("all row widths must be greater than zero")]
+    #[error("expected at least one cell in every row")]
     RowIsEmpty,
 }
 

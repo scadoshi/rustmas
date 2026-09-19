@@ -9,7 +9,7 @@ pub enum InvalidInstruction {
     Turn(#[from] InvalidTurn),
     #[error(transparent)]
     Distance(#[from] ParseIntError),
-    #[error("given string was too short")]
+    #[error("expected a turn letter followed by a distance")]
     TooShort,
 }
 

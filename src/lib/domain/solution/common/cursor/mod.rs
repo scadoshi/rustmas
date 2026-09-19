@@ -10,7 +10,7 @@ use crate::domain::solution::common::{
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-#[error("cell out of bounds")]
+#[error("expected a cell on the grid")]
 pub struct CellOutOfBounds;
 
 /// A [`Cell`] paired with the grid it indexes, always in bounds.

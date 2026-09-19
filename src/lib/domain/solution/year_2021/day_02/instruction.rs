@@ -5,9 +5,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum InvalidInstruction {
-    #[error("too few parts")]
+    #[error("expected a direction and a distance separated by whitespace")]
     TooFewParts,
-    #[error("too many parts")]
+    #[error("expected nothing after the distance")]
     TooManyParts,
     #[error(transparent)]
     Direction(#[from] InvalidDirection),
