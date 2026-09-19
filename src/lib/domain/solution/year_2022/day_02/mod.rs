@@ -23,7 +23,7 @@ impl Solution for Puzzle {
             .iter()
             .map(|g| Ok(g.to_game_other_is_player()?.player_score()))
             .sum::<anyhow::Result<u32>>()?;
-        Ok(Answer::Value(total.to_string()))
+        Ok(Answer::solved(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
@@ -32,6 +32,6 @@ impl Solution for Puzzle {
             .iter()
             .map(|g| Ok(g.to_game_other_is_result()?.player_score()))
             .sum::<anyhow::Result<u32>>()?;
-        Ok(Answer::Value(total.to_string()))
+        Ok(Answer::solved(total.to_string()))
     }
 }

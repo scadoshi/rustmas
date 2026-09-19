@@ -48,7 +48,7 @@ impl Solution for Puzzle {
                 },
             )
             .collect();
-        Ok(Answer::Value(code))
+        Ok(Answer::solved(code))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
@@ -75,6 +75,6 @@ impl Solution for Puzzle {
                 },
             )
             .collect();
-        Ok(Answer::Value(code))
+        Ok(Answer::solved(code))
     }
 }

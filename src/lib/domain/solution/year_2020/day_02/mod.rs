@@ -18,7 +18,7 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Value(
+        Ok(Answer::solved(
             self.passwords
                 .iter()
                 .filter(|p| p.valid_count())
@@ -28,7 +28,7 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Value(
+        Ok(Answer::solved(
             self.passwords
                 .iter()
                 .filter(|p| p.valid_position())

@@ -24,7 +24,7 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Value(
+        Ok(Answer::solved(
             self.input
                 .iter()
                 .map(|d| d.wrapping_paper_required())
@@ -34,7 +34,7 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Value(
+        Ok(Answer::solved(
             self.input
                 .iter()
                 .map(|d| d.ribbon_required())

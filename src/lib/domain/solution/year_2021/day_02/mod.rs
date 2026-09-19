@@ -31,7 +31,7 @@ impl Solution for Puzzle {
             .instructions
             .iter()
             .fold(Position::default(), |p, &i| p.saturating_moved(i));
-        Ok(Answer::Value(position.value().to_string()))
+        Ok(Answer::solved(position.value().to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
@@ -39,6 +39,6 @@ impl Solution for Puzzle {
             .instructions
             .iter()
             .fold(Aimed::default(), |p, &i| p.saturating_moved(i));
-        Ok(Answer::Value(aimed.position.value().to_string()))
+        Ok(Answer::solved(aimed.position.value().to_string()))
     }
 }

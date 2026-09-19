@@ -45,7 +45,7 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Value(self.checksum(|nums| {
+        Ok(Answer::solved(self.checksum(|nums| {
             nums.iter()
                 .fold(None::<(u32, u32)>, |acc, &n| {
                     Some(match acc {
@@ -58,7 +58,7 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::Value(self.checksum(|nums| {
+        Ok(Answer::solved(self.checksum(|nums| {
             nums.iter()
                 .enumerate()
                 .find_map(|(i, &n1)| nums[i + 1..].iter().find_map(|&n2| even_quotient(n1, n2)))

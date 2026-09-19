@@ -35,7 +35,7 @@ impl Solution for Puzzle {
                 t + counts.contains(&3) as usize,
             )
         });
-        Ok(Answer::Value((doubles * triples).to_string()))
+        Ok(Answer::solved((doubles * triples).to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
@@ -47,7 +47,7 @@ impl Solution for Puzzle {
             for line in self.input.iter() {
                 let halves = (&line[..i], &line[i + 1..]);
                 if !seen.insert(halves) {
-                    return Ok(Answer::Value(format!("{}{}", halves.0, halves.1)));
+                    return Ok(Answer::solved(format!("{}{}", halves.0, halves.1)));
                 }
             }
         }
