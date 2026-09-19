@@ -74,11 +74,11 @@ impl<T> Grid for Rectangle<T> {
     }
 
     fn iter_rows(&self) -> impl Iterator<Item = &[Self::Item]> {
-        self.inner.iter().map(|v| v.as_slice())
+        self.inner.iter().map(std::vec::Vec::as_slice)
     }
 
     fn iter_rows_mut(&mut self) -> impl Iterator<Item = &mut [Self::Item]> {
-        self.inner.iter_mut().map(|v| v.as_mut_slice())
+        self.inner.iter_mut().map(std::vec::Vec::as_mut_slice)
     }
 }
 

@@ -17,7 +17,7 @@ impl Solution for Puzzle {
                     .trim()
                     .lines()
                     .filter(|s| !s.is_empty())
-                    .map(|s| s.parse())
+                    .map(str::parse)
                     .collect::<Result<Vec<i32>, _>>()
             })
             .collect::<Result<Vec<Vec<i32>>, _>>()?;

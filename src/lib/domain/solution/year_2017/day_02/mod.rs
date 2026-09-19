@@ -8,9 +8,9 @@ pub struct Puzzle {
 ///
 /// Panics on a zero, which no row holds.
 fn even_quotient(a: u32, b: u32) -> Option<u32> {
-    if a % b == 0 {
+    if a.is_multiple_of(b) {
         Some(a / b)
-    } else if b % a == 0 {
+    } else if b.is_multiple_of(a) {
         Some(b / a)
     } else {
         None

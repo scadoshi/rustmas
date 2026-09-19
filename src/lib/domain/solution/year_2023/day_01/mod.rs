@@ -30,7 +30,7 @@ impl Solution for Puzzle {
                 .as_ref()
                 .trim()
                 .lines()
-                .map(|s| s.to_owned())
+                .map(std::borrow::ToOwned::to_owned)
                 .collect(),
         })
     }

@@ -23,7 +23,7 @@ fn letter_counts(line: &str) -> [usize; 26] {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input.as_ref().lines().map(|l| l.to_string()).collect(),
+            input: input.as_ref().lines().map(std::string::ToString::to_string).collect(),
         })
     }
 
@@ -31,20 +31,20 @@ impl Solution for Puzzle {
         let (doubles, triples) = self.input.iter().fold((0, 0), |(d, t), line| {
             let counts = letter_counts(line);
             (
-                d + counts.contains(&2) as usize,
-                t + counts.contains(&3) as usize,
+                d + usize::from(counts.contains(&2)),
+                t + usize::from(counts.contains(&3)),
             )
         });
         Ok(Answer::solved((doubles * triples).to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let Some(len) = self.input.first().map(|l| l.len()) else {
+        let Some(len) = self.input.first().map(std::string::String::len) else {
             return Err(anyhow!("no input lines"));
         };
         for i in 0..len {
             let mut seen: HashSet<(&str, &str)> = HashSet::new();
-            for line in self.input.iter() {
+            for line in &self.input {
                 let halves = (&line[..i], &line[i + 1..]);
                 if !seen.insert(halves) {
                     return Ok(Answer::solved(format!("{}{}", halves.0, halves.1)));

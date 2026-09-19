@@ -10,7 +10,7 @@ impl Solution for Puzzle {
             .as_ref()
             .trim()
             .lines()
-            .map(|s| s.parse())
+            .map(str::parse)
             .collect::<Result<Vec<i32>, _>>()?;
         Ok(Self { nums })
     }

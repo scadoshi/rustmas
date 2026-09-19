@@ -78,8 +78,7 @@ pub trait VariableWidthGridCursor<'a, V: VariableWidth + Grid + 'a>: Cursor<'a, 
             let width_clamp = self
                 .grid()
                 .width_of(clamped_row)
-                .map(|n| n.saturating_sub(1))
-                .unwrap_or(0);
+                .map_or(0, |n| n.saturating_sub(1));
             unclamped
                 .with_column(unclamped.column().min(width_clamp))
                 .with_row(clamped_row)

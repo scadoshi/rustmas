@@ -24,7 +24,7 @@ impl<T> Jagged<T> {
         if inner.is_empty() {
             return Err(InvalidJagged::HeightIsZero);
         }
-        if inner.iter().any(|r| r.is_empty()) {
+        if inner.iter().any(std::vec::Vec::is_empty) {
             return Err(InvalidJagged::RowIsEmpty);
         }
         Ok(Self { inner })
@@ -55,17 +55,17 @@ impl<T> Grid for Jagged<T> {
     }
 
     fn iter_rows(&self) -> impl Iterator<Item = &[Self::Item]> {
-        self.inner.iter().map(|v| v.as_slice())
+        self.inner.iter().map(std::vec::Vec::as_slice)
     }
 
     fn iter_rows_mut(&mut self) -> impl Iterator<Item = &mut [Self::Item]> {
-        self.inner.iter_mut().map(|v| v.as_mut_slice())
+        self.inner.iter_mut().map(std::vec::Vec::as_mut_slice)
     }
 }
 
 impl<T> VariableWidth for Jagged<T> {
     fn width_of(&self, row: usize) -> Option<usize> {
-        self.inner.get(row).map(|r| r.len())
+        self.inner.get(row).map(std::vec::Vec::len)
     }
 }
 

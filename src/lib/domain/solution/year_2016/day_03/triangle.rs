@@ -16,7 +16,7 @@ impl TryFrom<&str> for Triangle {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let sides: Vec<u32> = value
             .split_whitespace()
-            .map(|side| side.parse())
+            .map(str::parse)
             .collect::<Result<_, _>>()
             .map_err(|_| InvalidTriangle::SideNotNumber)?;
         Ok(Self(

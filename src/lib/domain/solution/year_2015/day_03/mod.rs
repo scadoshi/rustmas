@@ -57,10 +57,10 @@ impl Solution for Puzzle {
                             santa
                         };
                         visited.insert(santa);
-                        let robot = if !turn {
-                            robot.saturating_moved(*direction, 1)
-                        } else {
+                        let robot = if turn {
                             robot
+                        } else {
+                            robot.saturating_moved(*direction, 1)
                         };
                         visited.insert(robot);
                         (visited, santa, robot, !turn)

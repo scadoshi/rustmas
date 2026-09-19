@@ -27,7 +27,7 @@ impl Solution for Puzzle {
         Ok(Answer::solved(
             self.input
                 .iter()
-                .map(|d| d.wrapping_paper_required())
+                .map(dimensions::Dimensions::wrapping_paper_required)
                 .sum::<u32>()
                 .to_string(),
         ))
@@ -37,7 +37,7 @@ impl Solution for Puzzle {
         Ok(Answer::solved(
             self.input
                 .iter()
-                .map(|d| d.ribbon_required())
+                .map(dimensions::Dimensions::ribbon_required)
                 .sum::<u32>()
                 .to_string(),
         ))

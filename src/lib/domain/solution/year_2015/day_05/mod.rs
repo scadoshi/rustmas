@@ -42,7 +42,7 @@ impl Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            lines: input.as_ref().lines().map(|l| l.to_owned()).collect(),
+            lines: input.as_ref().lines().map(std::borrow::ToOwned::to_owned).collect(),
         })
     }
 

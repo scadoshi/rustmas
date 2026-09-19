@@ -47,7 +47,7 @@ impl Dimensions {
 impl TryFrom<&str> for Dimensions {
     type Error = anyhow::Error;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let mut iter = value.trim().split('x').map(|str| str.parse::<u32>());
+        let mut iter = value.trim().split('x').map(str::parse::<u32>);
         let err_str = "Invalid dimension input";
         let include_str = "include length, width and height)";
         let (Some(length), Some(width), Some(height)) = (iter.next(), iter.next(), iter.next())

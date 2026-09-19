@@ -18,7 +18,7 @@ impl Solution for Puzzle {
             .map(|l| {
                 let (s1, s2) = l
                     .split_once("   ")
-                    .ok_or(anyhow!("invalid input line: {:?}", l))?;
+                    .ok_or(anyhow!("invalid input line: {l:?}"))?;
                 Ok((s1.parse::<i32>()?, s2.parse::<i32>()?))
             })
             .collect::<Result<Vec<(i32, i32)>, anyhow::Error>>()?
