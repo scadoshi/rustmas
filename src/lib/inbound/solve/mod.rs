@@ -41,6 +41,7 @@ fn solver_for(year: i32, day: i32) -> Option<Solver> {
         (2016, 5) => solve::<year_2016::day_05::Puzzle>,
         (2017, 1) => solve::<year_2017::day_01::Puzzle>,
         (2017, 2) => solve::<year_2017::day_02::Puzzle>,
+        (2017, 3) => solve::<year_2017::day_03::Puzzle>,
         (2018, 1) => solve::<year_2018::day_01::Puzzle>,
         (2018, 2) => solve::<year_2018::day_02::Puzzle>,
         (2020, 1) => solve::<year_2020::day_01::Puzzle>,
