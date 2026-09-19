@@ -62,7 +62,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn recognises_its_own_session() {
+    fn recognizes_its_own_session() {
         let input = Input::new("cookie-a", "()()");
         assert!(input.is_from("cookie-a"));
         assert!(!input.is_from("cookie-b"));
