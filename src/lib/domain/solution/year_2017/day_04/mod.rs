@@ -1,31 +1,13 @@
-use crate::domain::solution::{Solution, answer::Answer};
-use std::{collections::HashSet, hash::Hash};
+pub mod passphrase;
+
+use crate::domain::solution::{
+    Solution,
+    answer::Answer,
+    year_2017::day_04::passphrase::{count_valid, sorted_letters},
+};
 
 pub struct Puzzle {
     passphrases: Vec<String>,
-}
-
-/// How many passphrases hold no two words with the same `key`.
-///
-/// `HashSet::insert` reports a duplicate, and `all` stops at the first, so a
-/// repeated word ends the line rather than the scan.
-fn count_valid<'a, K: Eq + Hash>(passphrases: &'a [String], key: impl Fn(&'a str) -> K) -> usize {
-    passphrases
-        .iter()
-        .filter(|passphrase| {
-            let mut seen = HashSet::new();
-            passphrase
-                .split_whitespace()
-                .all(|word| seen.insert(key(word)))
-        })
-        .count()
-}
-
-/// A word's letters in order, which two anagrams share and nothing else does.
-fn sorted_letters(word: &str) -> Vec<u8> {
-    let mut letters = word.as_bytes().to_vec();
-    letters.sort_unstable();
-    letters
 }
 
 impl Solution for Puzzle {
