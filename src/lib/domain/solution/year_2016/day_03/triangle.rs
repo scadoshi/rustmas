@@ -1,11 +1,12 @@
+use std::num::ParseIntError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum InvalidTriangle {
     #[error("expected three sides")]
     SideCount,
-    #[error("each side must be a number")]
-    SideNotNumber,
+    #[error(transparent)]
+    ParseInt(#[from] ParseIntError),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -17,8 +18,7 @@ impl TryFrom<&str> for Triangle {
         let sides: Vec<u32> = value
             .split_whitespace()
             .map(str::parse)
-            .collect::<Result<_, _>>()
-            .map_err(|_| InvalidTriangle::SideNotNumber)?;
+            .collect::<Result<_, _>>()?;
         Ok(Self(
             sides.try_into().map_err(|_| InvalidTriangle::SideCount)?,
         ))
@@ -55,7 +55,7 @@ mod tests {
         ));
         assert!(matches!(
             Triangle::try_from("5 10 x"),
-            Err(InvalidTriangle::SideNotNumber)
+            Err(InvalidTriangle::ParseInt(_))
         ));
     }
 

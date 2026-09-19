@@ -1,3 +1,4 @@
+use std::num::ParseIntError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -6,8 +7,8 @@ pub enum InvalidRoom {
     MissingChecksum,
     #[error("expected a sector id after the name")]
     MissingId,
-    #[error("sector id must be a number")]
-    IdNotNumber,
+    #[error(transparent)]
+    ParseInt(#[from] ParseIntError),
 }
 
 /// How many letters a checksum holds.
@@ -33,7 +34,7 @@ impl TryFrom<&str> for Room {
         let (name, id) = head.rsplit_once('-').ok_or(InvalidRoom::MissingId)?;
         Ok(Self {
             encrypted_name: name.to_owned(),
-            id: id.parse().map_err(|_| InvalidRoom::IdNotNumber)?,
+            id: id.parse()?,
             checksum: checksum.to_owned(),
         })
     }
@@ -97,7 +98,7 @@ mod tests {
         ));
         assert!(matches!(
             Room::try_from("aaaaa-bbb-xyz[abxyz]"),
-            Err(InvalidRoom::IdNotNumber)
+            Err(InvalidRoom::ParseInt(_))
         ));
     }
 
