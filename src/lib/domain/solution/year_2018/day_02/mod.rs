@@ -23,7 +23,7 @@ fn letter_counts(line: &str) -> [usize; 26] {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input.as_ref().lines().map(std::string::ToString::to_string).collect(),
+            input: input.as_ref().lines().map(str::to_owned).collect(),
         })
     }
 

@@ -26,12 +26,7 @@ impl Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input
-                .as_ref()
-                .trim()
-                .lines()
-                .map(std::borrow::ToOwned::to_owned)
-                .collect(),
+            input: input.as_ref().trim().lines().map(str::to_owned).collect(),
         })
     }
 
