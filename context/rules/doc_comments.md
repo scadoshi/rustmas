@@ -1,5 +1,7 @@
 ## Doc Comments
 
+The shape of a doc comment. What a comment may say at all is in [comment_guidelines.md](comment_guidelines.md).
+
 One line. Go longer only when a reader would otherwise get it wrong.
 
 ```rust

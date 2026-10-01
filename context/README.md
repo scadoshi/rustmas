@@ -7,8 +7,8 @@ exist only here.
 - [`todo.md`](todo.md) is what is coming next. Read it first.
 - [`progress/journal.md`](progress/journal.md) is dated session logs, newest
   first.
-- [`rules/`](rules/) is binding when working here: commit guidelines, doc
-  comment style, and the branch model. On this branch only, since the rules are
+- [`rules/`](rules/) is binding when working here: commit guidelines, comment
+  guidelines, doc comment style, and the branch model. On this branch only, since the rules are
   the owner's.
 - [`architecture.md`](architecture.md) is the layout, how a solve runs, and the
   cache on disk.
