@@ -7,9 +7,14 @@ use crate::{
 };
 use anyhow::Context;
 use reqwest::{
-    Url,
-    blocking::Client,
+    StatusCode, Url,
+    blocking::{Client, Response},
     header::{COOKIE, HeaderMap, HeaderValue, USER_AGENT},
+};
+use std::{
+    cell::Cell,
+    thread,
+    time::{Duration, Instant},
 };
 
 /// Marks a puzzle part on a day page. Two means part two is unlocked.
@@ -17,11 +22,18 @@ const ARTICLE: &str = r#"<article class="day-desc">"#;
 
 const AOC_BASE_URL: &str = "https://adventofcode.com";
 
+/// Least time between two requests. adventofcode.com throttles a client that
+/// fetches back to back (a 405, then a 403 for a while), and asks for one
+/// request per puzzle at a human pace.
+const REQUEST_GAP: Duration = Duration::from_millis(1500);
+
 /// An authenticated handle to adventofcode.com, pooling one client.
 #[derive(Debug)]
 pub struct AocClient {
     cookie: SessionCookie,
     client: Client,
+    /// When the last request went out, for [`REQUEST_GAP`].
+    last_request: Cell<Option<Instant>>,
 }
 
 impl AocClient {
@@ -47,20 +59,35 @@ impl AocClient {
         );
         headers.insert(COOKIE, HeaderValue::from_str(&format!("session={cookie}"))?);
         let client = Client::builder().default_headers(headers).build()?;
-        Ok(Self { cookie, client })
+        Ok(Self {
+            cookie,
+            client,
+            last_request: Cell::new(None),
+        })
+    }
+
+    /// Waits out the rest of [`REQUEST_GAP`] since the last request.
+    fn pace(&self) {
+        if let Some(last) = self.last_request.get() {
+            let since = last.elapsed();
+            if since < REQUEST_GAP {
+                thread::sleep(REQUEST_GAP.saturating_sub(since));
+            }
+        }
+        self.last_request.set(Some(Instant::now()));
     }
 
     /// Fetches `day`'s puzzle text, rendered from HTML.
     ///
     /// Part two comes back `None` until part one is solved.
     pub fn get_instructions(&self, day: &Day) -> anyhow::Result<(String, Option<String>)> {
+        self.pace();
         let html = self
             .client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!("{}/day/{}", day.year(), day.value()))?)
             .send()
-            .with_context(|| format!("failed to reach AOC for {day:?}"))?
-            .error_for_status()
-            .with_context(|| format!("bad response status for {day:?}"))?
+            .with_context(|| format!("failed to reach AOC for {day:?}"))
+            .and_then(|response| accepted(response, day))?
             .text()
             .with_context(|| format!("failed to read page body for {day:?}"))?;
 
@@ -81,6 +108,7 @@ impl AocClient {
     ///
     /// A non-success status usually means a bad cookie or an unreleased day.
     pub fn get_input(&self, day: &Day) -> anyhow::Result<String> {
+        self.pace();
         self.client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!(
                 "{}/day/{}/input",
@@ -94,15 +122,8 @@ impl AocClient {
                     day.year(),
                     day.value()
                 )
-            })?
-            .error_for_status()
-            .with_context(|| {
-                format!(
-                    "bad response status for year: {} and day: {}",
-                    day.year(),
-                    day.value()
-                )
-            })?
+            })
+            .and_then(|response| accepted(response, day))?
             .text()
             .with_context(|| {
                 format!(
@@ -127,19 +148,33 @@ impl AocClient {
         let url = Url::parse(AOC_BASE_URL)?.join(&path)?;
         let form = [("level", part.wire_value()), ("answer", answer.as_ref())];
 
+        self.pace();
         let body = self
             .client
             .post(url)
             .form(&form)
             .send()
-            .with_context(|| format!("failed to reach AOC for {day:?}"))?
-            .error_for_status()
-            .with_context(|| format!("bad response status for {day:?}"))?
+            .with_context(|| format!("failed to reach AOC for {day:?}"))
+            .and_then(|response| accepted(response, day))?
             .text()
             .with_context(|| format!("failed to read submit body for {day:?}"))?;
 
         Ok(verdict_from(&body))
     }
+}
+
+/// The response if its status is a success, else an error that says what the
+/// status means. 403 and 405 are adventofcode.com refusing a client it has
+/// taken for a scraper; the fix is to wait, not to retry.
+fn accepted(response: Response, day: &Day) -> anyhow::Result<Response> {
+    let status = response.status();
+    response.error_for_status().with_context(|| match status {
+        StatusCode::FORBIDDEN | StatusCode::METHOD_NOT_ALLOWED => format!(
+            "adventofcode.com refused {day:?} with HTTP {status}: it throttles bulk fetching. \
+             Wait a while, then fetch one year at a time (`fetch -y <year>`)"
+        ),
+        _ => format!("bad response status for {day:?}"),
+    })
 }
 
 /// Classifies AOC's HTML reply to a submission.
