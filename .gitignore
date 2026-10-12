@@ -1,3 +1,6 @@
 /target
 .env
 cache/
+
+# Worktrees created by Claude Code sessions
+.claude/worktrees/
