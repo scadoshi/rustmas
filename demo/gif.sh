@@ -6,7 +6,7 @@
 #
 # GitHub strips <video> from READMEs, so an inline demo has to be a GIF. Two
 # passes: generate a palette from the clip, then map to it. A single global
-# palette banks on terminal output using few colours, which it does.
+# palette banks on terminal output using few colors, which it does.
 
 set -euo pipefail
 cd "$(dirname "$0")/.."

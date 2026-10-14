@@ -76,7 +76,7 @@ shared vocabulary, so the shared file was the wrong home. `mod.rs` still
 re-exports both, so call sites did not move.
 
 The port itself landed on the sharpmas side, with everything on its catch-up
-list; its 2026-08-23 journal file has the detail. One note that travelled back:
+list; its 2026-08-23 journal file has the detail. One note that traveled back:
 the C# guard helpers already name the given value and the live bound in their
 messages, so the eager-error payoff carried over without rustmas's custom
 message strings, just in the local dialect.
@@ -289,7 +289,7 @@ Three things learned off that dead end, all worth keeping:
 
 - `const NAME: LazyCell<T>` builds a fresh value at every use site, since a
   const is inlined rather than stored. Lazy in name only. `static` with
-  `LazyLock` is the one that initialises once.
+  `LazyLock` is the one that initializes once.
 - Slicing a `str` takes byte offsets, not character counts. `0..s.chars()
   .count()` looks equivalent and is not: on any multi-byte character the two
   drift, and `&s[i..]` then either panics on a non-boundary or slices somewhere
@@ -355,7 +355,7 @@ pair of nested loops.
 
 Part two wants three numbers, and the first plan was a recursive `n_sum` that
 `two_sum` would become a case of. Dropped it: nothing here will ever want n=4,
-and a specialised `three_sum` is faster. Sort once, then for each `x` walk two
+and a specialized `three_sum` is faster. Sort once, then for each `x` walk two
 pointers inward over the rest. O(n²) either way, but the inner step is an add
 and a compare over contiguous memory rather than a hash and a random probe.
 66432240.
@@ -1262,7 +1262,7 @@ Three things learned off that dead end, all worth keeping:
 
 - `const NAME: LazyCell<T>` builds a fresh value at every use site, since a
   const is inlined rather than stored. Lazy in name only. `static` with
-  `LazyLock` is the one that initialises once.
+  `LazyLock` is the one that initializes once.
 - Slicing a `str` takes byte offsets, not character counts. `0..s.chars()
   .count()` looks equivalent and is not: on any multi-byte character the two
   drift, and `&s[i..]` then either panics on a non-boundary or slices somewhere
@@ -1328,7 +1328,7 @@ pair of nested loops.
 
 Part two wants three numbers, and the first plan was a recursive `n_sum` that
 `two_sum` would become a case of. Dropped it: nothing here will ever want n=4,
-and a specialised `three_sum` is faster. Sort once, then for each `x` walk two
+and a specialized `three_sum` is faster. Sort once, then for each `x` walk two
 pointers inward over the rest. O(n²) either way, but the inner step is an add
 and a compare over contiguous memory rather than a hash and a random probe.
 66432240.

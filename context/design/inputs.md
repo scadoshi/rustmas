@@ -36,7 +36,7 @@ the changed answers gave it away.
 
 A mismatch refetches the input and keeps the instructions, since puzzle text is
 identical for everyone. `read_entry` returns whatever is on disk and leaves that
-judgement to the caller, so the two lifecycles stay separate inside one file.
+judgment to the caller, so the two lifecycles stay separate inside one file.
 
 With no cookie configured at all, a cached entry is used as-is. Being unable to
 verify should not make an input unusable.

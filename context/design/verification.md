@@ -141,7 +141,7 @@ AOC is itself stateful, and `AlreadySolved` is the durable record. The site
 remembers your stars whether or not anything is written down, so the fact called
 irreplaceable was always one request away.
 
-What remained was an optimisation worth very little. Validation is opt-in and
+What remained was an optimization worth very little. Validation is opt-in and
 usually aimed at the single day being worked on, so the saving is one request
 per part. Against that sat a file format, read and write paths, key parsing,
 staleness rules, and an invalidation problem: answers are tied to one account's
