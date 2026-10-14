@@ -9,4 +9,5 @@ pub mod direction;
 pub mod grid;
 pub mod parse;
 pub mod point;
+pub mod range;
 pub mod turn;
