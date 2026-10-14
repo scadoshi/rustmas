@@ -49,7 +49,7 @@ through 2025 day 12, which is exactly where our `Year::days_in` stops, so
 
 Probed live with curl for status codes, then confirmed against the cloned source
 rather than inferred from responses alone. Both agree. Re-run the probe and
-re-read `crates/core/src/lib.rs` if behaviour looks different.
+re-read `crates/core/src/lib.rs` if behavior looks different.
 
 ### Watch for
 
