@@ -55,7 +55,7 @@ impl RangeMapping {
     pub(super) fn map(&self, seed: u64) -> Option<u64> {
         self.source_range()
             .contains(&seed)
-            .then(|| self.destination + self.source.abs_diff(seed))
+            .then(|| self.destination + (seed - self.source))
     }
 
     pub(super) fn map_range(

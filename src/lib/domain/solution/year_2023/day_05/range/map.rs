@@ -6,6 +6,7 @@ use std::{
     str::FromStr,
 };
 
+/// Mappings sorted by source, so `map_range` can sweep them in one pass.
 #[derive(Debug, Clone, PartialEq)]
 pub(in super::super) struct RangeMap(pub(super) Vec<RangeMapping>);
 
@@ -20,12 +21,13 @@ impl Deref for RangeMap {
 impl FromStr for RangeMap {
     type Err = InvalidRangeMapping;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
-            s.lines()
-                .filter(|l| !l.contains("map"))
-                .map(RangeMapping::from_str)
-                .collect::<Result<Vec<_>, _>>()?,
-        ))
+        let mut mappings = s
+            .lines()
+            .filter(|l| !l.contains("map"))
+            .map(RangeMapping::from_str)
+            .collect::<Result<Vec<_>, _>>()?;
+        mappings.sort_by_key(|m| m.source_range().start);
+        Ok(Self(mappings))
     }
 }
 
@@ -38,21 +40,26 @@ impl RangeMap {
         &self,
         range: Range<u64>,
     ) -> impl Iterator<Item = Range<u64>> {
-        let mut mapped = Vec::<Range<u64>>::new();
-        let mut unmapped = Vec::<Range<u64>>::new();
-        let mut queue = Vec::<Range<u64>>::from([range]);
-        while let Some(range) = queue.pop() {
-            if let Some((m, l)) = self
-                .iter()
-                .find_map(|mapping| mapping.map_range(range.clone()))
-            {
-                mapped.push(m);
-                queue.extend(l);
-            } else {
-                unmapped.push(range);
+        let mut pieces = Vec::new();
+        let mut rest = Some(range);
+        for mapping in self.iter() {
+            let Some(r) = rest.take() else { break };
+            let Some((mapped, leftovers)) = mapping.map_range(r.clone()) else {
+                rest = Some(r);
+                continue;
+            };
+            pieces.push(mapped);
+            for leftover in leftovers {
+                // anything left of this mapping sits in a gap no earlier mapping covers
+                if leftover.start < mapping.source_range().start {
+                    pieces.push(leftover);
+                } else {
+                    rest = Some(leftover);
+                }
             }
         }
-        mapped.into_iter().chain(unmapped)
+        pieces.extend(rest);
+        pieces.into_iter()
     }
 }
 
@@ -65,8 +72,8 @@ mod tests {
         assert_eq!(
             RangeMap::from_str("50 98 2\n52 50 48").unwrap(),
             RangeMap(vec![
-                RangeMapping::new(50, 98, 2),
-                RangeMapping::new(52, 50, 48)
+                RangeMapping::new(52, 50, 48),
+                RangeMapping::new(50, 98, 2)
             ])
         );
     }
