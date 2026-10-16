@@ -5,11 +5,11 @@ Things this repo depends on that live somewhere else. Each entry records what we
 ## fornwall/advent-of-code (the solver)
 
 - Source: `https://github.com/fornwall/advent-of-code.git`
-- Worth cloning locally to read `crates/core/src/lib.rs` for coverage
+- Clone it locally and read `crates/core/src/lib.rs` for coverage
 - Last checked: 2026-08-04, at commit `b5d0e717` (authored 2026-07-03)
 - Used by: `SolverClient::validate_answer` in `src/lib/outbound/client/solver_client.rs`
 
-Hosts, all running the same WASM solver. Listed in `AOC_SOLVER_BASE_URLS`:
+Three hosts run the same WASM solver. `BASE_URLS` in `solver_client.rs` lists them, tried in order:
 
 | URL | Platform |
 | --- | --- |
@@ -17,15 +17,20 @@ Hosts, all running the same WASM solver. Listed in `AOC_SOLVER_BASE_URLS`:
 | `https://aoc.fornwall.workers.dev` | Cloudflare Worker |
 | `https://mystifying-blackwell-9e705f.netlify.app` | Netlify Function |
 
-Interactive docs at `https://aoc.fornwall.net/api/`, described by an `openapi.json` linked from that page.
+Interactive docs are at `https://aoc.fornwall.net/api/`, described by an `openapi.json` linked from that page.
 
 ### Contract we rely on
 
-`POST /solve/{year}/{day}/{part}` with the puzzle input as the raw body. The answer comes back as `text/plain`, no trailing newline observed.
+`POST /solve/{year}/{day}/{part}` with the puzzle input as the raw body. The answer comes back as `text/plain`, with no trailing newline observed.
 
-Only two status codes exist. `crates/http-server/src/main.rs` maps every `Ok` to 200 and every `Err` to 400, and `crates/worker/src/lib.rs` does the same for Cloudflare. Nothing else comes from the application, so any 5xx is the hosting platform rather than the solver.
+Only two status codes exist:
 
-Because failures are all 400, the reason lives in the body:
+- `crates/http-server/src/main.rs` maps every `Ok` to 200 and every `Err` to 400.
+- `crates/worker/src/lib.rs` does the same for Cloudflare.
+
+Nothing else comes from the application, so any 5xx is the hosting platform, not the solver.
+
+Because every failure is a 400, the reason lives in the body:
 
 | Body | Meaning |
 | --- | --- |
@@ -34,11 +39,14 @@ Because failures are all 400, the reason lives in the body:
 | `Invalid day 26 - must be 1-25` | Out of range, unreachable from our `Day` type |
 | `Invalid part 26 - must be 1-2` | Out of range, unreachable from our `Part` type |
 
-The `Unsupported` string is generated at `crates/core/src/lib.rs:364`, the catch-all arm of a hand-written `match (year, day)`. Coverage on `main` runs through 2025 day 12, which is exactly where our `Year::days_in` stops, so `Unsupported` cannot currently be triggered by a `Day` we can construct.
+The `Unsupported` string comes from `crates/core/src/lib.rs:364`, the catch-all arm of a hand-written `match (year, day)`. Coverage on `main` runs through 2025 day 12, exactly where our `Year::days_in` stops. A `Day` we can construct can't currently trigger `Unsupported`.
 
 ### How this was verified
 
-Probed live with curl for status codes, then confirmed against the cloned source rather than inferred from responses alone. Both agree. Re-run the probe and re-read `crates/core/src/lib.rs` if behavior looks different.
+1. Probed live with curl for status codes.
+2. Confirmed against the cloned source rather than inferred from responses alone.
+
+Both agree. If behavior looks different, re-run the probe and re-read `crates/core/src/lib.rs`.
 
 ### Watch for
 
@@ -49,9 +57,13 @@ Coverage extending past 2025 day 12 when a new event runs. If the solver lags a 
 - Input endpoint: `GET /<year>/day/<day>/input`, authenticated by a `session` cookie read from `COOKIE`
 - Day page: `GET /<year>/day/<day>`, same cookie, returns HTML
 - Submit endpoint: `POST /<year>/day/<day>/answer`, form-encoded, fields `level` (1 or 2) and `answer`
-- A `User-Agent` identifying this repo is sent on request, which the site asks automated clients to do
+- Every request sends a `User-Agent` built from `REPO_URL` and `CONTACT`, since the site asks automated clients to identify themselves
 
-Etiquette that shapes the design: do not re-download inputs, do not republish puzzle text, and expect an escalating cooldown after wrong answers.
+The site's etiquette shapes the design:
+
+- Don't re-download inputs.
+- Don't republish puzzle text.
+- Expect an escalating cooldown after wrong answers.
 
 ### Submit contract
 
@@ -67,15 +79,22 @@ Verified live on 2026-08-06 against 2015 day 1, using a scratch account with no 
 | `You don't seem to be solving the right level` | `AlreadySolved` |
 | `auth/login` | `NotLoggedIn` |
 
-Verified live on 2026-09-17. With no valid session the POST answers **303** to the puzzle page, which `reqwest` follows to a 200, so the body is the puzzle and not a verdict. Its nav links `auth/login`, where a logged-in one links `auth/logout`. Matched first, since nothing was graded. A malformed cookie is a **500** instead, which the status check already rejects.
+The logged-out case was verified live on 2026-09-17.
 
-Order matters when matching. A directional reply reads "That's not the right answer; your answer is too high", so it contains the generic phrase too. Check direction first or every directional miss classifies as generic.
+- With no valid session, the POST answers **303** to the puzzle page. `reqwest` follows it to a 200, so the body is the puzzle, not a verdict.
+- That page's nav links `auth/login`, where a logged-in page links `auth/logout`.
+- `auth/login` is matched first, since nothing was graded.
+- A malformed cookie gets a **500** instead, which the status check already rejects.
 
-The direction hint is optional and we could not force it. Guessing `1` against `138`, and `5` against `1771`, both returned the generic wrong answer, while `999999999` returned too high. The `too low` string is therefore inferred by symmetry rather than observed, and it is the one row in the table above that has not been seen in the wild.
+Order matters when matching. A directional reply reads "That's not the right answer; your answer is too high", so it contains the generic phrase too. Check direction first, or every directional miss classifies as generic.
 
-Cooldown is one minute after a wrong answer and escalates with repeats. The remaining time is prose (`1m 0s`, `5s`), which is why `Verdict::Cooldown` holds a string rather than a `Duration`.
+The direction hint is optional, and we couldn't force it. Guessing `1` against `138` and `5` against `1771` both returned the generic wrong answer, while `999999999` returned too high.
 
-Submitting a correct answer a second time gives `AlreadySolved`, not another confirmation. AOC is stateful, so that reply is itself the durable record of a star, which is why no local answer cache was built.
+So the `too low` string is inferred by symmetry, not observed. It's the one row in the table above nobody has seen in the wild.
+
+Cooldown is one minute after a wrong answer and escalates with repeats. The remaining time is prose (`1m 0s`, `5s`), which is why `AocVerdict::Cooldown` holds a string rather than a `Duration`.
+
+Submitting a correct answer a second time gives `AlreadySolved`, not another confirmation. AOC is stateful, so that reply is itself the durable record of a star. That's why no local answer cache was built.
 
 Fixtures for these strings live in the tests at the bottom of `src/lib/outbound/client/aoc_client.rs`.
 
@@ -89,6 +108,6 @@ Verified live on 2026-08-07 across three pages. Each unlocked part is its own `<
 | 2016 day 1, unstarred | 1 |
 | 2021 day 5, unstarred | 1 |
 
-Part two carries `<h2 id="part2">`, but counting articles is enough and needs no text parsing. Splitting on the literal opening tag works because articles do not nest.
+Part two carries `<h2 id="part2">`, but counting articles is enough and needs no text parsing. Splitting on the literal opening tag works because articles don't nest.
 
 `html2text` renders each article into markdown-ish text: `##` headings, backticks for code, `*` for emphasis and bullets. Width 80 is baked into what gets stored, so reflowing later means storing a wider render.
