@@ -13,7 +13,7 @@ pub struct Puzzle {
 /// Every three rows give three triangles, one per column. A trailing partial
 /// group has no column to complete, so it is dropped.
 fn by_column(rows: &[Triangle]) -> impl Iterator<Item = Triangle> + '_ {
-    rows.chunks_exact(3).flat_map(|rows| {
+    rows.as_chunks::<3>().0.iter().flat_map(|rows| {
         (0..3).map(move |side| Triangle([rows[0].0[side], rows[1].0[side], rows[2].0[side]]))
     })
 }
