@@ -56,8 +56,7 @@ fn merged(mut ranges: Vec<Range<u64>>) -> Vec<Range<u64>> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::mapping::RangeMapping;
-    use super::*;
+    use super::{super::mapping::RangeMapping, *};
 
     fn example() -> RangeMaps {
         RangeMaps(vec![

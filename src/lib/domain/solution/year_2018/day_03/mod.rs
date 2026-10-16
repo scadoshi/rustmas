@@ -1,7 +1,10 @@
 pub mod claim;
 
 use crate::domain::solution::{
-    Solution, answer::Answer, common::cell::Cell, common::parse, year_2018::day_03::claim::Claim,
+    Solution,
+    answer::Answer,
+    common::{cell::Cell, parse},
+    year_2018::day_03::claim::Claim,
 };
 use std::collections::HashMap;
 
