@@ -2,9 +2,7 @@
 
 Rust tooling for Advent of Code. It downloads your inputs, runs your solutions, checks the answers against an independent solver, and submits them for stars.
 
-This is Scotty's working branch, with his solutions attached. The `main` branch
-is the same tool with no solutions, which is the one to clone if you want a
-starting point.
+This is Scotty's working branch, with his solutions attached. The `main` branch is the same tool with no solutions, which is the one to clone if you want a starting point.
 
 ![Solving a day and checking both answers against an independent solver](demo/demo.gif)
 

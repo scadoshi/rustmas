@@ -2,45 +2,18 @@
 
 `src/lib/domain/address/`
 
-`Year` and `Day` are newtypes over `i32`. `Day` wraps a `Year`, constructors are
-the only way in, and fields are private. `Day::new` takes a built `Year` rather
-than a raw number, so a day cannot be made without one having been validated
-first, and `Day::each` stops rebuilding the year it is already holding. `Year` is
-`Copy`, being one integer, so passing it around costs nothing. That makes several states
-unrepresentable: a year outside the published events, a day outside the
-range its year actually published, and a day with no year attached.
+`Year` and `Day` are newtypes over `i32`. `Day` wraps a `Year`, constructors are the only way in, and fields are private. `Day::new` takes a built `Year` rather than a raw number, so a day cannot be made without one having been validated first, and `Day::each` stops rebuilding the year it is already holding. `Year` is `Copy`, being one integer, so passing it around costs nothing. That makes several states unrepresentable: a year outside the published events, a day outside the range its year actually published, and a day with no year attached.
 
-`Year::days_in()` is the single source of truth for how long an event ran. 2025
-was a 12-day event, everything else is 25. `Day::new` and `Day::each` both read
-it, so they cannot drift apart.
+`Year::days_in()` is the single source of truth for how long an event ran. 2025 was a 12-day event, everything else is 25. `Day::new` and `Day::each` both read it, so they cannot drift apart.
 
-`Year`, `Day`, and `Part` live together in `address/`, named for the job they
-do rather than what they resemble. The three together name one puzzle, and
-`calendar` was the earlier name, which grouped year and day nicely but left
-`Part` sitting outside a module about dates. The same address becomes a URL path
-(`/2015/day/1`) and a cache path (`cache/2015/01/`). `path` was considered for
-that reason and dropped, since `std::path` is already imported in the same
-files.
+`Year`, `Day`, and `Part` live together in `address/`, named for the job they do rather than what they resemble. The three together name one puzzle, and `calendar` was the earlier name, which grouped year and day nicely but left `Part` sitting outside a module about dates. The same address becomes a URL path (`/2015/day/1`) and a cache path (`cache/2015/01/`). `path` was considered for that reason and dropped, since `std::path` is already imported in the same files.
 
-Everything a year knows lives on `Year`: `FIRST_YEAR`, `Year::latest()`, and
-`Year::days_in()`. `address/mod.rs` re-exports the types, so callers write
-`domain::address::Day` rather than reaching a level deeper.
+Everything a year knows lives on `Year`: `FIRST_YEAR`, `Year::latest()`, and `Year::days_in()`. `address/mod.rs` re-exports the types, so callers write `domain::address::Day` rather than reaching a level deeper.
 
-`Year::latest()` is the latest *published* event, not the current calendar year:
-AOC drops a new one each December, so before December the current year has
-nothing in it. `Year::new` bounds on that rather than on `Utc::now().year()`,
-which previously let a 2026 day validate against an event that did not
-exist.
+`Year::latest()` is the latest *published* event, not the current calendar year: AOC drops a new one each December, so before December the current year has nothing in it. `Year::new` bounds on that rather than on `Utc::now().year()`, which previously let a 2026 day validate against an event that did not exist.
 
-`Part` is a fieldless enum with `wire_value()` returning 1 or 2. It exists so
-call sites read `submit(&day, Part::One, answer)` rather than passing a bare `1`
-that is indistinguishable from a day number. Both the AOC submit form (`level=`)
-and the solver API path want the number, so one type covers both renderings.
+`Part` is a fieldless enum with `wire_value()` returning 1 or 2. It exists so call sites read `submit(&day, Part::One, answer)` rather than passing a bare `1` that is indistinguishable from a day number. Both the AOC submit form (`level=`) and the solver API path want the number, so one type covers both renderings.
 
 ## History
 
-`Part` was originally a struct wrapping `Day` plus a kind, was deleted in
-`c60d2d2` as dead code, and came back as a plain enum once the answer checker
-needed it. The wrapper did not come back, because `submit(&Day, Part, ...)` reads
-as well as `submit(&Part, ...)` without the accessors that had to reach through
-two layers to get a year.
+`Part` was originally a struct wrapping `Day` plus a kind, was deleted in `c60d2d2` as dead code, and came back as a plain enum once the answer checker needed it. The wrapper did not come back, because `submit(&Day, Part, ...)` reads as well as `submit(&Part, ...)` without the accessors that had to reach through two layers to get a year.
