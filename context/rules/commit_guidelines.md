@@ -10,29 +10,19 @@
 
 ### Check before committing, not after
 
-`cargo test`, then `cargo build` for warnings, then `cargo clippy --all-targets`,
-then `cargo doc --no-deps`. Each sees what the others miss: clippy reads past a
-clean build, and the build never checks intra-doc links, so a rename compiles
-fine while `[`Type`]` links point at nothing.
+`cargo test`, then `cargo build` for warnings, then `cargo clippy --all-targets`, then `cargo doc --no-deps`. Each sees what the others miss: clippy reads past a clean build, and the build never checks intra-doc links, so a rename compiles fine while `[`Type`]` links point at nothing.
 
-Format with `cargo +nightly fmt`, since `rustfmt.toml` sets the unstable
-`imports_granularity = "Crate"` and stable rustfmt ignores it.
+Format with `cargo +nightly fmt`, since `rustfmt.toml` sets the unstable `imports_granularity = "Crate"` and stable rustfmt ignores it.
 
-CI in `.github/workflows/ci.yml` runs the same checks on every push to `main` or
-`scadoshi`, with warnings as errors, so a red run means one of these was
-skipped. Run them locally first rather than letting CI find it.
+CI in `.github/workflows/ci.yml` runs the same checks on every push to `main` or `scadoshi`, with warnings as errors, so a red run means one of these was skipped. Run them locally first rather than letting CI find it.
 
-If a change touches instructions, follow them rather than reading them. The
-README's "Adding a solution" steps have gone stale three times, twice while
-someone was looking straight at them.
+If a change touches instructions, follow them rather than reading them. The README's "Adding a solution" steps have gone stale three times, twice while someone was looking straight at them.
 
 ### Committing across both branches
 
-Tool changes land on `main` first, then merge down. See
-[`branches.md`](branches.md) for what belongs where.
+Tool changes land on `main` first, then merge down. See [`branches.md`](branches.md) for what belongs where.
 
-Work in a worktree rather than switching branches, so uncommitted work stays
-where it is:
+Work in a worktree rather than switching branches, so uncommitted work stays where it is:
 
 ```sh
 git worktree add /tmp/wt main
@@ -40,16 +30,11 @@ git worktree add /tmp/wt main
 git worktree remove /tmp/wt
 ```
 
-Only copy files that are identical on both branches. `git diff main scadoshi
---name-only` lists the ones that are not, and those get the same edit by hand on
-each side. Today that is `README.md`, `context/README.md`,
-`solution/mod.rs`, and `inbound/solve/run.rs`.
+Only copy files that are identical on both branches. `git diff main scadoshi --name-only` lists the ones that are not, and those get the same edit by hand on each side. Today that is `README.md`, `context/README.md`, `solution/mod.rs`, and `inbound/solve/run.rs`.
 
 ### Never leave a commit that does not build
 
-A change on `main` cannot know the days exist, so one that breaks them would
-leave the merge commit broken. Fold their fixes into the merge instead of
-committing after it:
+A change on `main` cannot know the days exist, so one that breaks them would leave the merge commit broken. Fold their fixes into the merge instead of committing after it:
 
 ```sh
 git merge --no-commit --no-ff main
