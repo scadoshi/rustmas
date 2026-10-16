@@ -15,6 +15,13 @@ then `cargo doc --no-deps`. Each sees what the others miss: clippy reads past a
 clean build, and the build never checks intra-doc links, so a rename compiles
 fine while `[`Type`]` links point at nothing.
 
+Format with `cargo +nightly fmt`, since `rustfmt.toml` sets the unstable
+`imports_granularity = "Crate"` and stable rustfmt ignores it.
+
+CI in `.github/workflows/ci.yml` runs the same checks on every push to `main` or
+`scadoshi`, with warnings as errors, so a red run means one of these was
+skipped. Run them locally first rather than letting CI find it.
+
 If a change touches instructions, follow them rather than reading them. The
 README's "Adding a solution" steps have gone stale three times, twice while
 someone was looking straight at them.
