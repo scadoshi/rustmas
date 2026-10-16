@@ -1,13 +1,13 @@
 use std::ops::Range;
 pub trait RangeExt<T> {
-    fn split(&self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
-    fn intersection(&self, other: Range<T>) -> Option<Range<T>>;
-    fn difference(&self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
-    fn merge(&self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
+    fn split(self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
+    fn intersection(self, other: Range<T>) -> Option<Range<T>>;
+    fn difference(self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
+    fn merge(self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
 }
 
 impl<T: PartialOrd + Copy> RangeExt<T> for Range<T> {
-    fn split(&self, other: Range<T>) -> impl Iterator<Item = Range<T>> {
+    fn split(self, other: Range<T>) -> impl Iterator<Item = Range<T>> {
         match (self.contains(&other.start), self.contains(&other.end)) {
             (true, true) => [
                 Some(self.start..other.start),
@@ -27,7 +27,7 @@ impl<T: PartialOrd + Copy> RangeExt<T> for Range<T> {
         .filter(|r| !r.is_empty())
     }
 
-    fn intersection(&self, other: Range<T>) -> Option<Range<T>> {
+    fn intersection(self, other: Range<T>) -> Option<Range<T>> {
         match (other.contains(&self.start), other.contains(&self.end)) {
             (true, true) => Some(self.start..self.end),
             (true, false) => Some(self.start..other.end),
@@ -38,7 +38,7 @@ impl<T: PartialOrd + Copy> RangeExt<T> for Range<T> {
         .filter(|r| !r.is_empty())
     }
 
-    fn difference(&self, other: Range<T>) -> impl Iterator<Item = Range<T>> {
+    fn difference(self, other: Range<T>) -> impl Iterator<Item = Range<T>> {
         match (other.contains(&self.start), other.contains(&self.end)) {
             (true, true) => [None, None],
             (true, false) => [Some(other.end..self.end), None],
@@ -53,7 +53,7 @@ impl<T: PartialOrd + Copy> RangeExt<T> for Range<T> {
         .filter(|r| !r.is_empty())
     }
 
-    fn merge(&self, other: Range<T>) -> impl Iterator<Item = Range<T>> {
+    fn merge(self, other: Range<T>) -> impl Iterator<Item = Range<T>> {
         let reach = other.start..=other.end;
         match (reach.contains(&self.start), reach.contains(&self.end)) {
             (true, true) => [Some(other.start..other.end), None],
