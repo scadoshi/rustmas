@@ -1,19 +1,26 @@
 # Architecture
 
-Ports and adapters. `domain` holds the puzzle types and imports nothing outside itself: no network, no filesystem, no CLI. `inbound` is how a request arrives, `outbound` is how it leaves, and each depends on the domain rather than the reverse.
+Ports and adapters, in three layers:
+
+- `domain` holds the puzzle types and imports nothing outside itself: no network, no filesystem, no CLI.
+- `inbound` is how a request arrives.
+- `outbound` is how it leaves.
+
+Both `inbound` and `outbound` depend on the domain, never the reverse.
 
 ```
 src/
   bin/main.rs                # entry point, nothing else
   lib/
     domain/                  # puzzles, with no idea HTTP or files exist
-      address/               # which puzzle: Year, Day, Part
+      address/               # which puzzle: Year, Day, Part, and a Filter over them
       solution/
         mod.rs               # the Solution trait, and one run's timings
         answer.rs            # what a part produced
         outcome.rs           # that answer, plus timing and verdicts
         aoc_verdict.rs       # what AOC said about a submission
         solver_verdict.rs    # what the solver made of an answer
+        totals.rs            # a whole run's time, summed across days
         common/              # helpers more than one day needs, empty to start
         year_template/       # copy this to start a year
         year_<year>/         # your days go here, one dir each
@@ -25,6 +32,7 @@ src/
     outbound/                # ways out
       client/
         environment.rs       # every env var the tool reads
+        session_cookie.rs    # the validated session cookie
         aoc_client.rs        # adventofcode.com: inputs and submissions
         solver_client.rs     # third-party solver: repeatable answer checks
         solve.rs             # runs a day, validating against the solver
@@ -46,7 +54,12 @@ cli               parses solve -y 2015 -d 1 --validate
     Outcome       renders answer, verdicts, and timing on one line
 ```
 
-A day is a `Puzzle` type implementing `Solution`: `new` parses once and errors on bad input, and `part_one`/`part_two` read the parsed result. The `solver_for` match is the only list of what has been solved; a day missing from it is skipped rather than failing.
+A day is a `Puzzle` type implementing `Solution`.
+
+- `new` parses once and errors on bad input.
+- `part_one` and `part_two` read the parsed result.
+
+The `solver_for` match is the only list of what has been solved. A day missing from it is skipped, not failed.
 
 ## The cache
 
@@ -57,6 +70,9 @@ cache/2015/01/part_one.md   puzzle text
 cache/2015/01/part_two.md   puzzle text, absent until part one is solved
 ```
 
-Every file is readable on its own. The session hash is what catches a swapped account, since inputs are account specific. Part two's absence means still locked, which is rechecked each run until it arrives.
+Every file is readable on its own.
+
+- `session` catches a swapped account, since inputs are account specific.
+- A missing `part_two.md` means part two is still locked. Each run with a cookie rechecks it until it arrives, except on day 25, whose second star has no puzzle.
 
 Inputs are read at runtime, so a fresh clone compiles with `cache/` empty. `solve` downloads what it needs, which makes `fetch` a way to pull things ahead of time rather than a prerequisite.
