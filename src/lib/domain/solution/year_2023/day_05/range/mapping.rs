@@ -1,8 +1,9 @@
+use crate::domain::solution::common::range::ext::RangeExt;
 use std::{num::ParseIntError, ops::Range, str::FromStr};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub(in crate::domain::solution::year_2023::day_05) enum InvalidRangeMapping {
+pub(in super::super) enum InvalidRangeMapping {
     #[error("too few parts")]
     TooFewParts,
     #[error("too many parts")]
@@ -12,7 +13,7 @@ pub(in crate::domain::solution::year_2023::day_05) enum InvalidRangeMapping {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(in crate::domain::solution::year_2023::day_05) struct RangeMapping {
+pub(in super::super) struct RangeMapping {
     destination: u64,
     source: u64,
     length: u64,
@@ -47,16 +48,26 @@ impl RangeMapping {
         }
     }
 
+    pub(super) fn source_range(self) -> Range<u64> {
+        self.source..self.source + self.length
+    }
+
     pub(super) fn map(&self, seed: u64) -> Option<u64> {
-        (self.source..self.source + self.length)
+        self.source_range()
             .contains(&seed)
             .then(|| self.destination + self.source.abs_diff(seed))
     }
 
-    pub(super) fn map_range(&self, _range: Range<u64>) -> (Option<Range<u64>>, Vec<Range<u64>>) {
-        let _source_range = self.source..self.source + self.length;
-        let _destination_range = self.destination..self.destination + self.length;
-        todo!();
+    pub(super) fn map_range(
+        self,
+        range: Range<u64>,
+    ) -> Option<(Range<u64>, impl Iterator<Item = Range<u64>>)> {
+        range.clone().intersection(self.source_range()).map(|i| {
+            let start_offset = i.start - self.source;
+            let end_offset = i.end - self.source;
+            let mapped_range = self.destination + start_offset..self.destination + end_offset;
+            (mapped_range, range.difference(self.source_range()))
+        })
     }
 }
 
@@ -100,5 +111,19 @@ mod tests {
     fn range_mapping_map() {
         assert_eq!(RangeMapping::new(50, 98, 2).map(99).unwrap(), 51);
         assert_eq!(RangeMapping::new(50, 98, 2).map(100), None);
+    }
+
+    #[test]
+    fn range_mapping_map_range() {
+        let result = RangeMapping::new(50, 98, 2).map_range(90..110);
+        assert!(result.is_some());
+        let Some((mapped, leftovers)) = result else {
+            panic!();
+        };
+        assert_eq!(mapped, 50..52);
+        assert_eq!(
+            leftovers.collect::<Vec<Range<u64>>>(),
+            vec![90..98, 100..110]
+        );
     }
 }

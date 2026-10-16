@@ -1,10 +1,13 @@
 use crate::domain::solution::year_2023::day_05::range::{
     map::RangeMap, mapping::InvalidRangeMapping,
 };
-use std::{ops::Deref, str::FromStr};
+use std::{
+    ops::{Deref, Range},
+    str::FromStr,
+};
 
 #[derive(Debug, Clone, PartialEq)]
-pub(in crate::domain::solution::year_2023::day_05) struct RangeMaps(Vec<RangeMap>);
+pub(in super::super) struct RangeMaps(Vec<RangeMap>);
 
 impl Deref for RangeMaps {
     type Target = [RangeMap];
@@ -27,8 +30,14 @@ impl FromStr for RangeMaps {
 }
 
 impl RangeMaps {
-    pub(in crate::domain::solution::year_2023::day_05) fn map(&self, seed: u64) -> u64 {
+    pub(in super::super) fn map(&self, seed: u64) -> u64 {
         self.iter().fold(seed, |seed, r| r.map(seed))
+    }
+
+    pub(in super::super) fn map_range(&self, range: Range<u64>) -> Vec<Range<u64>> {
+        self.iter().fold(vec![range], |ranges, map| {
+            ranges.into_iter().flat_map(|r| map.map_range(r)).collect()
+        })
     }
 }
 
@@ -121,5 +130,17 @@ mod tests {
     #[test]
     fn range_maps_map() {
         assert_eq!(example().map(51), 38);
+    }
+
+    #[test]
+    fn range_maps_map_range() {
+        let mut ranges = example().map_range(40..60);
+        ranges.sort_by_key(|r| r.start);
+        assert_eq!(ranges, vec![25..35, 37..39, 54..62]);
+        // agrees with mapping each seed on its own
+        for seed in 40..60 {
+            let location = example().map(seed);
+            assert!(ranges.iter().any(|r| r.contains(&location)));
+        }
     }
 }

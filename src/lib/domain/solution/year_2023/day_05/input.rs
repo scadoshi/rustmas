@@ -28,10 +28,6 @@ impl Input {
     pub(super) fn maps(&self) -> &RangeMaps {
         &self.maps
     }
-
-    pub(super) fn nearest(&self) -> Option<u64> {
-        self.seeds().iter().map(|s| self.maps().map(*s)).min()
-    }
 }
 
 #[cfg(test)]
@@ -152,14 +148,6 @@ mod tests {
                 39 0 15"
             )
             .is_err()
-        );
-    }
-
-    #[test]
-    fn nearest() {
-        assert_eq!(
-            Input::from_str(example_input()).unwrap().nearest().unwrap(),
-            35
         );
     }
 }

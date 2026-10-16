@@ -33,14 +33,15 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let mut pile = self.input.seeds().to_ranges()?;
-        while let Some(range) = pile.pop() {
-            let _sub_pile = [range];
-            for _map in self.input.maps().iter() {
-                todo!()
-            }
-            todo!()
-        }
-        Ok(Answer::Unwritten)
+        Ok(Answer::solved(
+            self.input
+                .seeds()
+                .to_ranges()?
+                .into_iter()
+                .flat_map(|r| self.input.maps().map_range(r).into_iter().map(|r| r.start))
+                .min()
+                .ok_or(anyhow!("no min found"))?
+                .to_string(),
+        ))
     }
 }
