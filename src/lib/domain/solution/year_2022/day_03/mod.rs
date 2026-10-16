@@ -41,7 +41,7 @@ impl Solution for Puzzle {
         }
         let total = self
             .rucksacks
-            .chunks_exact(GROUP)
+            .as_chunks::<GROUP>().0.iter()
             .map(|group| {
                 group
                     .iter()
