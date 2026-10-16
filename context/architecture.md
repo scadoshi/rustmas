@@ -1,9 +1,6 @@
 # Architecture
 
-Ports and adapters. `domain` holds the puzzle types and imports nothing outside
-itself: no network, no filesystem, no CLI. `inbound` is how a request arrives,
-`outbound` is how it leaves, and each depends on the domain rather than the
-reverse.
+Ports and adapters. `domain` holds the puzzle types and imports nothing outside itself: no network, no filesystem, no CLI. `inbound` is how a request arrives, `outbound` is how it leaves, and each depends on the domain rather than the reverse.
 
 ```
 src/
@@ -49,10 +46,7 @@ cli               parses solve -y 2015 -d 1 --validate
     Outcome       renders answer, verdicts, and timing on one line
 ```
 
-A day is a `Puzzle` type implementing `Solution`: `new` parses once and errors
-on bad input, and `part_one`/`part_two` read the parsed result. The `solver_for`
-match is the only list of what has been solved; a day missing from it is skipped
-rather than failing.
+A day is a `Puzzle` type implementing `Solution`: `new` parses once and errors on bad input, and `part_one`/`part_two` read the parsed result. The `solver_for` match is the only list of what has been solved; a day missing from it is skipped rather than failing.
 
 ## The cache
 
@@ -63,10 +57,6 @@ cache/2015/01/part_one.md   puzzle text
 cache/2015/01/part_two.md   puzzle text, absent until part one is solved
 ```
 
-Every file is readable on its own. The session hash is what catches a swapped
-account, since inputs are account specific. Part two's absence means still
-locked, which is rechecked each run until it arrives.
+Every file is readable on its own. The session hash is what catches a swapped account, since inputs are account specific. Part two's absence means still locked, which is rechecked each run until it arrives.
 
-Inputs are read at runtime, so a fresh clone compiles with `cache/` empty.
-`solve` downloads what it needs, which makes `fetch` a way to pull things ahead
-of time rather than a prerequisite.
+Inputs are read at runtime, so a fresh clone compiles with `cache/` empty. `solve` downloads what it needs, which makes `fetch` a way to pull things ahead of time rather than a prerequisite.
