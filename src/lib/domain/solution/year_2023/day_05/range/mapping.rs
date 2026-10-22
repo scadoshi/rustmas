@@ -1,6 +1,10 @@
-use crate::domain::solution::common::range::ext::RangeExt;
-use std::{num::ParseIntError, ops::Range, str::FromStr};
+use std::num::ParseIntError;
+use std::ops::Range;
+use std::str::FromStr;
+
 use thiserror::Error;
+
+use crate::domain::solution::common::range::ext::RangeExt;
 
 #[derive(Debug, Error)]
 pub(in super::super) enum InvalidRangeMapping {

@@ -1,5 +1,6 @@
-use crate::inbound::{fetch, solve};
 use clap::{Parser, Subcommand};
+
+use crate::inbound::{fetch, solve};
 
 /// What the user asked for.
 #[derive(Subcommand)]

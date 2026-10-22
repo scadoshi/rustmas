@@ -1,8 +1,7 @@
-use crate::domain::solution::common::{
-    cell::Cell,
-    grid::{FixedWidth, Grid},
-};
 use thiserror::Error;
+
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
 /// A grid with at least one cell, every row the same width.
 #[derive(Debug, Clone)]

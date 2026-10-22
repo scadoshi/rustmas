@@ -1,4 +1,6 @@
-use crate::domain::solution::common::{direction::Direction, point::Point, turn::Turn};
+use crate::domain::solution::common::direction::Direction;
+use crate::domain::solution::common::point::Point;
+use crate::domain::solution::common::turn::Turn;
 
 /// A position plus a heading, starting at the origin facing [`Direction::Up`].
 ///

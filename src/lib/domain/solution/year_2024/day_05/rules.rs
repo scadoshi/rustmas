@@ -1,6 +1,11 @@
-use crate::domain::solution::year_2024::day_05::update::Update;
-use std::{cmp::Ordering, collections::HashSet, num::ParseIntError, str::FromStr};
+use std::cmp::Ordering;
+use std::collections::HashSet;
+use std::num::ParseIntError;
+use std::str::FromStr;
+
 use thiserror::Error;
+
+use crate::domain::solution::year_2024::day_05::update::Update;
 
 #[derive(Debug, Error)]
 pub enum InvalidRule {

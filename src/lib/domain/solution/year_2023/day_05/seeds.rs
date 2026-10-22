@@ -1,8 +1,7 @@
+use std::ops::{Deref, Range};
+use std::str::FromStr;
+
 use anyhow::{anyhow, bail};
-use std::{
-    ops::{Deref, Range},
-    str::FromStr,
-};
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct Seeds(Vec<u64>);

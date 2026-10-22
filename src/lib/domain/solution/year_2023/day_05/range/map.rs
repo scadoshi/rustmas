@@ -1,9 +1,8 @@
+use std::ops::{Deref, Range};
+use std::str::FromStr;
+
 use crate::domain::solution::year_2023::day_05::range::mapping::{
     InvalidRangeMapping, RangeMapping,
-};
-use std::{
-    ops::{Deref, Range},
-    str::FromStr,
 };
 
 /// Mappings sorted by source, so `map_range` can sweep them in one pass.

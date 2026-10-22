@@ -1,6 +1,8 @@
-use crate::domain::solution::year_2023::day_05::{RangeMaps, Seeds};
-use anyhow::anyhow;
 use std::str::FromStr;
+
+use anyhow::anyhow;
+
+use crate::domain::solution::year_2023::day_05::{RangeMaps, Seeds};
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct Input {

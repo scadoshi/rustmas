@@ -1,6 +1,11 @@
-use crate::domain::solution::common::turn::{InvalidTurn, Turn};
-use std::{num::ParseIntError, ops::Deref, str::FromStr, vec::IntoIter};
+use std::num::ParseIntError;
+use std::ops::Deref;
+use std::str::FromStr;
+use std::vec::IntoIter;
+
 use thiserror::Error;
+
+use crate::domain::solution::common::turn::{InvalidTurn, Turn};
 
 /// The ways a single instruction can fail to parse.
 #[derive(Debug, Error)]

@@ -1,4 +1,5 @@
-use crate::domain::solution::{Solution, answer::Answer};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
 
 pub struct Puzzle {
     input: Vec<Vec<u32>>,

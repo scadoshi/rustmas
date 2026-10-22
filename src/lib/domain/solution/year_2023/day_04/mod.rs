@@ -1,8 +1,9 @@
 pub mod card;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2023::day_04::card::Card,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2023::day_04::card::Card;
 
 pub struct Puzzle {
     cards: Vec<Card>,

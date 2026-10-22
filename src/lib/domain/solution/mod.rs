@@ -23,8 +23,10 @@ pub mod year_2025;
 // Compiled but never dispatched, so a copy starts from something that builds.
 pub mod year_template;
 
-use crate::domain::solution::{answer::Answer, outcome::Outcome};
 use std::time::Duration;
+
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::outcome::Outcome;
 
 /// One day's puzzle, parsed and ready to answer both parts.
 ///

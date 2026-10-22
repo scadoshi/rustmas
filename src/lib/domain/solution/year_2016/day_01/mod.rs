@@ -3,12 +3,11 @@ pub mod pose;
 
 use std::collections::HashSet;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::point::Point,
-    year_2016::day_01::{instruction::Instructions, pose::Pose},
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::point::Point;
+use crate::domain::solution::year_2016::day_01::instruction::Instructions;
+use crate::domain::solution::year_2016::day_01::pose::Pose;
 
 pub struct Puzzle {
     /// Parsed here so a bad input fails before either part runs.

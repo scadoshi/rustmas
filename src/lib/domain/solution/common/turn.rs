@@ -1,4 +1,5 @@
 use std::str::FromStr;
+
 use thiserror::Error;
 
 /// Returned when text does not name a turn. Carries what was read.

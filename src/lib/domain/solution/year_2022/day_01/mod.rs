@@ -1,6 +1,9 @@
-use crate::domain::solution::{Solution, answer::Answer};
-use anyhow::Context;
 use std::cmp::Reverse;
+
+use anyhow::Context;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
 
 pub struct Puzzle {
     groups: Vec<Vec<i32>>,

@@ -1,11 +1,8 @@
-use crate::domain::solution::common::{
-    cell::Cell,
-    grid::{
-        FixedWidth, Grid,
-        rectangle::{InvalidRectangle, Rectangle},
-    },
-};
 use std::str::FromStr;
+
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
+use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
 /// The eight directions a word can run in, as (column, row) steps.
 const DIRECTIONS: [(isize, isize); 8] = [

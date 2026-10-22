@@ -2,15 +2,12 @@ pub mod direction;
 pub mod instruction;
 pub mod position;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::parse,
-    year_2021::day_02::{
-        instruction::Instruction,
-        position::{Position, aimed::Aimed},
-    },
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2021::day_02::instruction::Instruction;
+use crate::domain::solution::year_2021::day_02::position::Position;
+use crate::domain::solution::year_2021::day_02::position::aimed::Aimed;
 
 pub struct Puzzle {
     instructions: Vec<Instruction>,

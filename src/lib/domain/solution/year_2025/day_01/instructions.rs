@@ -1,6 +1,9 @@
-use crate::domain::solution::common::turn::{InvalidTurn, Turn};
-use std::{num::ParseIntError, str::FromStr};
+use std::num::ParseIntError;
+use std::str::FromStr;
+
 use thiserror::Error;
+
+use crate::domain::solution::common::turn::{InvalidTurn, Turn};
 
 /// Returned when a line does not name a turn and a distance.
 #[derive(Debug, Error)]

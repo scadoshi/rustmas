@@ -1,8 +1,8 @@
 pub mod hashing;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, year_2015::day_04::hashing::lowest_suffix,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2015::day_04::hashing::lowest_suffix;
 
 pub struct Puzzle {
     secret: String,

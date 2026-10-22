@@ -2,12 +2,11 @@
 
 pub mod cell_on_grid;
 
-use crate::domain::solution::common::{
-    cell::Cell,
-    direction::Direction,
-    grid::{FixedWidth, Grid, VariableWidth},
-};
 use thiserror::Error;
+
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::direction::Direction;
+use crate::domain::solution::common::grid::{FixedWidth, Grid, VariableWidth};
 
 #[derive(Debug, Error)]
 #[error("expected a cell on the grid")]

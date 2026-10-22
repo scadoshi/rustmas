@@ -1,9 +1,11 @@
-use crate::domain::solution::common::{
-    direction::{Direction, InvalidDirection},
-    point::Point,
-};
-use std::{collections::HashMap, num::ParseIntError, str::FromStr};
+use std::collections::HashMap;
+use std::num::ParseIntError;
+use std::str::FromStr;
+
 use thiserror::Error;
+
+use crate::domain::solution::common::direction::{Direction, InvalidDirection};
+use crate::domain::solution::common::point::Point;
 
 #[derive(Debug, Error)]
 pub enum InvalidWire {

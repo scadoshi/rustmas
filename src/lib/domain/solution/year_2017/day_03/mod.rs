@@ -1,12 +1,11 @@
 pub mod spiral;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::point::Point,
-    year_2017::day_03::spiral::{neighbors, spiral},
-};
 use std::collections::HashMap;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::point::Point;
+use crate::domain::solution::year_2017::day_03::spiral::{neighbors, spiral};
 
 pub struct Puzzle {
     target: usize,

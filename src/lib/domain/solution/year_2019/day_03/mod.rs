@@ -1,7 +1,10 @@
 pub mod wire;
 
-use crate::domain::solution::{Solution, answer::Answer, year_2019::day_03::wire::Wire};
 use anyhow::anyhow;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2019::day_03::wire::Wire;
 
 pub struct Puzzle {
     first: Wire,

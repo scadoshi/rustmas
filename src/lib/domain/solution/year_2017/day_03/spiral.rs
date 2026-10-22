@@ -1,4 +1,5 @@
-use crate::domain::solution::common::{direction::Direction, point::Point};
+use crate::domain::solution::common::direction::Direction;
+use crate::domain::solution::common::point::Point;
 
 /// The spiral's squares in order, starting at the origin.
 ///

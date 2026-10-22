@@ -17,7 +17,7 @@ Run these in order:
 
 Each one sees what the others miss. Clippy reads past a clean build. The build never checks intra-doc links, so a rename compiles fine while ``[`Type`]`` links point at nothing.
 
-Format with `cargo +nightly fmt`. `rustfmt.toml` sets the unstable `imports_granularity = "Crate"`, and stable rustfmt ignores it.
+Format with `cargo +nightly fmt`. `rustfmt.toml` sets four unstable options, `imports_granularity = "Module"` (one `use` line per module), `group_imports = "StdExternalCrate"` (std, then external crates, then this crate, blank line between groups), `hex_literal_case = "Lower"` and `format_macro_matchers = true`, and stable rustfmt ignores all of them.
 
 CI in `.github/workflows/ci.yml` runs the same checks on every push to `main` or `scadoshi`, with warnings as errors. A red run means one of these got skipped, so run them locally first instead of letting CI find it.
 

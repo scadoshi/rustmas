@@ -1,11 +1,8 @@
-use crate::domain::solution::common::{
-    cell::Cell,
-    grid::{
-        Grid,
-        rectangle::{InvalidRectangle, Rectangle},
-    },
-};
 use std::str::FromStr;
+
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::grid::Grid;
+use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
 
 /// The engine schematic, one character per cell.
 #[derive(Debug, Clone)]

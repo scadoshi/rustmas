@@ -1,11 +1,9 @@
-use crate::domain::solution::{
-    common::range::ext::RangeExt,
-    year_2023::day_05::range::{map::RangeMap, mapping::InvalidRangeMapping},
-};
-use std::{
-    ops::{Deref, Range},
-    str::FromStr,
-};
+use std::ops::{Deref, Range};
+use std::str::FromStr;
+
+use crate::domain::solution::common::range::ext::RangeExt;
+use crate::domain::solution::year_2023::day_05::range::map::RangeMap;
+use crate::domain::solution::year_2023::day_05::range::mapping::InvalidRangeMapping;
 
 #[derive(Debug, Clone, PartialEq)]
 pub(in super::super) struct RangeMaps(Vec<RangeMap>);
@@ -56,7 +54,8 @@ fn merged(mut ranges: Vec<Range<u64>>) -> Vec<Range<u64>> {
 
 #[cfg(test)]
 mod tests {
-    use super::{super::mapping::RangeMapping, *};
+    use super::super::mapping::RangeMapping;
+    use super::*;
 
     fn example() -> RangeMaps {
         RangeMaps(vec![

@@ -1,10 +1,8 @@
 pub mod passphrase;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    year_2017::day_04::passphrase::{count_valid, sorted_letters},
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2017::day_04::passphrase::{count_valid, sorted_letters};
 
 pub struct Puzzle {
     passphrases: Vec<String>,

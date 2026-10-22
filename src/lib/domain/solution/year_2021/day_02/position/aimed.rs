@@ -1,6 +1,6 @@
-use crate::domain::solution::year_2021::day_02::{
-    direction::Direction, instruction::Instruction, position::Position,
-};
+use crate::domain::solution::year_2021::day_02::direction::Direction;
+use crate::domain::solution::year_2021::day_02::instruction::Instruction;
+use crate::domain::solution::year_2021::day_02::position::Position;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Aimed {

@@ -1,11 +1,8 @@
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::{
-        cell::Cell,
-        grid::{FixedWidth, Grid, rectangle::Rectangle},
-    },
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::grid::rectangle::Rectangle;
+use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
 /// The slopes part two multiplies together, as (right, down).
 const SLOPES: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];

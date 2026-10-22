@@ -1,7 +1,9 @@
-use std::{num::ParseIntError, str::FromStr};
+use std::num::ParseIntError;
+use std::str::FromStr;
+
+use thiserror::Error;
 
 use crate::domain::solution::year_2021::day_02::direction::{Direction, InvalidDirection};
-use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum InvalidInstruction {

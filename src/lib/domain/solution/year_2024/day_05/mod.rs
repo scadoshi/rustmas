@@ -1,16 +1,13 @@
 pub mod rules;
 pub mod update;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::parse,
-    year_2024::day_05::{
-        rules::{Rule, Rules},
-        update::Update,
-    },
-};
 use anyhow::anyhow;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2024::day_05::rules::{Rule, Rules};
+use crate::domain::solution::year_2024::day_05::update::Update;
 
 pub struct Puzzle {
     rules: Rules,

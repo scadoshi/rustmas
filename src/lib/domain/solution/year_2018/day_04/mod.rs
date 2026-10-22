@@ -1,12 +1,11 @@
 pub mod record;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::parse,
-    year_2018::day_04::record::{Event, Record},
-};
 use std::collections::HashMap;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2018::day_04::record::{Event, Record};
 
 /// Minutes in the midnight hour, the only hour any guard sleeps through.
 const MINUTES: usize = 60;

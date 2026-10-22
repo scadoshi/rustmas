@@ -2,13 +2,15 @@ pub mod input;
 pub mod range;
 pub mod seeds;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    year_2023::day_05::{input::Input, range::maps::RangeMaps, seeds::Seeds},
-};
-use anyhow::anyhow;
 use std::str::FromStr;
+
+use anyhow::anyhow;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2023::day_05::input::Input;
+use crate::domain::solution::year_2023::day_05::range::maps::RangeMaps;
+use crate::domain::solution::year_2023::day_05::seeds::Seeds;
 pub struct Puzzle {
     input: Input,
 }

@@ -1,8 +1,9 @@
 pub mod passport;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2020::day_04::passport::Passport,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2020::day_04::passport::Passport;
 
 pub struct Puzzle {
     passports: Vec<Passport>,

@@ -1,10 +1,8 @@
 pub mod nice;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    year_2015::day_05::nice::{is_nice, is_nicer},
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2015::day_05::nice::{is_nice, is_nicer};
 
 pub struct Puzzle {
     lines: Vec<String>,

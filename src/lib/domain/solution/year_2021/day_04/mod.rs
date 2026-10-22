@@ -1,7 +1,10 @@
 pub mod board;
 
-use crate::domain::solution::{Solution, answer::Answer, year_2021::day_04::board::Board};
 use anyhow::anyhow;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2021::day_04::board::Board;
 
 pub struct Puzzle {
     draws: Vec<u8>,

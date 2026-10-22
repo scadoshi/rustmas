@@ -1,8 +1,8 @@
-use crate::domain::solution::common::{
-    cell::Cell,
-    cursor::{CellOutOfBounds, Cursor, FixedWidthGridCursor, VariableWidthGridCursor},
-    grid::{FixedWidth, Grid, VariableWidth},
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::cursor::{
+    CellOutOfBounds, Cursor, FixedWidthGridCursor, VariableWidthGridCursor,
 };
+use crate::domain::solution::common::grid::{FixedWidth, Grid, VariableWidth};
 
 /// A [`Cursor`] holding a cell and a borrow of the grid it sits on.
 #[derive(Debug)]
@@ -51,10 +51,9 @@ impl<'a, G: Grid + VariableWidth> VariableWidthGridCursor<'a, G> for CellOnGrid<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::solution::common::{
-        direction::Direction as Dir,
-        grid::{jagged::Jagged, rectangle::Rectangle},
-    };
+    use crate::domain::solution::common::direction::Direction as Dir;
+    use crate::domain::solution::common::grid::jagged::Jagged;
+    use crate::domain::solution::common::grid::rectangle::Rectangle;
 
     fn rectangle() -> Rectangle<char> {
         Rectangle::new(vec![vec!['a', 'b', 'c'], vec!['d', 'e', 'f']]).unwrap()

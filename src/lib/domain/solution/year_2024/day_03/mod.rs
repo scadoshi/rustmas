@@ -1,10 +1,8 @@
 pub mod instruction;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    year_2024::day_03::instruction::{Instruction, instructions},
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2024::day_03::instruction::{Instruction, instructions};
 
 pub struct Puzzle {
     memory: String,

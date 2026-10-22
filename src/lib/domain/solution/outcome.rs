@@ -1,10 +1,9 @@
-use crate::domain::solution::{
-    answer::Answer, aoc_verdict::AocVerdict, solver_verdict::SolverVerdict,
-};
-use std::{
-    fmt::{Display, Write},
-    time::Duration,
-};
+use std::fmt::{Display, Write};
+use std::time::Duration;
+
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::aoc_verdict::AocVerdict;
+use crate::domain::solution::solver_verdict::SolverVerdict;
 
 /// One part's answer and everything learned about it afterwards.
 ///

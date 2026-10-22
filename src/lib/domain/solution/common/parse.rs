@@ -1,6 +1,7 @@
 //! The shapes every input takes, parsed once here rather than in each day.
 
-use std::{error::Error, str::FromStr};
+use std::error::Error;
+use std::str::FromStr;
 
 /// Every non-blank line as a `T`, stopping at the first that will not parse.
 ///

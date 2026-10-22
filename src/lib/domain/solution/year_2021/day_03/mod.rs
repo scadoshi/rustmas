@@ -1,11 +1,10 @@
 pub mod rating;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    year_2021::day_03::rating::{Keep, rate, rating_by_filter},
-};
 use anyhow::anyhow;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2021::day_03::rating::{Keep, rate, rating_by_filter};
 
 pub struct Puzzle {
     readings: Vec<u32>,

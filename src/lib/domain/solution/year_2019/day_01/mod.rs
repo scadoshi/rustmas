@@ -1,4 +1,6 @@
-use crate::domain::solution::{Solution, answer::Answer, common::parse};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
 
 pub struct Puzzle {
     masses: Vec<u32>,

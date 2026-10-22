@@ -1,6 +1,7 @@
 pub mod aimed;
 
-use crate::domain::solution::year_2021::day_02::{direction::Direction, instruction::Instruction};
+use crate::domain::solution::year_2021::day_02::direction::Direction;
+use crate::domain::solution::year_2021::day_02::instruction::Instruction;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Position {

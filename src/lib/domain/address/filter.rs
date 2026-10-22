@@ -1,9 +1,8 @@
-use crate::domain::address::{
-    Day, Year,
-    day::{DayOutOfRange, FINAL_DAY},
-    year::YearOutOfRange,
-};
 use thiserror::Error;
+
+use crate::domain::address::day::{DayOutOfRange, FINAL_DAY};
+use crate::domain::address::year::YearOutOfRange;
+use crate::domain::address::{Day, Year};
 
 /// The ways a filter can name something outside the published range.
 #[derive(Debug, Error)]

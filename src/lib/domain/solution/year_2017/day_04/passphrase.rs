@@ -1,4 +1,5 @@
-use std::{collections::HashSet, hash::Hash};
+use std::collections::HashSet;
+use std::hash::Hash;
 
 /// How many passphrases hold no two words with the same `key`.
 ///

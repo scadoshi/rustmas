@@ -1,4 +1,6 @@
-use std::{num::ParseIntError, str::FromStr};
+use std::num::ParseIntError;
+use std::str::FromStr;
+
 use thiserror::Error;
 
 #[derive(Debug, Error)]

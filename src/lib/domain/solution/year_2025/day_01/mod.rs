@@ -1,8 +1,9 @@
 pub mod instructions;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::turn::Turn, year_2025::day_01::instructions::Instructions,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::turn::Turn;
+use crate::domain::solution::year_2025::day_01::instructions::Instructions;
 
 pub struct Puzzle {
     instructions: Instructions,

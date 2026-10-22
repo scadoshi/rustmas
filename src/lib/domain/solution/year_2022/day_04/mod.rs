@@ -1,8 +1,9 @@
 pub mod assignment;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2022::day_04::assignment::Pair,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2022::day_04::assignment::Pair;
 
 pub struct Puzzle {
     pairs: Vec<Pair>,

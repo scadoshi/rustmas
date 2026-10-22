@@ -1,12 +1,11 @@
 pub mod rucksack;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::parse,
-    year_2022::day_03::rucksack::{Items, Rucksack},
-};
 use anyhow::anyhow;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2022::day_03::rucksack::{Items, Rucksack};
 
 /// How many elves carry one badge between them.
 const GROUP: usize = 3;

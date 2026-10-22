@@ -1,8 +1,9 @@
 pub mod password;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2020::day_02::password::Password,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2020::day_02::password::Password;
 
 pub struct Puzzle {
     passwords: Vec<Password>,

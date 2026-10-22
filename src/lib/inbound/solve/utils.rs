@@ -1,11 +1,9 @@
-use crate::{
-    domain::{
-        address::{Day, Part},
-        solution::{outcome::Outcome, solver_verdict::SolverVerdict},
-    },
-    outbound::client::aoc_client::AocClient,
-};
 use std::io::{self, Write};
+
+use crate::domain::address::{Day, Part};
+use crate::domain::solution::outcome::Outcome;
+use crate::domain::solution::solver_verdict::SolverVerdict;
+use crate::outbound::client::aoc_client::AocClient;
 
 /// Submits the answer if the solver backed it, with AOC's reply attached.
 ///

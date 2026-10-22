@@ -1,10 +1,8 @@
 pub mod hashing;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    year_2016::day_05::hashing::{HEX, interesting_digests},
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2016::day_05::hashing::{HEX, interesting_digests};
 
 pub struct Puzzle {
     door: String,

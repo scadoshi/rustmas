@@ -1,11 +1,10 @@
 pub mod args;
 pub mod utils;
 
-use crate::{
-    domain::address::{Day, Filter},
-    inbound::{fetch::args::FetchArgs, input::ensure_entry},
-    outbound::client::aoc_client::LazyAocClient,
-};
+use crate::domain::address::{Day, Filter};
+use crate::inbound::fetch::args::FetchArgs;
+use crate::inbound::input::ensure_entry;
+use crate::outbound::client::aoc_client::LazyAocClient;
 
 /// Downloads puzzle inputs and instructions into `cache/<year>/<NN>/`.
 ///

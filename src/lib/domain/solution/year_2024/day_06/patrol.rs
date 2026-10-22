@@ -1,13 +1,12 @@
-use crate::domain::solution::common::{
-    cell::Cell,
-    direction::Direction,
-    grid::{
-        FixedWidth, Grid,
-        rectangle::{InvalidRectangle, Rectangle},
-    },
-};
-use std::{collections::HashSet, str::FromStr};
+use std::collections::HashSet;
+use std::str::FromStr;
+
 use thiserror::Error;
+
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::direction::Direction;
+use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
+use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
 #[derive(Debug, Error)]
 pub enum InvalidPatrol {

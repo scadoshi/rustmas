@@ -1,23 +1,19 @@
 pub mod args;
 pub mod utils;
 
-use crate::{
-    domain::{
-        address::{Day, Filter, Part},
-        solution::{
-            Solved, aoc_verdict::AocVerdict, totals::Totals, year_2015, year_2016, year_2017,
-            year_2018, year_2019, year_2020, year_2021, year_2022, year_2023, year_2024, year_2025,
-        },
-    },
-    inbound::{
-        input::ensure_entry,
-        solve::{
-            args::SolveArgs,
-            utils::{confirm, submit},
-        },
-    },
-    outbound::client::{aoc_client::LazyAocClient, solve::solve, solver_client::SolverClient},
+use crate::domain::address::{Day, Filter, Part};
+use crate::domain::solution::aoc_verdict::AocVerdict;
+use crate::domain::solution::totals::Totals;
+use crate::domain::solution::{
+    Solved, year_2015, year_2016, year_2017, year_2018, year_2019, year_2020, year_2021, year_2022,
+    year_2023, year_2024, year_2025,
 };
+use crate::inbound::input::ensure_entry;
+use crate::inbound::solve::args::SolveArgs;
+use crate::inbound::solve::utils::{confirm, submit};
+use crate::outbound::client::aoc_client::LazyAocClient;
+use crate::outbound::client::solve::solve;
+use crate::outbound::client::solver_client::SolverClient;
 
 /// A day's solver, once its concrete type is known.
 type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;

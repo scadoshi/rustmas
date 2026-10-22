@@ -1,4 +1,5 @@
-use std::{num::ParseIntError, str::FromStr};
+use std::num::ParseIntError;
+use std::str::FromStr;
 
 /// The pages of one update, in the order given.
 #[derive(Debug, Clone, PartialEq, Eq)]

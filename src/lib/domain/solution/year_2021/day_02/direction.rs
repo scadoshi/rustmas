@@ -1,6 +1,8 @@
-use crate::domain::solution::common::direction::Direction as PointDirection;
 use std::str::FromStr;
+
 use thiserror::Error;
+
+use crate::domain::solution::common::direction::Direction as PointDirection;
 
 #[derive(Debug, Error)]
 #[error("expected forward, down or up")]

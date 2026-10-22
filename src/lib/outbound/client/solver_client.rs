@@ -1,17 +1,13 @@
-use crate::{
-    domain::{
-        address::{Day, Part},
-        solution::solver_verdict::SolverVerdict,
-    },
-    outbound::client::environment::Environment,
-};
-use anyhow::bail;
-use reqwest::{
-    Url,
-    blocking::Client,
-    header::{HeaderMap, HeaderValue, USER_AGENT},
-};
 use std::fmt::Display;
+
+use anyhow::bail;
+use reqwest::Url;
+use reqwest::blocking::Client;
+use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+
+use crate::domain::address::{Day, Part};
+use crate::domain::solution::solver_verdict::SolverVerdict;
+use crate::outbound::client::environment::Environment;
 
 /// Three deployments of the same third-party solver, tried in order. See
 /// `context/references.md`.

@@ -1,5 +1,7 @@
+use std::fs::create_dir_all;
+use std::path::Path;
+
 use anyhow::{Context, bail};
-use std::{fs::create_dir_all, path::Path};
 
 /// Creates `path` and its parents, erroring rather than clobbering a file.
 ///

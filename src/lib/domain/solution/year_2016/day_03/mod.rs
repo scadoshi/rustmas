@@ -1,8 +1,9 @@
 pub mod triangle;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2016::day_03::triangle::Triangle,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2016::day_03::triangle::Triangle;
 
 pub struct Puzzle {
     triangles: Vec<Triangle>,

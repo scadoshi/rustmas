@@ -1,21 +1,16 @@
-use crate::{
-    domain::{
-        address::{Day, Part},
-        solution::aoc_verdict::AocVerdict,
-    },
-    outbound::client::{environment::Environment, session_cookie::SessionCookie},
-};
+use std::cell::Cell;
+use std::thread;
+use std::time::{Duration, Instant};
+
 use anyhow::Context;
-use reqwest::{
-    StatusCode, Url,
-    blocking::{Client, Response},
-    header::{COOKIE, HeaderMap, HeaderValue, USER_AGENT},
-};
-use std::{
-    cell::Cell,
-    thread,
-    time::{Duration, Instant},
-};
+use reqwest::blocking::{Client, Response};
+use reqwest::header::{COOKIE, HeaderMap, HeaderValue, USER_AGENT};
+use reqwest::{StatusCode, Url};
+
+use crate::domain::address::{Day, Part};
+use crate::domain::solution::aoc_verdict::AocVerdict;
+use crate::outbound::client::environment::Environment;
+use crate::outbound::client::session_cookie::SessionCookie;
 
 /// Marks a puzzle part on a day page. Two means part two is unlocked.
 const ARTICLE: &str = r#"<article class="day-desc">"#;

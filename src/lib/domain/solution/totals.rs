@@ -1,10 +1,10 @@
 //! Where a whole run's time went, gathered one day at a time.
 
-use crate::domain::{
-    address::{Day, Part},
-    solution::Solved,
-};
-use std::{fmt::Display, time::Duration};
+use std::fmt::Display;
+use std::time::Duration;
+
+use crate::domain::address::{Day, Part};
+use crate::domain::solution::Solved;
 
 /// A run's time, totalled across every day it solved.
 ///
@@ -94,10 +94,9 @@ impl Display for Totals {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::{
-        address::Year,
-        solution::{answer::Answer, outcome::Outcome},
-    };
+    use crate::domain::address::Year;
+    use crate::domain::solution::answer::Answer;
+    use crate::domain::solution::outcome::Outcome;
 
     fn day(year: i32, value: i32) -> Day {
         Day::new(value, Year::new(year).expect("test year")).expect("test day")

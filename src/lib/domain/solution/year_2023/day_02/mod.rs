@@ -1,11 +1,9 @@
 pub mod game;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::parse,
-    year_2023::day_02::game::{Game, Handful},
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2023::day_02::game::{Game, Handful};
 
 /// The bag part one asks about.
 const BAG: Handful = Handful {

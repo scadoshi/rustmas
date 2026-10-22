@@ -1,9 +1,10 @@
 pub mod calibration;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, year_2023::day_01::calibration::Calibration,
-};
 use anyhow::Context;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::year_2023::day_01::calibration::Calibration;
 
 pub struct Puzzle {
     /// One line per calibration document entry, trimmed of the trailing blank.

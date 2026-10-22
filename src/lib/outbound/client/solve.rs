@@ -1,11 +1,9 @@
-use crate::{
-    domain::{
-        address::{Day, Part},
-        solution::{Solution, Solved, outcome::Outcome},
-    },
-    outbound::client::solver_client::SolverClient,
-};
 use std::time::Instant;
+
+use crate::domain::address::{Day, Part};
+use crate::domain::solution::outcome::Outcome;
+use crate::domain::solution::{Solution, Solved};
+use crate::outbound::client::solver_client::SolverClient;
 
 /// Runs both parts, checking each answer against the solver when `validate`.
 ///

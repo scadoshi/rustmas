@@ -1,15 +1,9 @@
-use crate::{
-    domain::address::Day,
-    outbound::{
-        client::{
-            aoc_client::LazyAocClient, environment::Environment, session_cookie::SessionCookie,
-        },
-        store::{
-            self,
-            cache::{Entry, Input, Instructions},
-        },
-    },
-};
+use crate::domain::address::Day;
+use crate::outbound::client::aoc_client::LazyAocClient;
+use crate::outbound::client::environment::Environment;
+use crate::outbound::client::session_cookie::SessionCookie;
+use crate::outbound::store::cache::{Entry, Input, Instructions};
+use crate::outbound::store::{self};
 
 /// Returns `day`'s cached input and instructions, downloading what is missing.
 ///

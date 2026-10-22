@@ -1,5 +1,6 @@
-use anyhow::bail;
 use std::fmt::{self, Debug, Display};
+
+use anyhow::bail;
 
 /// How many hex characters adventofcode.com's session cookie carries.
 ///

@@ -1,12 +1,12 @@
 pub mod claim;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::{cell::Cell, parse},
-    year_2018::day_03::claim::Claim,
-};
 use std::collections::HashMap;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2018::day_03::claim::Claim;
 
 pub struct Puzzle {
     claims: Vec<Claim>,

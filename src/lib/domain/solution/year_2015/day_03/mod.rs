@@ -1,10 +1,9 @@
 use std::collections::HashSet;
 
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::{direction::Direction, point::Point},
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::direction::Direction;
+use crate::domain::solution::common::point::Point;
 
 pub struct Puzzle {
     directions: Vec<Direction>,

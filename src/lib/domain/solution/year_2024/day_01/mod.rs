@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
-use crate::domain::solution::{Solution, answer::Answer};
 use anyhow::anyhow;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
 
 pub struct Puzzle {
     list_1: Vec<i32>,

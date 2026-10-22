@@ -1,8 +1,9 @@
 pub mod room;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2016::day_04::room::Room,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2016::day_04::room::Room;
 
 pub struct Puzzle {
     rooms: Vec<Room>,

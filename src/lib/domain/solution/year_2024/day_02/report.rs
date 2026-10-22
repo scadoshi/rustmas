@@ -1,4 +1,5 @@
-use std::{num::ParseIntError, str::FromStr};
+use std::num::ParseIntError;
+use std::str::FromStr;
 
 /// One reactor report: the levels it read, in order.
 #[derive(Debug, Clone)]

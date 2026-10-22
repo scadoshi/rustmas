@@ -8,11 +8,10 @@ pub mod filter;
 pub mod part;
 pub mod year;
 
-use thiserror::Error;
-
 pub use day::Day;
 pub use filter::{Filter, InvalidFilter};
 pub use part::Part;
+use thiserror::Error;
 pub use year::{FIRST_YEAR, Year};
 
 /// Returned when a year falls outside the published events.

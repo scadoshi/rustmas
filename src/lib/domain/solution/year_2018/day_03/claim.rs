@@ -1,6 +1,9 @@
-use crate::domain::solution::common::cell::Cell;
-use std::{num::ParseIntError, str::FromStr};
+use std::num::ParseIntError;
+use std::str::FromStr;
+
 use thiserror::Error;
+
+use crate::domain::solution::common::cell::Cell;
 
 #[derive(Debug, Error)]
 pub enum InvalidClaim {

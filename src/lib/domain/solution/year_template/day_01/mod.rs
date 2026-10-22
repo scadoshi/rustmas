@@ -1,4 +1,5 @@
-use crate::domain::solution::{Solution, answer::Answer};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
 
 pub struct Puzzle {
     // Keep this only if the parts read the raw text; drop it if you parse.

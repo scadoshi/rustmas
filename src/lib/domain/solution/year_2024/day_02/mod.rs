@@ -1,8 +1,9 @@
 pub mod report;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2024::day_02::report::Report,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2024::day_02::report::Report;
 
 pub struct Puzzle {
     reports: Vec<Report>,

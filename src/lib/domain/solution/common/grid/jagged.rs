@@ -1,8 +1,7 @@
-use crate::domain::solution::common::{
-    cell::Cell,
-    grid::{Grid, VariableWidth},
-};
 use thiserror::Error;
+
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::grid::{Grid, VariableWidth};
 
 #[derive(Debug, Error)]
 pub enum InvalidJagged {

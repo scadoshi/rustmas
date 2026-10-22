@@ -1,8 +1,9 @@
 pub mod dimensions;
 
-use crate::domain::solution::{
-    Solution, answer::Answer, common::parse, year_2015::day_02::dimensions::Dimensions,
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
+use crate::domain::solution::year_2015::day_02::dimensions::Dimensions;
 
 pub struct Puzzle {
     input: Vec<Dimensions>,

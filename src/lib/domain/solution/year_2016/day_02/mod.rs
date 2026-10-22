@@ -1,13 +1,10 @@
-use crate::domain::solution::{
-    Solution,
-    answer::Answer,
-    common::{
-        cell::Cell,
-        cursor::{Cursor, FixedWidthGridCursor, cell_on_grid::CellOnGrid},
-        direction::Direction,
-        grid::rectangle::Rectangle,
-    },
-};
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::cell::Cell;
+use crate::domain::solution::common::cursor::cell_on_grid::CellOnGrid;
+use crate::domain::solution::common::cursor::{Cursor, FixedWidthGridCursor};
+use crate::domain::solution::common::direction::Direction;
+use crate::domain::solution::common::grid::rectangle::Rectangle;
 
 pub struct Puzzle {
     input: Vec<Vec<Direction>>,

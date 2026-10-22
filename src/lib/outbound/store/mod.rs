@@ -3,15 +3,13 @@
 
 pub mod cache;
 
-use crate::{
-    domain::address::Day,
-    outbound::store::cache::{Entry, Input, Instructions},
-};
+use std::fs::{create_dir_all, read_to_string, write};
+use std::path::{Path, PathBuf};
+
 use anyhow::{Context, bail};
-use std::{
-    fs::{create_dir_all, read_to_string, write},
-    path::{Path, PathBuf},
-};
+
+use crate::domain::address::Day;
+use crate::outbound::store::cache::{Entry, Input, Instructions};
 
 pub const CACHE_PATH: &str = "cache";
 
@@ -108,9 +106,10 @@ pub fn ensure_dir(path: &Path) -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs::remove_dir_all;
+
     use super::*;
     use crate::domain::address::Year;
-    use std::fs::remove_dir_all;
 
     /// A root per test, so nothing touches the real cache or another test.
     struct Temp(PathBuf);

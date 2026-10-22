@@ -1,4 +1,5 @@
-use std::{cmp::Ordering, fmt::Display};
+use std::cmp::Ordering;
+use std::fmt::Display;
 
 /// What the third-party solver made of an answer.
 ///

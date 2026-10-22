@@ -1,5 +1,9 @@
-use crate::domain::solution::{Solution, answer::Answer, common::parse};
-use std::{cmp::Ordering, collections::HashMap};
+use std::cmp::Ordering;
+use std::collections::HashMap;
+
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::common::parse;
 
 const TARGET: i32 = 2020;
 

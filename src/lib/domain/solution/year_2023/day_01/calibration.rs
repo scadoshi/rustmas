@@ -1,4 +1,5 @@
-use std::{collections::HashMap, sync::LazyLock};
+use std::collections::HashMap;
+use std::sync::LazyLock;
 
 /// The spelled-out digits part two accepts. No `zero`, which never appears.
 pub(super) static NUMBER_WORD_MAP: LazyLock<HashMap<&str, u32>> = LazyLock::new(|| {

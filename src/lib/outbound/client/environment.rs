@@ -3,8 +3,9 @@
 //! Each client asks for what it needs, so a caller never spells a key itself
 //! and the set of things `.env` must hold is readable from one file.
 
-use crate::outbound::client::session_cookie::SessionCookie;
 use anyhow::Context;
+
+use crate::outbound::client::session_cookie::SessionCookie;
 
 /// Optional env var: an address AOC can reach you at, for the `User-Agent`.
 ///

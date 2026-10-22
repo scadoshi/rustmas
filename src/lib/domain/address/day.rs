@@ -1,8 +1,7 @@
-use crate::domain::address::{
-    filter::Filter,
-    year::{FIRST_YEAR, Year},
-};
 use thiserror::Error;
+
+use crate::domain::address::filter::Filter;
+use crate::domain::address::year::{FIRST_YEAR, Year};
 
 /// Christmas Day, whose second star is awarded rather than puzzled.
 pub(crate) const FINAL_DAY: i32 = 25;
