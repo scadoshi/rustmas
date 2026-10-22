@@ -13,7 +13,7 @@ Run these in order:
 1. `cargo test`
 2. `cargo build`, for warnings
 3. `cargo clippy --all-targets`
-4. `cargo doc --no-deps`
+4. `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps`, the same flags CI uses, so a dangling link fails here first
 
 Each one sees what the others miss. Clippy reads past a clean build. The build never checks intra-doc links, so a rename compiles fine while ``[`Type`]`` links point at nothing.
 
