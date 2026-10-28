@@ -72,3 +72,29 @@ impl Solution for Puzzle {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_one_examples() {
+        for (input, want) in [(">", "2"), ("^>v<", "4"), ("^v^v^v^v^v", "2")] {
+            let got = Puzzle::new(input).unwrap().part_one().unwrap();
+            assert_eq!(got, Answer::solved(want), "input {input:?}");
+        }
+    }
+
+    #[test]
+    fn part_two_examples() {
+        for (input, want) in [("^v", "3"), ("^>v<", "3"), ("^v^v^v^v^v", "11")] {
+            let got = Puzzle::new(input).unwrap().part_two().unwrap();
+            assert_eq!(got, Answer::solved(want), "input {input:?}");
+        }
+    }
+
+    #[test]
+    fn anything_but_arrows_is_rejected() {
+        assert!(Puzzle::new("^>x").is_err());
+    }
+}

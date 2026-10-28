@@ -52,3 +52,28 @@ fn hex_digit(nibble: u8) -> anyhow::Result<char> {
     char::from_digit(u32::from(nibble), 16)
         .ok_or_else(|| anyhow::anyhow!("expected a nibble below 16, got {nibble}"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hex_digit_spells_lowercase() {
+        for (nibble, want) in [(0, '0'), (9, '9'), (10, 'a'), (15, 'f')] {
+            assert_eq!(hex_digit(nibble).unwrap(), want, "nibble {nibble}");
+        }
+    }
+
+    #[test]
+    fn hex_digit_rejects_more_than_a_nibble() {
+        assert!(hex_digit(16).is_err());
+    }
+
+    #[test]
+    #[ignore = "slow in debug; run with --release --ignored"]
+    fn example() {
+        let puzzle = Puzzle::new("abc").unwrap();
+        assert_eq!(puzzle.part_one().unwrap(), Answer::solved("18f47a30"));
+        assert_eq!(puzzle.part_two().unwrap(), Answer::solved("05ace8e3"));
+    }
+}
