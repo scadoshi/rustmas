@@ -26,9 +26,13 @@ impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         let digits = input
             .as_ref()
+            .trim()
             .chars()
-            .filter_map(|c| c.to_digit(10))
-            .collect();
+            .map(|c| {
+                c.to_digit(10)
+                    .with_context(|| format!("expected only digits, read {c:?}"))
+            })
+            .collect::<anyhow::Result<_>>()?;
         Ok(Self { digits })
     }
 
@@ -64,5 +68,16 @@ mod tests {
         assert_eq!(answers("123425").1, Answer::solved("4"));
         assert_eq!(answers("123123").1, Answer::solved("12"));
         assert_eq!(answers("12131415").1, Answer::solved("4"));
+    }
+
+    #[test]
+    fn a_trailing_newline_is_trimmed() {
+        assert_eq!(answers("1122\n").0, Answer::solved("3"));
+    }
+
+    #[test]
+    fn anything_but_digits_is_rejected() {
+        assert!(Puzzle::new("11a22").is_err());
+        assert!(Puzzle::new("11 22").is_err());
     }
 }
