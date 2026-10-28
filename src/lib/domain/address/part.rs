@@ -2,6 +2,9 @@
 
 use std::fmt::{self, Display};
 
+/// How many parts a day has, one per [`Part`] variant.
+pub const PARTS_PER_DAY: usize = 2;
+
 /// Named so call sites read `Part::One` rather than a `1` that could be a day.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Part {

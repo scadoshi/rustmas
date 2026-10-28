@@ -14,6 +14,9 @@ use crate::outbound::client::environment::Environment;
 /// Marks a puzzle part on a day page. Two means part two is unlocked.
 const ARTICLE: &str = r#"<article class="day-desc">"#;
 
+/// Column the rendered puzzle text wraps at, a terminal's default width.
+const INSTRUCTIONS_WIDTH: usize = 80;
+
 const AOC_BASE_URL: &str = "https://adventofcode.com";
 
 /// Least time between two requests. adventofcode.com throttles a client that
@@ -78,7 +81,7 @@ impl AocClient {
 
         let mut parts = html.split(ARTICLE).skip(1).map(|part| {
             let body = part.split("</article>").next().unwrap_or_default();
-            html2text::from_read(body.as_bytes(), 80)
+            html2text::from_read(body.as_bytes(), INSTRUCTIONS_WIDTH)
                 .with_context(|| format!("failed to render instructions for {day:?}"))
         });
 

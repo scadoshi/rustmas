@@ -10,5 +10,5 @@ pub mod year;
 
 pub use day::Day;
 pub use filter::{Filter, InvalidFilter};
-pub use part::Part;
+pub use part::{PARTS_PER_DAY, Part};
 pub use year::{FIRST_YEAR, Year};

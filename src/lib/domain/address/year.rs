@@ -1,8 +1,16 @@
 use chrono::{Datelike, Utc};
 use thiserror::Error;
 
+use crate::domain::address::day::FINAL_DAY;
+
 /// The first Advent of Code.
 pub const FIRST_YEAR: i32 = 2015;
+
+/// The month every event runs in, as [`Datelike::month`] counts it.
+const DECEMBER: u32 = 12;
+
+/// Days in a shortened event. 2025 ran twelve rather than [`FINAL_DAY`].
+const SHORT_EVENT_DAYS: i32 = 12;
 
 /// Returned when a year falls outside the published events.
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -36,7 +44,7 @@ impl Year {
     /// The latest event actually published. Before December that is last year.
     pub fn latest() -> i32 {
         let now = Utc::now();
-        if now.month() == 12 {
+        if now.month() == DECEMBER {
             now.year()
         } else {
             now.year() - 1
@@ -46,8 +54,8 @@ impl Year {
     /// Days published for `year`. Usually 25; 2025 was a 12-day event.
     pub fn days_in(&self) -> i32 {
         match self.0 {
-            2025 => 12,
-            _ => 25,
+            2025 => SHORT_EVENT_DAYS,
+            _ => FINAL_DAY,
         }
     }
 }

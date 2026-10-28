@@ -1,7 +1,7 @@
 pub mod args;
 pub mod utils;
 
-use crate::domain::address::{Day, Filter, Part};
+use crate::domain::address::{Day, Filter, PARTS_PER_DAY, Part};
 use crate::domain::solution::aoc_verdict::AocVerdict;
 use crate::domain::solution::totals::Totals;
 use crate::domain::solution::{
@@ -77,7 +77,7 @@ fn part_count(filter: Filter) -> usize {
     Day::matching(filter)
         .filter(|day| solver_for(day.year(), day.value()).is_some())
         .count()
-        * 2
+        * PARTS_PER_DAY
 }
 
 pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
