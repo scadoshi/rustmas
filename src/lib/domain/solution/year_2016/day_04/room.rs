@@ -9,6 +9,8 @@ pub enum InvalidRoom {
     MissingChecksum,
     #[error("expected a sector id after the name")]
     MissingId,
+    #[error("expected only lowercase letters and dashes in the name, read {0:?}")]
+    NotALetter(char),
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
@@ -18,6 +20,7 @@ const CHECKSUM_LEN: usize = 5;
 
 #[derive(Debug, Clone)]
 pub struct Room {
+    /// Only `a-z` and dashes, checked when parsed.
     encrypted_name: String,
     pub id: u32,
     checksum: String,
@@ -34,6 +37,9 @@ impl FromStr for Room {
             .and_then(|rest| rest.rsplit_once('['))
             .ok_or(InvalidRoom::MissingChecksum)?;
         let (name, id) = head.rsplit_once('-').ok_or(InvalidRoom::MissingId)?;
+        if let Some(other) = name.chars().find(|c| *c != '-' && !c.is_ascii_lowercase()) {
+            return Err(InvalidRoom::NotALetter(other));
+        }
         Ok(Self {
             encrypted_name: name.to_owned(),
             id: id.parse()?,
@@ -46,11 +52,17 @@ impl Room {
     /// Whether the checksum is the five commonest letters, ties by letter.
     pub fn is_real(&self) -> bool {
         let mut counts = [0usize; 26];
-        for b in self.encrypted_name.bytes().filter(|b| *b != b'-') {
-            counts[(b - b'a') as usize] += 1;
+        for b in self.encrypted_name.bytes() {
+            if let Some(count) = b
+                .checked_sub(b'a')
+                .and_then(|i| counts.get_mut(usize::from(i)))
+            {
+                *count += 1;
+            }
         }
-        let mut letters: Vec<(usize, u8)> = (0..26)
-            .map(|i| (counts[i], b'a' + i as u8))
+        let mut letters: Vec<(usize, u8)> = counts
+            .into_iter()
+            .zip(b'a'..=b'z')
             .filter(|(count, _)| *count > 0)
             .collect();
         letters.sort_unstable_by(|(c1, l1), (c2, l2)| c2.cmp(c1).then(l1.cmp(l2)));
@@ -120,6 +132,19 @@ mod tests {
                 .unwrap()
                 .is_real()
         );
+    }
+
+    /// Anything outside `a-z` and dashes would index past the letter counts.
+    #[test]
+    fn a_name_outside_lowercase_letters_is_rejected() {
+        for line in [
+            "Abc-123[abc]",
+            "a{b-123[ab]",
+            "a.b-123[ab]",
+            "\u{e9}t-123[et]",
+        ] {
+            assert!(line.parse::<Room>().is_err(), "{line}");
+        }
     }
 
     #[test]
