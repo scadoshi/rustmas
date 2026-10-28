@@ -30,27 +30,34 @@ impl Solution for Puzzle {
 
     /// The middle pages of the updates already in order.
     fn part_one(&self) -> anyhow::Result<Answer> {
+        let ordered = self.updates.iter().filter(|u| self.rules.is_ordered(u));
         Ok(Answer::solved(
-            self.updates
-                .iter()
-                .filter(|u| self.rules.is_ordered(u))
-                .map(Update::middle)
-                .sum::<u32>()
-                .to_string(),
+            sum_of_middles(ordered.cloned())?.to_string(),
         ))
     }
 
     /// The middle pages of the rest, once put in order.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.updates
-                .iter()
-                .filter(|u| !self.rules.is_ordered(u))
-                .map(|u| self.rules.reordered(u).middle())
-                .sum::<u32>()
-                .to_string(),
-        ))
+        let reordered = self
+            .updates
+            .iter()
+            .filter(|u| !self.rules.is_ordered(u))
+            .map(|u| self.rules.reordered(u))
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(Answer::solved(sum_of_middles(reordered)?.to_string()))
     }
+}
+
+/// The middle page of every update, added up.
+fn sum_of_middles(updates: impl IntoIterator<Item = Update>) -> anyhow::Result<u32> {
+    updates.into_iter().try_fold(0_u32, |total, update| {
+        let middle = update
+            .middle()
+            .ok_or_else(|| anyhow!("an update has no pages"))?;
+        total
+            .checked_add(middle)
+            .ok_or_else(|| anyhow!("the middle pages add up past {}", u32::MAX))
+    })
 }
 
 #[cfg(test)]
@@ -94,7 +101,10 @@ mod tests {
         assert_eq!(puzzle.part_one().unwrap().to_string(), "143");
         assert_eq!(puzzle.part_two().unwrap().to_string(), "123");
         assert_eq!(
-            puzzle.rules.reordered(&"75,97,47,61,53".parse().unwrap()),
+            puzzle
+                .rules
+                .reordered(&"75,97,47,61,53".parse().unwrap())
+                .unwrap(),
             "97,75,47,61,53".parse().unwrap()
         );
     }

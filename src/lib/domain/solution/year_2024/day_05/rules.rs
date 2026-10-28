@@ -15,6 +15,15 @@ pub enum InvalidRule {
     ParseInt(#[from] ParseIntError),
 }
 
+/// Why an update has no single order the rules agree on.
+#[derive(Debug, Error)]
+pub enum UnorderableUpdate {
+    #[error("no rule orders pages {0} and {1}")]
+    Unrelated(u32, u32),
+    #[error("the rules for pages {0:?} go round in a circle")]
+    Cycle(Vec<u32>),
+}
+
 /// `before` must be printed somewhere ahead of `after`, if both appear.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Rule {
@@ -60,17 +69,51 @@ impl Rules {
 
     /// Whether no pair of pages in `update` is the wrong way round.
     pub fn is_ordered(&self, update: &Update) -> bool {
-        update.pages().iter().enumerate().all(|(i, &a)| {
-            update.pages()[i + 1..]
-                .iter()
-                .all(|&b| self.order(a, b) != Ordering::Greater)
-        })
+        let mut rest = update.pages();
+        while let Some((&a, tail)) = rest.split_first() {
+            if tail.iter().any(|&b| self.order(a, b) == Ordering::Greater) {
+                return false;
+            }
+            rest = tail;
+        }
+        true
     }
 
-    pub fn reordered(&self, update: &Update) -> Update {
-        let mut pages = update.pages().to_vec();
-        pages.sort_by(|&a, &b| self.order(a, b));
-        Update::new(pages)
+    /// `update` in the one order every rule agrees with.
+    ///
+    /// Each page goes by how many of the update's pages must come before it,
+    /// which is the rules' order when they rank every pair without a circle.
+    ///
+    /// # Errors
+    ///
+    /// [`UnorderableUpdate::Unrelated`] when no rule orders two different
+    /// pages, and [`UnorderableUpdate::Cycle`] when the rules contradict
+    /// each other.
+    pub fn reordered(&self, update: &Update) -> Result<Update, UnorderableUpdate> {
+        let pages = update.pages();
+        let mut rest = pages;
+        while let Some((&a, tail)) = rest.split_first() {
+            if let Some(&b) = tail
+                .iter()
+                .find(|&&b| a != b && self.order(a, b) == Ordering::Equal)
+            {
+                return Err(UnorderableUpdate::Unrelated(a, b));
+            }
+            rest = tail;
+        }
+        let mut reordered = pages.to_vec();
+        reordered.sort_by_cached_key(|&page| {
+            pages
+                .iter()
+                .filter(|&&other| self.order(other, page) == Ordering::Less)
+                .count()
+        });
+        let reordered = Update::new(reordered);
+        if self.is_ordered(&reordered) {
+            Ok(reordered)
+        } else {
+            Err(UnorderableUpdate::Cycle(pages.to_vec()))
+        }
     }
 }
 
@@ -91,5 +134,57 @@ mod tests {
             "47,53".parse::<Rule>(),
             Err(InvalidRule::MissingBar)
         ));
+    }
+
+    /// `1|2` and `2|3` leave 1 and 3 unrelated, so comparing them says `Equal`
+    /// and the sort can leave the update out of order.
+    #[test]
+    fn reordered_rejects_unrelated_pages() {
+        let rules: Rules = ["1|2", "2|3"].iter().map(|r| r.parse().unwrap()).collect();
+        let update: Update = "3,1,2".parse().unwrap();
+        let reordered = rules.reordered(&update);
+        assert!(reordered.is_err(), "got {reordered:?}");
+    }
+
+    /// Every pair has a rule but they go round in a circle, so no order exists.
+    #[test]
+    fn reordered_rejects_a_cycle() {
+        let rules: Rules = ["1|2", "2|3", "3|1"]
+            .iter()
+            .map(|r| r.parse().unwrap())
+            .collect();
+        let update: Update = "1,2,3".parse().unwrap();
+        assert!(rules.reordered(&update).is_err());
+    }
+
+    /// Random rule sets, some pairs unrelated and some cycles: reordering
+    /// returns an error rather than letting the sort panic on an inconsistent order.
+    #[test]
+    fn reordered_never_panics_on_random_rules() {
+        let mut seed: u64 = 7;
+        let mut next = move || {
+            seed ^= seed << 13;
+            seed ^= seed >> 7;
+            seed ^= seed << 17;
+            seed
+        };
+        for n in [10_u32, 33, 100] {
+            for _ in 0..20 {
+                let mut pairs = HashSet::new();
+                for a in 0..n {
+                    for b in (a + 1)..n {
+                        match next() % 3 {
+                            0 => pairs.insert((a, b)),
+                            1 => pairs.insert((b, a)),
+                            _ => false,
+                        };
+                    }
+                }
+                let rules = Rules(pairs);
+                let update = Update::new((0..n).collect());
+                let reordered = std::panic::catch_unwind(|| rules.reordered(&update));
+                assert!(reordered.is_ok_and(|r| r.is_err()));
+            }
+        }
     }
 }

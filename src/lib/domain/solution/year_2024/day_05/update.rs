@@ -25,7 +25,18 @@ impl Update {
         &self.0
     }
 
-    pub fn middle(&self) -> u32 {
-        self.0[self.0.len() / 2]
+    /// The page halfway along, or `None` for an update with no pages.
+    pub fn middle(&self) -> Option<u32> {
+        self.0.get(self.0.len() / 2).copied()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn middle_of_nothing_is_none() {
+        assert_eq!(Update::new(Vec::new()).middle(), None);
     }
 }
