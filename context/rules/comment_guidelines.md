@@ -11,7 +11,7 @@ A function with a comment on every line has the wrong names. Fix the names.
 - History. No "previously", "used to", "now", "no longer", or "was changed to", and no dates, commit hashes, or issue numbers. The code has no past tense, and git has the history.
 - The situation that led to the code. No "this is needed because we ran into" and no "this prevents the bug where". If the code only makes sense with the story attached, the code is wrong, not the comment.
 - Sermons, like "without this, X would happen, and then Y". Say what the line does. If the consequence is the non-obvious part, give it one short clause.
-- Restatements. `/// Returns the name.` above `fn name()` is noise, so delete it. When every item in a container explains itself, put `#[allow(missing_docs)]` on the container.
+- Restatements. `/// Returns the name.` above `fn name()` is noise. Say what the name can't: the unit, the range, when it is absent. When every item in a container explains itself, put `#[expect(missing_docs, reason = "...")]` on the container.
 - Advice, unless it's an instruction the reader must follow, like "loopback only, do not widen".
 
 ## Do write
@@ -24,7 +24,7 @@ A function with a comment on every line has the wrong names. Fix the names.
 
 - Use one line when you can. A doc comment may run longer, with an example when the signature can't say it, and then it stops.
 - Open every module with a one-line `//!` header.
-- Give every public item a doc comment, unless it explains itself.
+- Give every public item a doc comment. The shape, including the `# Errors` and `# Panics` sections, is in [doc_comments.md](doc_comments.md).
 - Keep section banners to one line: `// == errors ==`.
 - Never use em dashes, in code or in prose. Don't join two fragments with a spaced hyphen either. Use a sentence, a colon, or a comma.
 - Use American spelling.
