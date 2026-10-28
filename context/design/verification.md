@@ -126,6 +126,14 @@ That last case matters. `Unsupported` means the solver has no implementation.
 
 That happens during a live event, when a day is solved before the solver catches up, which is exactly when submitting is worth doing. Gating on it would block the one case the feature exists for.
 
+Part two goes only after part one comes back `Correct` or `AlreadySolved` in the same run. AOC answers a part two sent before part one's star with "You don't seem to be solving the right level", the same reply as a solved part, so it would print as `starred` with no star behind it.
+
+- A part one the solver rejected, or one that failed, isn't sent, so part two isn't either. It prints the solver's verdict alone.
+- An already starred part one still goes out and comes back `AlreadySolved`, which is the signal that lets part two through.
+- A cached `part_two.md` would also prove the star, but the cache can outlive a cookie swap, so it isn't trusted for this.
+
+`submission::submit_day` takes the send as a closure, so tests drive it with a fake AOC.
+
 An unfiltered `--submit` walks every year and day, so it prompts first with the count. `--yes` skips the prompt.
 
 - There's no short flag for `--yes`. `-y` is taken by `--year`, and a guard against hundreds of writes is worth typing out.
