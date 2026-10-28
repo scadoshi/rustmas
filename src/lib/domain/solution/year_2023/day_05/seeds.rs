@@ -34,7 +34,10 @@ impl Seeds {
             let (Some(start), Some(len)) = (chunk.first(), chunk.get(1)) else {
                 bail!("seed len is odd; to chunk into ranges it must be even");
             };
-            ranges.push(*start..*start + *len);
+            let Some(end) = start.checked_add(*len) else {
+                bail!("a seed range of {len} from {start} ends past {}", u64::MAX);
+            };
+            ranges.push(*start..end);
             Ok(ranges)
         })
     }
@@ -70,6 +73,16 @@ mod tests {
     fn seed_to_ranges_err() {
         assert!(
             Seeds::from_str("seeds: 79 14 55")
+                .unwrap()
+                .to_ranges()
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn seed_to_ranges_rejects_a_range_past_u64() {
+        assert!(
+            Seeds::from_str("seeds: 18446744073709551615 2")
                 .unwrap()
                 .to_ranges()
                 .is_err()

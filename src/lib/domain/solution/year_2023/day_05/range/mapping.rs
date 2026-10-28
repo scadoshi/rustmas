@@ -14,8 +14,13 @@ pub(in super::super) enum InvalidRangeMapping {
     TooManyParts,
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
+    /// The source or destination range ends past [`u64::MAX`].
+    #[error("a range of {length} from {start} ends past {}", u64::MAX)]
+    PastU64 { start: u64, length: u64 },
 }
 
+/// Both ranges end at or before [`u64::MAX`], checked when parsed, so every
+/// offset inside them adds without overflow.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(in super::super) struct RangeMapping {
     destination: u64,
@@ -34,11 +39,20 @@ impl FromStr for RangeMapping {
         if parts.next().is_some() {
             return Err(InvalidRangeMapping::TooManyParts);
         }
-        Ok(Self {
+        let mapping = Self {
             destination: d.parse()?,
             source: s.parse()?,
             length: l.parse()?,
-        })
+        };
+        for start in [mapping.source, mapping.destination] {
+            if start.checked_add(mapping.length).is_none() {
+                return Err(InvalidRangeMapping::PastU64 {
+                    start,
+                    length: mapping.length,
+                });
+            }
+        }
+        Ok(mapping)
     }
 }
 
@@ -109,6 +123,14 @@ mod tests {
             RangeMapping::from_str("foo 98 2"),
             Err(InvalidRangeMapping::ParseInt(_))
         ));
+    }
+
+    /// A range that ends past [`u64::MAX`] cannot be added up to.
+    #[test]
+    fn range_mapping_from_str_rejects_a_range_past_u64() {
+        assert!(RangeMapping::from_str("0 18446744073709551615 2").is_err());
+        assert!(RangeMapping::from_str("18446744073709551615 0 2").is_err());
+        assert!(RangeMapping::from_str("18446744073709551613 18446744073709551613 2").is_ok());
     }
 
     #[test]
