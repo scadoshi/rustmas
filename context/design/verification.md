@@ -30,7 +30,7 @@ The plan is to route on solved state: submit to AOC while a part is unsolved, an
 
 `src/lib/domain/solution/solver_verdict.rs` and `aoc_verdict.rs` hold two types, one per source.
 
-- `SolverVerdict` is `Correct`, `Incorrect`, `Low`, `High`, or `Unsupported`. Numeric comparisons build it with `From<Ordering>`; text answers either match or are `Incorrect`.
+- `SolverVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Unsupported`, or `Unchecked(String)`. Numeric comparisons build it with `From<Ordering>`; text answers either match or are `Incorrect`.
 - `AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(Option<String>)`, `AlreadySolved`, or `NotLoggedIn`.
 
 Direction is worth keeping rather than flattening into a bool, and both sources produce it.
@@ -61,7 +61,9 @@ The clients map their replies onto them.
 
 Classification has to read the body, not the status. [`../references.md`](../references.md) has the contract and how it was verified. `error_for_status()` isn't used here because it consumes the body that carries the meaning.
 
-Only transport failures and 5xx fall through to the next host. Every 4xx is deterministic and all three hosts run the same solver, so retrying a rejected request wastes round trips. A 5xx comes from the hosting platform, not the solver.
+Only transport failures and 5xx fall through to the next host.
+
+When every host fails, or one rejects the request, the error lands on that part as `Unchecked` with the reason, and it prints as `(unchecked: <reason>)`. The answers still print and the day still counts. An outage on someone else's server says nothing about whether the answers are right. Every 4xx is deterministic and all three hosts run the same solver, so retrying a rejected request wastes round trips. A 5xx comes from the hosting platform, not the solver.
 
 `Unsupported` is currently unreachable, because the solver's coverage ends exactly where `Year::days_in` does. It becomes reachable during a live event, when a day is published and solved locally before the solver catches up.
 
@@ -121,6 +123,7 @@ One detail is worth keeping if the cache ever comes back: an entry has to store 
 - Solver says `Correct`: submit.
 - Solver says `Incorrect`, `High`, or `Low`: skip, and report the direction.
 - Solver says `Unsupported`: submit anyway, noting it went unchecked.
+- Solver couldn't be reached, `Unchecked`: skip. Nothing vouched for the answer, and a wrong one costs a cooldown.
 
 That last case matters. `Unsupported` means the solver has no implementation.
 

@@ -37,8 +37,8 @@ pub(crate) fn submit_day(
 /// Submits the answer if the solver backed it, with AOC's reply attached.
 ///
 /// A wrong answer costs an escalating cooldown, so the verdict gates the send.
-/// [`SolverVerdict::Unsupported`] goes through anyway, and rejected answers
-/// come back untouched.
+/// [`SolverVerdict::Unsupported`] goes through anyway. Rejected answers, and
+/// [`SolverVerdict::Unchecked`] ones, come back untouched.
 fn submit(
     send: impl FnOnce(&str) -> anyhow::Result<AocVerdict>,
     outcome: Outcome,

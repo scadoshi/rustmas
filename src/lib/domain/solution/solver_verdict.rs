@@ -13,6 +13,8 @@ pub enum SolverVerdict {
     High,
     /// No implementation for that puzzle.
     Unsupported,
+    /// The check itself failed, so nothing was graded. Holds why.
+    Unchecked(String),
 }
 
 impl From<Ordering> for SolverVerdict {
@@ -33,6 +35,7 @@ impl Display for SolverVerdict {
             Self::Low => write!(f, "low"),
             Self::High => write!(f, "high"),
             Self::Unsupported => write!(f, "unsupported"),
+            Self::Unchecked(reason) => write!(f, "unchecked: {reason}"),
         }
     }
 }
