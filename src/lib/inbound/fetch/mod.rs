@@ -2,7 +2,7 @@ pub mod args;
 
 use crate::domain::address::{Day, Filter};
 use crate::inbound::fetch::args::FetchArgs;
-use crate::inbound::input::ensure_entry;
+use crate::inbound::input;
 use crate::outbound::client::aoc_client::LazyAocClient;
 
 /// Downloads puzzle inputs and instructions into `cache/<year>/<NN>/`.
@@ -14,7 +14,7 @@ pub fn run(args: &FetchArgs) -> anyhow::Result<()> {
     let mut aoc = LazyAocClient::default();
 
     for day in Day::matching(Filter::new(args.year, args.day)?) {
-        ensure_entry(&mut aoc, &day)?;
+        input::ensure_entry(&mut aoc, &day)?;
     }
     Ok(())
 }

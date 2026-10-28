@@ -51,7 +51,7 @@ impl<'grid, G: Grid + VariableWidth> VariableWidthGridCursor<'grid, G> for CellO
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::solution::common::direction::Direction as Dir;
+    use crate::domain::solution::common::direction::Direction;
     use crate::domain::solution::common::grid::jagged::Jagged;
     use crate::domain::solution::common::grid::rectangle::Rectangle;
 
@@ -72,29 +72,49 @@ mod tests {
         let grid = rectangle();
         let cursor = CellOnGrid::new(Cell::new(0, 0), &grid).unwrap();
         assert_eq!(
-            cursor.checked_moved(Dir::Right, 2).unwrap().cell().column(),
+            cursor
+                .checked_moved(Direction::Right, 2)
+                .unwrap()
+                .cell()
+                .column(),
             2
         );
-        assert_eq!(cursor.checked_moved(Dir::Down, 1).unwrap().cell().row(), 1);
+        assert_eq!(
+            cursor
+                .checked_moved(Direction::Down, 1)
+                .unwrap()
+                .cell()
+                .row(),
+            1
+        );
     }
 
     #[test]
     fn checked_moved_off_the_grid_is_none() {
         let grid = rectangle();
         let cursor = CellOnGrid::new(Cell::new(0, 0), &grid).unwrap();
-        assert!(cursor.checked_moved(Dir::Left, 1).is_none());
-        assert!(cursor.checked_moved(Dir::Up, 1).is_none());
-        assert!(cursor.checked_moved(Dir::Right, 3).is_none());
+        assert!(cursor.checked_moved(Direction::Left, 1).is_none());
+        assert!(cursor.checked_moved(Direction::Up, 1).is_none());
+        assert!(cursor.checked_moved(Direction::Right, 3).is_none());
     }
 
     #[test]
     fn saturating_moved_clamps_at_every_edge() {
         let grid = rectangle();
         let cursor = CellOnGrid::new(Cell::new(0, 0), &grid).unwrap();
-        assert_eq!(cursor.saturating_moved(Dir::Left, 99).cell().column(), 0);
-        assert_eq!(cursor.saturating_moved(Dir::Up, 99).cell().row(), 0);
-        assert_eq!(cursor.saturating_moved(Dir::Right, 99).cell().column(), 2);
-        assert_eq!(cursor.saturating_moved(Dir::Down, 99).cell().row(), 1);
+        assert_eq!(
+            cursor.saturating_moved(Direction::Left, 99).cell().column(),
+            0
+        );
+        assert_eq!(cursor.saturating_moved(Direction::Up, 99).cell().row(), 0);
+        assert_eq!(
+            cursor
+                .saturating_moved(Direction::Right, 99)
+                .cell()
+                .column(),
+            2
+        );
+        assert_eq!(cursor.saturating_moved(Direction::Down, 99).cell().row(), 1);
     }
 
     /// The row has to clamp before the width lookup, or an overshoot reads the
@@ -109,7 +129,7 @@ mod tests {
         .unwrap();
         let cursor = CellOnGrid::new(Cell::new(4, 0), &grid).unwrap();
 
-        let landed = cursor.saturating_moved(Dir::Down, 99);
+        let landed = cursor.saturating_moved(Direction::Down, 99);
         assert_eq!(landed.cell().row(), 2);
         assert_eq!(landed.cell().column(), 3);
         assert!(grid.contains_cell(&landed.cell()));
@@ -120,7 +140,7 @@ mod tests {
         let grid = Jagged::new(vec![vec!['a', 'b', 'c'], vec!['d']]).unwrap();
         let cursor = CellOnGrid::new(Cell::new(2, 0), &grid).unwrap();
 
-        let landed = cursor.saturating_moved(Dir::Down, 1);
+        let landed = cursor.saturating_moved(Direction::Down, 1);
         assert_eq!(landed.cell().row(), 1);
         assert_eq!(landed.cell().column(), 0);
     }

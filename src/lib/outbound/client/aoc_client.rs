@@ -224,8 +224,7 @@ impl LazyAocClient {
 
 #[cfg(test)]
 mod tests {
-    use super::{verdict_from, wait_from};
-    use crate::domain::solution::aoc_verdict::AocVerdict;
+    use super::*;
 
     // Real replies AOC gave for 2015 day 1, trimmed to the verdict sentence.
     const CORRECT: &str = "That's the right answer!  You are <span class=\"day-success\">one gold star</span> closer to powering the weather machine.";

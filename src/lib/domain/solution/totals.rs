@@ -1,6 +1,6 @@
 //! Where a whole run's time went, gathered one day at a time.
 
-use std::fmt::Display;
+use std::fmt::{self, Display};
 use std::time::Duration;
 
 use crate::domain::address::{Day, Part};
@@ -68,7 +68,7 @@ impl Totals {
 impl Display for Totals {
     /// A block of whole lines, each one ended. Renders whatever it holds;
     /// when that is worth showing is the caller's to decide.
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "total time spent parsing: {:?}", self.parsed)?;
         if let Some(mean) = self.parse_mean() {
             writeln!(f, "average parse time per day: {mean:?}")?;

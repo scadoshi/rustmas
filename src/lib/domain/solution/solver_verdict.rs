@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::fmt::Display;
+use std::fmt::{self, Display};
 
 /// What the third-party solver made of an answer.
 ///
@@ -36,7 +36,7 @@ impl From<bool> for SolverVerdict {
 }
 
 impl Display for SolverVerdict {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Correct => write!(f, "correct"),
             Self::Incorrect => write!(f, "incorrect"),

@@ -1,4 +1,7 @@
+//! Set operations on half-open [`Range`]s: split, intersect, subtract, merge.
+
 use std::ops::Range;
+
 pub trait RangeExt<T> {
     fn split(self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
     fn intersection(self, other: Range<T>) -> Option<Range<T>>;

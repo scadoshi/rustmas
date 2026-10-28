@@ -1,4 +1,4 @@
-use std::fmt::{Display, Write};
+use std::fmt::{self, Display, Write};
 use std::time::Duration;
 
 use crate::domain::solution::answer::Answer;
@@ -80,7 +80,7 @@ impl Outcome {
 impl Display for Outcome {
     /// Answer, then what is known about it, then timing. One line, unless the
     /// answer is art, which brings its own.
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut line = match &self.answer {
             Ok(answer) => answer.to_string(),
             // `{:#}` puts the whole chain on the line.

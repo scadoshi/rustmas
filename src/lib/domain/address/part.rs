@@ -1,6 +1,6 @@
 //! Which of a day's two puzzles.
 
-use std::fmt::Display;
+use std::fmt::{self, Display};
 
 /// Named so call sites read `Part::One` rather than a `1` that could be a day.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -22,7 +22,7 @@ impl Part {
 impl Display for Part {
     /// The word, as the output reads it. [`Part::wire_value`] is the one to
     /// send to a service.
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::One => write!(f, "one"),
             Self::Two => write!(f, "two"),

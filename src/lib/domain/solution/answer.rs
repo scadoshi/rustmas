@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{self, Display};
 
 /// What one part of a puzzle produced. Nothing else.
 ///
@@ -33,7 +33,7 @@ impl Answer {
 }
 
 impl Display for Answer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Value(value) => write!(f, "{value}"),
             Self::Visual(art) => write!(f, "\n{art}\n"),

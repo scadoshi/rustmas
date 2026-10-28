@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{self, Display};
 
 /// What adventofcode.com said about a submission.
 ///
@@ -19,7 +19,7 @@ pub enum AocVerdict {
 }
 
 impl Display for AocVerdict {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Correct => write!(f, "correct"),
             Self::Incorrect => write!(f, "incorrect"),

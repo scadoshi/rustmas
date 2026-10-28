@@ -3,7 +3,7 @@
 
 pub mod cache;
 
-use std::fs::{create_dir_all, read_to_string, write};
+use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, bail};
@@ -85,12 +85,12 @@ fn read_opt(path: &Path) -> anyhow::Result<Option<String>> {
         return Ok(None);
     }
     let contents =
-        read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
+        fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
     Ok(Some(contents).filter(|contents| !contents.trim().is_empty()))
 }
 
 fn write_file(path: &Path, contents: &str) -> anyhow::Result<()> {
-    write(path, contents).with_context(|| format!("failed to write {}", path.display()))
+    fs::write(path, contents).with_context(|| format!("failed to write {}", path.display()))
 }
 
 /// Creates `path` and its parents, erroring rather than clobbering a file.
@@ -101,13 +101,11 @@ pub fn ensure_dir(path: &Path) -> anyhow::Result<()> {
     if path.exists() {
         bail!("path exists but is not a dir: {}", path.display());
     }
-    create_dir_all(path).with_context(|| format!("failed to create dir: {}", path.display()))
+    fs::create_dir_all(path).with_context(|| format!("failed to create dir: {}", path.display()))
 }
 
 #[cfg(test)]
 mod tests {
-    use std::fs::remove_dir_all;
-
     use super::*;
     use crate::domain::address::Year;
 
@@ -117,14 +115,14 @@ mod tests {
     impl Temp {
         fn new(name: &str) -> Self {
             let path = std::env::temp_dir().join(format!("rustmas-test-{name}"));
-            let _ = remove_dir_all(&path);
+            let _ = fs::remove_dir_all(&path);
             Self(path)
         }
     }
 
     impl Drop for Temp {
         fn drop(&mut self) {
-            let _ = remove_dir_all(&self.0);
+            let _ = fs::remove_dir_all(&self.0);
         }
     }
 
@@ -183,7 +181,7 @@ mod tests {
         let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
 
         write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
-        std::fs::write(day_path_in(&temp.0, &day).join(PART_TWO_FILE), "  \n").unwrap();
+        fs::write(day_path_in(&temp.0, &day).join(PART_TWO_FILE), "  \n").unwrap();
 
         let read = read_entry_in(&temp.0, &day).unwrap().unwrap();
         assert!(read.instructions.part_two.is_none());
@@ -196,7 +194,7 @@ mod tests {
         let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
 
         write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
-        std::fs::remove_file(day_path_in(&temp.0, &day).join(SESSION_FILE)).unwrap();
+        fs::remove_file(day_path_in(&temp.0, &day).join(SESSION_FILE)).unwrap();
 
         assert!(read_entry_in(&temp.0, &day).unwrap().is_none());
     }
@@ -204,9 +202,9 @@ mod tests {
     #[test]
     fn ensure_dir_refuses_to_clobber_a_file() {
         let temp = Temp::new("clobber");
-        create_dir_all(&temp.0).unwrap();
+        fs::create_dir_all(&temp.0).unwrap();
         let path = temp.0.join("in-the-way");
-        write(&path, "").unwrap();
+        fs::write(&path, "").unwrap();
 
         assert!(ensure_dir(&path).is_err());
     }
