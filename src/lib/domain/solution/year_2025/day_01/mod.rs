@@ -81,3 +81,38 @@ impl Solution for Puzzle {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "L68\nL30\nR48\nL5\nR60\nL55\nL1\nL99\nR14\nL82";
+
+    #[test]
+    fn the_example() {
+        let puzzle = Puzzle::new(EXAMPLE).unwrap();
+        assert_eq!(puzzle.part_one().unwrap(), Answer::solved("3"));
+        assert_eq!(puzzle.part_two().unwrap(), Answer::solved("6"));
+    }
+
+    /// Landing on zero counts, leaving it does not, and every full turn
+    /// passes it once.
+    #[test]
+    fn zeros_crossed_counts_each_click_on_zero() {
+        assert_eq!(zeros_crossed(50, Turn::Right, 50), 1);
+        assert_eq!(zeros_crossed(50, Turn::Left, 50), 1);
+        assert_eq!(zeros_crossed(0, Turn::Left, 5), 0);
+        assert_eq!(zeros_crossed(0, Turn::Right, 5), 0);
+        assert_eq!(zeros_crossed(0, Turn::Left, 100), 1);
+        assert_eq!(zeros_crossed(50, Turn::Right, 1000), 10);
+        assert_eq!(zeros_crossed(50, Turn::Left, 150), 2);
+        assert_eq!(zeros_crossed(50, Turn::Left, 0), 0);
+    }
+
+    /// A negative distance would turn the other way and count zeros backwards.
+    #[test]
+    fn a_negative_distance_is_rejected() {
+        assert!(Puzzle::new("R-55").is_err());
+        assert!(Puzzle::new("L-5").is_err());
+    }
+}

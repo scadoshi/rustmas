@@ -14,11 +14,15 @@ pub(super) enum InvalidInstruction {
     Turn(#[from] InvalidTurn),
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
+    /// The distance is below zero; a turn's direction comes from its letter.
+    #[error("expected a distance of zero or more, read {0}")]
+    Negative(i32),
 }
 
 /// A turn and how far to go, read from one line.
 pub(super) struct Instruction {
     pub(super) turn: Turn,
+    /// Never negative, checked when parsed.
     pub(super) distance: i32,
 }
 
@@ -28,6 +32,9 @@ impl FromStr for Instruction {
         let mut chars = value.trim().chars();
         let turn = Turn::try_from(chars.next().ok_or(InvalidInstruction::TooFewParts)?)?;
         let distance = chars.as_str().parse::<i32>()?;
+        if distance < 0 {
+            return Err(InvalidInstruction::Negative(distance));
+        }
         Ok(Self { turn, distance })
     }
 }
