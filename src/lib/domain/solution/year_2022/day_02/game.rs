@@ -27,6 +27,7 @@ impl TryFrom<char> for Play {
 
 impl Play {
     /// Every play, so a search over them covers the rules exactly once.
+    #[cfg(test)]
     const ALL: [Self; 3] = [Self::Rock, Self::Paper, Self::Scissors];
 
     pub fn value(self) -> u32 {
@@ -144,6 +145,10 @@ impl FromStr for RawGame {
 
 impl RawGame {
     /// Reads the second column as the play to make.
+    ///
+    /// # Errors
+    ///
+    /// [`InvalidPlay`] if the second column is not `X`, `Y` or `Z`.
     pub fn to_game_other_is_player(self) -> Result<Game, InvalidPlay> {
         let player = Play::try_from(self.other)?;
         Ok(Game {
@@ -153,6 +158,10 @@ impl RawGame {
     }
 
     /// Reads the second column as the result to aim for.
+    ///
+    /// # Errors
+    ///
+    /// [`InvalidGameResult`] if the second column is not `X`, `Y` or `Z`.
     pub fn to_game_other_is_result(self) -> Result<Game, InvalidGameResult> {
         let result = GameResult::try_from(self.other)?;
         Ok(Game {

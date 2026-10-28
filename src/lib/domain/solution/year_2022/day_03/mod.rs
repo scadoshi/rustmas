@@ -49,7 +49,7 @@ impl Solution for Puzzle {
                     .iter()
                     .map(|sack| sack.all())
                     .reduce(Items::common)
-                    .ok_or(anyhow!("expected a group to have elves in it"))?
+                    .ok_or_else(|| anyhow!("expected a group to have elves in it"))?
                     .single_priority()
                     .map_err(Into::into)
             })

@@ -14,18 +14,20 @@ pub enum InvalidRucksack {
 #[error("expected exactly one item in common")]
 pub struct NoSingleCommonItem;
 
+/// Every item type, in priority order.
+const ITEMS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 /// An item's priority: `a`-`z` are 1-26, `A`-`Z` are 27-52.
 pub fn priority(item: char) -> Option<u32> {
-    match item {
-        'a'..='z' => Some(item as u32 - 'a' as u32 + 1),
-        'A'..='Z' => Some(item as u32 - 'A' as u32 + 27),
-        _ => None,
-    }
+    ITEMS
+        .chars()
+        .zip(1..)
+        .find_map(|(other, priority)| (other == item).then_some(priority))
 }
 
-/// A set of item types as bits, bit `p - 1` standing for priority `p`.
+/// A set of item types as bits, bit `p` standing for priority `p`.
 ///
-/// 52 item types fit a `u64`, and "in common" becomes `&`.
+/// Bit 0 stays clear. 52 item types fit a `u64`, and "in common" becomes `&`.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Items(u64);
 
@@ -40,18 +42,25 @@ impl Items {
     /// This set plus `item`.
     fn with(self, item: char) -> Result<Self, InvalidRucksack> {
         priority(item)
-            .map(|p| Self(self.0 | 1 << (p - 1)))
+            .and_then(|priority| 1_u64.checked_shl(priority))
+            .map(|bit| Self(self.0 | bit))
             .ok_or(InvalidRucksack::NotAnItem(item))
     }
 
+    /// The items both sets hold.
+    #[must_use]
     pub fn common(self, other: Self) -> Self {
         Self(self.0 & other.0)
     }
 
-    /// The priority of the only item here, if there is exactly one.
+    /// The priority of the only item here.
+    ///
+    /// # Errors
+    ///
+    /// [`NoSingleCommonItem`] if there are no items or more than one.
     pub fn single_priority(self) -> Result<u32, NoSingleCommonItem> {
         match self.0.count_ones() {
-            1 => Ok(self.0.trailing_zeros() + 1),
+            1 => Ok(self.0.trailing_zeros()),
             _ => Err(NoSingleCommonItem),
         }
     }
@@ -141,7 +150,7 @@ mod tests {
     #[test]
     fn single_priority_needs_exactly_one() {
         assert!(Items(0).single_priority().is_err());
-        assert!(Items(0b11).single_priority().is_err());
-        assert_eq!(Items(0b100).single_priority().unwrap(), 3);
+        assert!(Items(0b110).single_priority().is_err());
+        assert_eq!(Items(0b1000).single_priority().unwrap(), 3);
     }
 }
