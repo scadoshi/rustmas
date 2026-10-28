@@ -78,9 +78,16 @@ impl Password {
         count >= self.policy.lo && count <= self.policy.hi
     }
 
+    /// Whether exactly one of the two positions, counted from 1, holds the
+    /// letter. Position 0 holds nothing.
     pub fn valid_position(&self) -> bool {
-        let lo = self.value.chars().nth(self.policy.lo - 1);
-        let hi = self.value.chars().nth(self.policy.hi - 1);
+        let at = |position: usize| {
+            position
+                .checked_sub(1)
+                .and_then(|i| self.value.chars().nth(i))
+        };
+        let lo = at(self.policy.lo);
+        let hi = at(self.policy.hi);
         (lo.is_some_and(|lo| lo == self.policy.letter)
             || hi.is_some_and(|hi| hi == self.policy.letter))
             && lo != hi
@@ -139,5 +146,13 @@ mod tests {
     fn password_valid_position() {
         assert!("1-3 a: abcd".parse::<Password>().unwrap().valid_position());
         assert!(!"1-3 a: abad".parse::<Password>().unwrap().valid_position());
+    }
+
+    /// Positions count from 1, so a 0 names no character rather than
+    /// underflowing.
+    #[test]
+    fn position_zero_matches_nothing() {
+        assert!("0-1 a: abcd".parse::<Password>().unwrap().valid_position());
+        assert!(!"0-3 a: abcd".parse::<Password>().unwrap().valid_position());
     }
 }
