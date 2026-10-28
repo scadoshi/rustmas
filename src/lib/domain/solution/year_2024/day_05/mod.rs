@@ -9,6 +9,7 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2024::day_05::rules::{Rule, Rules};
 use crate::domain::solution::year_2024::day_05::update::Update;
 
+#[derive(Debug)]
 pub struct Puzzle {
     rules: Rules,
     updates: Vec<Update>,

@@ -6,6 +6,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2021::day_03::rating::{Keep, rate, rating_by_filter};
 
+#[derive(Debug)]
 pub struct Puzzle {
     readings: Vec<u32>,
     /// How many bits each reading has, taken from the input rather than

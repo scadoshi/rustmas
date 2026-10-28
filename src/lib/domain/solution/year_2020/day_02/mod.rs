@@ -5,6 +5,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2020::day_02::password::Password;
 
+#[derive(Debug)]
 pub struct Puzzle {
     passwords: Vec<Password>,
 }

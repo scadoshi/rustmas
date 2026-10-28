@@ -7,6 +7,7 @@ use crate::domain::solution::common::grid::{FixedWidth, Grid};
 /// The slopes part two multiplies together, as (right, down).
 const SLOPES: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
 
+#[derive(Debug)]
 pub struct Puzzle {
     map: Rectangle<char>,
 }

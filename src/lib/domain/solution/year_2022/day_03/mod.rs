@@ -10,6 +10,7 @@ use crate::domain::solution::year_2022::day_03::rucksack::{Items, Rucksack};
 /// How many elves carry one badge between them.
 const GROUP: usize = 3;
 
+#[derive(Debug)]
 pub struct Puzzle {
     rucksacks: Vec<Rucksack>,
 }

@@ -5,6 +5,7 @@ use anyhow::anyhow;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+#[derive(Debug)]
 pub struct Puzzle {
     list_1: Vec<i32>,
     list_2: Vec<i32>,

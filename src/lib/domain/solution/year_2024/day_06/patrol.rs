@@ -17,6 +17,7 @@ pub enum InvalidPatrol {
 }
 
 /// The lab map and where the guard begins her patrol.
+#[derive(Debug)]
 pub struct Patrol {
     map: Rectangle<char>,
     start: Cell,
@@ -47,6 +48,7 @@ impl FromStr for Patrol {
 }
 
 /// Where a walk went and whether it ever came back round on itself.
+#[derive(Debug)]
 pub struct Walk {
     pub visited: HashSet<Cell>,
     pub looped: bool,

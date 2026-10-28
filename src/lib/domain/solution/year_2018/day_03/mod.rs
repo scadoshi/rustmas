@@ -8,6 +8,7 @@ use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2018::day_03::claim::Claim;
 
+#[derive(Debug)]
 pub struct Puzzle {
     claims: Vec<Claim>,
 }

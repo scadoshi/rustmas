@@ -7,6 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::point::Point;
 use crate::domain::solution::year_2017::day_03::spiral::{neighbors, spiral};
 
+#[derive(Debug)]
 pub struct Puzzle {
     target: usize,
 }

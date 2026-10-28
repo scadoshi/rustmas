@@ -17,6 +17,7 @@ const DIRECTIONS: [(isize, isize); 8] = [
 ];
 
 /// The grid of letters the words hide in.
+#[derive(Debug)]
 pub struct WordSearch(Rectangle<char>);
 
 impl FromStr for WordSearch {

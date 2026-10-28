@@ -9,6 +9,7 @@ use crate::domain::solution::year_2021::day_02::instruction::Instruction;
 use crate::domain::solution::year_2021::day_02::position::Position;
 use crate::domain::solution::year_2021::day_02::position::aimed::Aimed;
 
+#[derive(Debug)]
 pub struct Puzzle {
     instructions: Vec<Instruction>,
 }

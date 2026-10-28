@@ -4,6 +4,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2017::day_04::passphrase::{count_valid, sorted_letters};
 
+#[derive(Debug)]
 pub struct Puzzle {
     passphrases: Vec<String>,
 }

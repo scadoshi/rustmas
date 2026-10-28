@@ -2,6 +2,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 
+#[derive(Debug)]
 pub struct Puzzle {
     nums: Vec<i32>,
 }

@@ -14,6 +14,7 @@ const BAG: Handful = Handful {
     blue: 14,
 };
 
+#[derive(Debug)]
 pub struct Puzzle {
     games: Vec<Game>,
 }

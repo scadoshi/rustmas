@@ -4,6 +4,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2024::day_04::word_search::WordSearch;
 
+#[derive(Debug)]
 pub struct Puzzle {
     grid: WordSearch,
 }

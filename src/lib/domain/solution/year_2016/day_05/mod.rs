@@ -4,6 +4,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2016::day_05::hashing::{HEX, interesting_digests};
 
+#[derive(Debug)]
 pub struct Puzzle {
     door: String,
 }

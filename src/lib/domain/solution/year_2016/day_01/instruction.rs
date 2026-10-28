@@ -25,6 +25,7 @@ pub enum InvalidInstruction {
 ///
 /// The letter is a [`Turn`] rather than a direction, so `U3` is rejected
 /// instead of quietly turning nowhere and walking three.
+#[derive(Debug)]
 pub(super) struct Instruction {
     pub turn: Turn,
     /// Never negative, checked when parsed.
@@ -50,6 +51,7 @@ impl FromStr for Instruction {
 }
 
 /// A whole input: comma-separated instructions, trimmed, all-or-nothing.
+#[derive(Debug)]
 pub(super) struct Instructions(Vec<Instruction>);
 
 impl Deref for Instructions {

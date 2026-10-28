@@ -6,6 +6,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2021::day_04::board::Board;
 
+#[derive(Debug)]
 pub struct Puzzle {
     draws: Vec<u8>,
     boards: Vec<Board>,

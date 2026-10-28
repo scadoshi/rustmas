@@ -7,6 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2015::day_02::dimensions::Dimensions;
 
+#[derive(Debug)]
 pub struct Puzzle {
     input: Vec<Dimensions>,
 }

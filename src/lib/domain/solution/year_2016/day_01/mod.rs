@@ -9,6 +9,7 @@ use crate::domain::solution::common::point::Point;
 use crate::domain::solution::year_2016::day_01::instruction::Instructions;
 use crate::domain::solution::year_2016::day_01::pose::Pose;
 
+#[derive(Debug)]
 pub struct Puzzle {
     /// Parsed here so a bad input fails before either part runs.
     instructions: Instructions,

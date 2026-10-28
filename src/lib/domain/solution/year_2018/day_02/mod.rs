@@ -5,6 +5,7 @@ use anyhow::anyhow;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+#[derive(Debug)]
 pub struct Puzzle {
     /// Box ids, each only `a-z` and all the same length, checked when parsed.
     input: Vec<String>,

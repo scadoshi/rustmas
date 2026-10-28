@@ -5,6 +5,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::turn::Turn;
 use crate::domain::solution::year_2025::day_01::instructions::Instructions;
 
+#[derive(Debug)]
 pub struct Puzzle {
     instructions: Instructions,
 }

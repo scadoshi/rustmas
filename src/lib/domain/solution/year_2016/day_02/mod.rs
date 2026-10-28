@@ -5,6 +5,7 @@ use crate::domain::solution::common::cursor::cell_on_grid::CellOnGrid;
 use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::rectangle::Rectangle;
 
+#[derive(Debug)]
 pub struct Puzzle {
     input: Vec<Vec<Direction>>,
 }

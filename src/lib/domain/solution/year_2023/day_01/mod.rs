@@ -6,6 +6,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_01::calibration::Calibration;
 
+#[derive(Debug)]
 pub struct Puzzle {
     /// One line per calibration document entry, trimmed of the trailing blank.
     input: Vec<String>,

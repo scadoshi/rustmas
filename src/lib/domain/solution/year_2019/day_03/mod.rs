@@ -6,6 +6,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2019::day_03::wire::Wire;
 
+#[derive(Debug)]
 pub struct Puzzle {
     first: Wire,
     second: Wire,

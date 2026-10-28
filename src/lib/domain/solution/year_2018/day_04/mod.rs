@@ -10,6 +10,7 @@ use crate::domain::solution::year_2018::day_04::record::{Event, Record};
 /// Minutes in the midnight hour, the only hour any guard sleeps through.
 const MINUTES: usize = 60;
 
+#[derive(Debug)]
 pub struct Puzzle {
     records: Vec<Record>,
 }

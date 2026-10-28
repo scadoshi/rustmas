@@ -5,6 +5,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2022::day_02::game::RawGame;
 
+#[derive(Debug)]
 pub struct Puzzle {
     games: Vec<RawGame>,
 }

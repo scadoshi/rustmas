@@ -12,6 +12,7 @@ fn lowest(secret: &str, zeros: usize) -> anyhow::Result<usize> {
         .ok_or_else(|| anyhow!("no suffix up to {} gives {zeros} zeros", usize::MAX))
 }
 
+#[derive(Debug)]
 pub struct Puzzle {
     secret: String,
 }

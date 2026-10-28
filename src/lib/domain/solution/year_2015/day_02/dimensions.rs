@@ -11,6 +11,7 @@ pub enum InvalidDimensions {
     ParseInt(#[from] ParseIntError),
 }
 
+#[derive(Debug)]
 pub struct Dimensions {
     length: u32,
     width: u32,

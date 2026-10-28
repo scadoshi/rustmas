@@ -4,6 +4,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_03::schematic::{Schematic, is_symbol};
 
+#[derive(Debug)]
 pub struct Puzzle {
     schematic: Schematic,
 }

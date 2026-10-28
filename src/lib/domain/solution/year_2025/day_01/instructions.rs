@@ -20,6 +20,7 @@ pub(super) enum InvalidInstruction {
 }
 
 /// A turn and how far to go, read from one line.
+#[derive(Debug)]
 pub(super) struct Instruction {
     pub(super) turn: Turn,
     /// Never negative, checked when parsed.
@@ -40,6 +41,7 @@ impl FromStr for Instruction {
 }
 
 /// Every instruction in the input, in order.
+#[derive(Debug)]
 pub(super) struct Instructions(Vec<Instruction>);
 
 impl Instructions {
