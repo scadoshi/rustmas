@@ -1,4 +1,4 @@
-use anyhow::anyhow;
+use anyhow::{Context, anyhow};
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
@@ -76,7 +76,11 @@ impl Solution for Puzzle {
                         Some((lo, hi)) => (lo.min(n), hi.max(n)),
                     })
                 })
-                .map(|(lo, hi)| hi - lo))
+                .map(|(lo, hi)| {
+                    hi.checked_sub(lo)
+                        .context("expected the high to be at least the low")
+                })
+                .transpose()?)
         })?))
     }
 

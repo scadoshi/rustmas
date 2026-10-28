@@ -8,10 +8,12 @@ pub struct Puzzle {
 
 impl Puzzle {
     fn matching(&self, step: usize) -> u32 {
-        let n = self.digits.len();
-        (0..n)
-            .filter(|&i| self.digits[i] == self.digits[(i + step) % n])
-            .map(|i| self.digits[i])
+        let ahead = self.digits.iter().cycle().skip(step);
+        self.digits
+            .iter()
+            .zip(ahead)
+            .filter(|(digit, other)| digit == other)
+            .map(|(digit, _)| digit)
             .sum()
     }
 }
@@ -34,5 +36,29 @@ impl Solution for Puzzle {
         Ok(Answer::solved(
             self.matching(self.digits.len() / 2).to_string(),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn answers(input: &str) -> (Answer, Answer) {
+        let puzzle = Puzzle::new(input).unwrap();
+        (puzzle.part_one().unwrap(), puzzle.part_two().unwrap())
+    }
+
+    /// The puzzle's examples for both parts.
+    #[test]
+    fn examples() {
+        assert_eq!(answers("1122").0, Answer::solved("3"));
+        assert_eq!(answers("1111").0, Answer::solved("4"));
+        assert_eq!(answers("1234").0, Answer::solved("0"));
+        assert_eq!(answers("91212129").0, Answer::solved("9"));
+        assert_eq!(answers("1212").1, Answer::solved("6"));
+        assert_eq!(answers("1221").1, Answer::solved("0"));
+        assert_eq!(answers("123425").1, Answer::solved("4"));
+        assert_eq!(answers("123123").1, Answer::solved("12"));
+        assert_eq!(answers("12131415").1, Answer::solved("4"));
     }
 }
