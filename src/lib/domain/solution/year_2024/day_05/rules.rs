@@ -18,8 +18,10 @@ pub enum InvalidRule {
 /// Why an update has no single order the rules agree on.
 #[derive(Debug, Error)]
 pub enum UnorderableUpdate {
+    /// Two different pages in the update have no rule between them.
     #[error("no rule orders pages {0} and {1}")]
     Unrelated(u32, u32),
+    /// The rules for the update's pages contradict each other.
     #[error("the rules for pages {0:?} go round in a circle")]
     Cycle(Vec<u32>),
 }

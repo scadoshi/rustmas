@@ -9,6 +9,7 @@ pub enum InvalidRoom {
     MissingChecksum,
     #[error("expected a sector id after the name")]
     MissingId,
+    /// The name holds something other than `a-z` and dashes.
     #[error("expected only lowercase letters and dashes in the name, read {0:?}")]
     NotALetter(char),
     #[error(transparent)]
