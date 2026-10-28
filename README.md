@@ -67,7 +67,7 @@ year 2015 day 1 in 12.707µs (3.291µs parsing)
 | `not logged in` | Cookie missing or expired |
 | `unsupported` | The solver can't do this puzzle |
 | `rate limited, ...` | Advent of Code refused to grade |
-| `(none)` / `(unwritten)` | No answer exists (day 25 part two) / not written yet |
+| `(none)` / `(unwritten)` | No answer exists (an event's final day, part two) / not written yet |
 | `error: ...` | The part failed; the other still ran |
 
 A multi-day run ends with total and average parse and solve times. Timings never include the network.

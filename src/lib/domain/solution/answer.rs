@@ -10,7 +10,7 @@ pub enum Answer {
     /// Art you read rather than submit. Returned, not printed, so solving
     /// does no IO.
     Visual(String),
-    /// There is no answer to give: day 25 part two, or an input with none.
+    /// There is no answer to give: the final day's part two, or an input with none.
     None,
     /// Nobody has written this part yet. Distinct from [`Answer::None`], so a
     /// stub cannot pass for a part that is finished and has nothing to say.

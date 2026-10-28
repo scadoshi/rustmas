@@ -46,7 +46,7 @@ pub trait Solution: Sized {
     /// An error stops this part only; the other still runs.
     fn part_one(&self) -> anyhow::Result<Answer>;
 
-    /// Same contract as [`Solution::part_one`]. Day 25 has no second puzzle.
+    /// Same contract as [`Solution::part_one`]. An event's final day has no second puzzle.
     fn part_two(&self) -> anyhow::Result<Answer>;
 }
 

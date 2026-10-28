@@ -6,7 +6,7 @@ use thiserror::Error;
 use crate::domain::address::filter::Filter;
 use crate::domain::address::year::Year;
 
-/// Christmas Day, whose second star is awarded rather than puzzled.
+/// The last day of an event through 2024, and the highest day any event has.
 pub(crate) const FINAL_DAY: i32 = 25;
 
 /// Returned when a day falls outside its bound: the days its year has
@@ -37,9 +37,10 @@ impl Day {
 
     /// Whether this day's second star is a puzzle rather than a reward.
     ///
-    /// Day 25's is given for holding every other star, so nothing fetches it.
+    /// The event's final day, [`Year::days_in`], gives its second star for
+    /// holding every other one, so nothing fetches it.
     pub fn has_second_puzzle(&self) -> bool {
-        self.value != FINAL_DAY
+        self.value != self.year.days_in()
     }
 
     /// Every unlocked puzzle day that `filter` allows.
@@ -146,15 +147,21 @@ mod tests {
         assert!(both.next().is_none());
     }
 
-    /// Day 25's second star is awarded for the other 49, so there is no text
-    /// to fetch and nothing to keep asking for.
+    /// The final day's second star is awarded for holding every other star,
+    /// so there is no text to fetch and nothing to keep asking for. From 2025
+    /// on that day is 12, not 25.
     #[test]
-    fn only_day_25_lacks_a_second_puzzle() {
-        let year = Year::new(2015).unwrap();
-        assert!(!Day::new(25, year).unwrap().has_second_puzzle());
-        for value in [1, 12, 24] {
-            assert!(Day::new(value, year).unwrap().has_second_puzzle());
-        }
+    fn only_the_final_day_lacks_a_second_puzzle() {
+        let now: DateTime<Utc> = "2026-10-28T12:00:00Z".parse().unwrap();
+        let day = |year, value| {
+            let year = Year::new_at(year, now).unwrap();
+            Day::new_at(value, year, now).unwrap()
+        };
+        assert!(!day(2025, 12).has_second_puzzle());
+        assert!(!day(2024, 25).has_second_puzzle());
+        assert!(day(2025, 11).has_second_puzzle());
+        assert!(day(2024, 12).has_second_puzzle());
+        assert!(day(2015, 24).has_second_puzzle());
     }
 
     /// A day-only filter skips years that never had that day rather than

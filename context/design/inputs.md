@@ -91,5 +91,5 @@ Nothing displays the instructions. They are stored and never read.
 
 Part two's text used to be cached only if the day was fetched after part one was starred. Two things fill it in now:
 
-- `ensure_entry` refetches the page on every run with a cookie while `part_two.md` is missing, except on day 25.
+- `ensure_entry` refetches the page on every run with a cookie while `part_two.md` is missing, except on an event's final day (25, or 12 from 2025 on).
 - `solve` calls `ensure_entry` again when a submission earns part one a new star.

@@ -67,7 +67,7 @@ impl Outcome {
 
     /// How long this part took, if it produced an answer.
     ///
-    /// `None` for a stub, a failure, and day 25's second star, none of which
+    /// `None` for a stub, a failure, and the final day's second star, none of which
     /// did work worth totalling.
     pub fn solve_time(&self) -> Option<Duration> {
         match self.answer.as_ref().ok()? {
