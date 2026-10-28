@@ -1,21 +1,12 @@
 use std::fmt::Write;
 
 /// How many leading hex digits of `digest` are zero.
-///
-/// A zero byte is two zero digits, a byte under `0x10` is one.
 pub fn leading_zeros(digest: &[u8; 16]) -> usize {
-    let mut zeros = 0;
-    for byte in digest {
-        match byte {
-            0 => zeros += 2,
-            b if *b < 0x10 => {
-                zeros += 1;
-                break;
-            }
-            _ => break,
-        }
-    }
-    zeros
+    digest
+        .iter()
+        .flat_map(|byte| [byte / 16, byte % 16])
+        .take_while(|digit| *digit == 0)
+        .count()
 }
 
 /// The lowest number that, appended to `secret`, hashes with `zeros` leading
@@ -23,10 +14,9 @@ pub fn leading_zeros(digest: &[u8; 16]) -> usize {
 ///
 /// Reuses one buffer, since part two tries this several million times.
 pub fn lowest_suffix(secret: &str, zeros: usize) -> Option<usize> {
-    let mut candidate = String::with_capacity(secret.len() + 8);
+    let mut candidate = secret.to_owned();
     (0..=usize::MAX).find(|suffix| {
-        candidate.clear();
-        candidate.push_str(secret);
+        candidate.truncate(secret.len());
         let _ = write!(candidate, "{suffix}");
         leading_zeros(&md5::compute(&candidate)) >= zeros
     })
