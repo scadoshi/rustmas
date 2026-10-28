@@ -3,5 +3,5 @@
 cache/
 demo/out
 
-# Worktrees created by Claude Code sessions
-.claude/worktrees/
+# Claude Code's local settings and worktrees
+.claude/
