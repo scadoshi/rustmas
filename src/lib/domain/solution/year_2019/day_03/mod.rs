@@ -1,6 +1,6 @@
 pub mod wire;
 
-use anyhow::anyhow;
+use anyhow::{Context, anyhow};
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
@@ -29,7 +29,7 @@ impl Solution for Puzzle {
         match self
             .first
             .crossings(&self.second)
-            .map(|(point, _)| point.distance_from_origin())
+            .map(|(point, ..)| point.distance_from_origin())
             .min()
         {
             Some(distance) => Ok(Answer::solved(distance.to_string())),
@@ -39,14 +39,13 @@ impl Solution for Puzzle {
 
     /// The crossing the two wires reach in the fewest combined steps.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        match self
-            .first
-            .crossings(&self.second)
-            .map(|(_, steps)| steps)
-            .min()
-        {
-            Some(steps) => Ok(Answer::solved(steps.to_string())),
-            None => Ok(Answer::None),
+        let mut fewest: Option<usize> = None;
+        for (_, first, second) in self.first.crossings(&self.second) {
+            let steps = first
+                .checked_add(second)
+                .context("the combined steps pass usize")?;
+            fewest = Some(fewest.map_or(steps, |fewest| fewest.min(steps)));
         }
+        Ok(fewest.map_or(Answer::None, |steps| Answer::solved(steps.to_string())))
     }
 }

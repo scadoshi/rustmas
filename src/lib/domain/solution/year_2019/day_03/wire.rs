@@ -11,6 +11,12 @@ use crate::domain::solution::common::point::Point;
 pub enum InvalidWire {
     #[error("expected a direction letter followed by a distance")]
     EmptyStep,
+    /// The wire runs off the [`i32`] grid.
+    #[error("expected the wire to stay within the i32 grid")]
+    OffGrid,
+    /// The wire is longer than [`usize`] steps.
+    #[error("expected the wire to be at most usize steps long")]
+    TooLong,
     #[error(transparent)]
     Direction(#[from] InvalidDirection),
     #[error(transparent)]
@@ -31,14 +37,16 @@ impl FromStr for Wire {
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         let mut visited = HashMap::new();
         let mut point = Point::default();
-        let mut steps = 0;
+        let mut steps: usize = 0;
         for segment in value.trim().split(',') {
             let mut chars = segment.trim().chars();
             let direction = Direction::try_from(chars.next().ok_or(InvalidWire::EmptyStep)?)?;
             let distance: usize = chars.as_str().parse()?;
             for _ in 0..distance {
-                point = point.saturating_moved(direction, 1);
-                steps += 1;
+                point = point
+                    .checked_moved(direction, 1)
+                    .ok_or(InvalidWire::OffGrid)?;
+                steps = steps.checked_add(1).ok_or(InvalidWire::TooLong)?;
                 visited.entry(point).or_insert(steps);
             }
         }
@@ -47,10 +55,13 @@ impl FromStr for Wire {
 }
 
 impl Wire {
-    /// Where this wire meets `other`, with the combined steps to get there.
+    /// Where this wire meets `other`, with the steps each takes to get there.
     ///
     /// The origin is where both start, so it never counts as a crossing.
-    pub fn crossings<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = (Point, usize)> + 'a {
+    pub fn crossings<'a>(
+        &'a self,
+        other: &'a Self,
+    ) -> impl Iterator<Item = (Point, usize, usize)> + 'a {
         self.0
             .iter()
             .filter(|(point, _)| **point != Point::default())
@@ -58,7 +69,7 @@ impl Wire {
                 other
                     .0
                     .get(point)
-                    .map(|other_steps| (*point, steps + other_steps))
+                    .map(|other_steps| (*point, *steps, *other_steps))
             })
     }
 }
@@ -112,8 +123,14 @@ mod tests {
     fn the_example_crossings() {
         let a = "R8,U5,L5,D3".parse::<Wire>().unwrap();
         let b = "U7,R6,D4,L4".parse::<Wire>().unwrap();
-        let nearest = a.crossings(&b).map(|(p, _)| p.distance_from_origin()).min();
-        let fewest = a.crossings(&b).map(|(_, steps)| steps).min();
+        let nearest = a
+            .crossings(&b)
+            .map(|(p, ..)| p.distance_from_origin())
+            .min();
+        let fewest = a
+            .crossings(&b)
+            .map(|(_, first, second)| first.checked_add(second).unwrap())
+            .min();
         assert_eq!((nearest, fewest), (Some(6), Some(30)));
     }
 }
