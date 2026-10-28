@@ -16,7 +16,10 @@ fn two_sum(nums: &[i32], target: i32) -> Option<(i32, i32)> {
         .map(|(i, n)| (*n, i))
         .collect::<HashMap<i32, usize>>();
     for (i, &x) in nums.iter().enumerate() {
-        let Ok(y) = i32::try_from(i64::from(target) - i64::from(x)) else {
+        let Some(y) = i64::from(target)
+            .checked_sub(i64::from(x))
+            .and_then(|y| i32::try_from(y).ok())
+        else {
             continue;
         };
         if map.get(&y).is_some_and(|j| i != *j) {
@@ -29,16 +32,19 @@ fn two_sum(nums: &[i32], target: i32) -> Option<(i32, i32)> {
 fn three_sum(nums: &[i32], target: i32) -> Option<(i32, i32, i32)> {
     let mut nums = nums.to_owned();
     nums.sort_unstable();
-    for (i, &x) in nums.iter().enumerate() {
-        let (mut lo, mut hi) = (i + 1, nums.len() - 1);
-        while lo < hi {
-            let sum = i64::from(x) + i64::from(nums[lo]) + i64::from(nums[hi]);
-            match sum.cmp(&i64::from(target)) {
-                Ordering::Equal => return Some((x, nums[lo], nums[hi])),
-                Ordering::Less => lo += 1,
-                Ordering::Greater => hi -= 1,
-            }
+    let target = i64::from(target);
+    let mut rest = nums.as_slice();
+    while let [x, tail @ ..] = rest {
+        let mut window = tail;
+        while let [lo, .., hi] = window {
+            let sum: i64 = [*x, *lo, *hi].into_iter().map(i64::from).sum();
+            window = match sum.cmp(&target) {
+                Ordering::Equal => return Some((*x, *lo, *hi)),
+                Ordering::Less => window.split_first().map_or(&[], |(_, rest)| rest),
+                Ordering::Greater => window.split_last().map_or(&[], |(_, rest)| rest),
+            };
         }
+        rest = tail;
     }
     None
 }
@@ -58,7 +64,12 @@ impl Solution for Puzzle {
     /// where two [`i32`] entries always fit.
     fn part_one(&self) -> anyhow::Result<Answer> {
         match two_sum(&self.nums, TARGET) {
-            Some((x, y)) => Ok(Answer::solved((i64::from(x) * i64::from(y)).to_string())),
+            Some((x, y)) => {
+                let product = i64::from(x)
+                    .checked_mul(i64::from(y))
+                    .ok_or_else(|| anyhow!("the product passes the range of an i64"))?;
+                Ok(Answer::solved(product.to_string()))
+            }
             None => Ok(Answer::None),
         }
     }
@@ -66,8 +77,9 @@ impl Solution for Puzzle {
     fn part_two(&self) -> anyhow::Result<Answer> {
         match three_sum(&self.nums, TARGET) {
             Some((x, y, z)) => {
-                let product = (i64::from(x) * i64::from(y))
-                    .checked_mul(i64::from(z))
+                let product = i64::from(x)
+                    .checked_mul(i64::from(y))
+                    .and_then(|product| product.checked_mul(i64::from(z)))
                     .ok_or_else(|| anyhow!("the product passes the range of an i64"))?;
                 Ok(Answer::solved(product.to_string()))
             }
