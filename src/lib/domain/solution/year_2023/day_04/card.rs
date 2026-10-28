@@ -55,11 +55,14 @@ impl Card {
             .count()
     }
 
-    /// One point for the first match, doubling for each after.
-    pub fn points(&self) -> u32 {
-        match self.matches() {
-            0 => 0,
-            n => 1 << (n - 1),
+    /// One point for the first match, doubling for each after, or `None`
+    /// when that passes [`u32::MAX`].
+    pub fn points(&self) -> Option<u32> {
+        match self.matches().checked_sub(1) {
+            None => Some(0),
+            Some(doublings) => u32::try_from(doublings)
+                .ok()
+                .and_then(|doublings| 1_u32.checked_shl(doublings)),
         }
     }
 }
@@ -74,7 +77,7 @@ mod tests {
             .parse()
             .unwrap();
         assert_eq!(card.matches(), 4);
-        assert_eq!(card.points(), 8);
+        assert_eq!(card.points(), Some(8));
     }
 
     #[test]
@@ -100,9 +103,9 @@ mod tests {
     #[test]
     fn points_double_per_match_from_one() {
         let card = |have: &str| format!("Card 1: 1 2 3 4 | {have}").parse::<Card>().unwrap();
-        assert_eq!(card("9").points(), 0);
-        assert_eq!(card("1").points(), 1);
-        assert_eq!(card("1 2").points(), 2);
-        assert_eq!(card("1 2 3 4").points(), 8);
+        assert_eq!(card("9").points(), Some(0));
+        assert_eq!(card("1").points(), Some(1));
+        assert_eq!(card("1 2").points(), Some(2));
+        assert_eq!(card("1 2 3 4").points(), Some(8));
     }
 }
