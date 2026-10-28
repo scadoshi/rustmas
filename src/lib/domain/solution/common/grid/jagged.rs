@@ -1,12 +1,17 @@
+//! A grid whose rows may each be their own width.
+
 use thiserror::Error;
 
 use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::grid::{Grid, VariableWidth};
 
+/// Why rows cannot make a [`Jagged`].
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidJagged {
+    /// There are no rows.
     #[error("expected at least one row")]
     HeightIsZero,
+    /// Some row has no cells.
     #[error("expected at least one cell in every row")]
     RowIsEmpty,
 }
@@ -19,6 +24,11 @@ pub struct Jagged<T> {
 
 impl<T> Jagged<T> {
     /// Checks that `inner` has a row and that no row is empty.
+    ///
+    /// # Errors
+    ///
+    /// [`InvalidJagged::HeightIsZero`] when `inner` has no rows, and
+    /// [`InvalidJagged::RowIsEmpty`] when any row has no cells.
     pub fn new(inner: Vec<Vec<T>>) -> Result<Self, InvalidJagged> {
         if inner.is_empty() {
             return Err(InvalidJagged::HeightIsZero);

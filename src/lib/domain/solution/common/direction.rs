@@ -1,3 +1,5 @@
+//! The four axis moves, and turning between them.
+
 use std::str::FromStr;
 
 use thiserror::Error;
@@ -16,10 +18,16 @@ pub struct InvalidDirection(String);
 /// makes a turn one step along the list.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub enum Direction {
+    /// A lower row on a [`Cell`](super::cell::Cell), a higher `y` on a
+    /// [`Point`](super::point::Point).
     #[default]
     Up,
+    /// A higher column or `x`.
     Right,
+    /// A higher row on a [`Cell`](super::cell::Cell), a lower `y` on a
+    /// [`Point`](super::point::Point).
     Down,
+    /// A lower column or `x`.
     Left,
 }
 

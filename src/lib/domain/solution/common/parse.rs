@@ -10,6 +10,11 @@ use anyhow::Context;
 /// The error names that line by its 1-based number in `input`. Blank lines are
 /// skipped, so a trailing newline or a stray gap never fails a
 /// day whose records are one per line.
+///
+/// # Errors
+///
+/// The first non-blank line whose `T::from_str` fails, with that error as the
+/// source.
 pub fn lines<T>(input: &str) -> anyhow::Result<Vec<T>>
 where
     T: FromStr,
@@ -31,6 +36,11 @@ where
 /// not parse. For inputs whose records span several lines.
 ///
 /// The error names that block by its 1-based position in `input`.
+///
+/// # Errors
+///
+/// The first non-blank block whose `T::from_str` fails, with that error as
+/// the source.
 pub fn blocks<T>(input: &str) -> anyhow::Result<Vec<T>>
 where
     T: FromStr,

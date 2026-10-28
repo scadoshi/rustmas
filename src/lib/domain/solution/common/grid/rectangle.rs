@@ -1,3 +1,5 @@
+//! A grid whose rows all share one width.
+
 use thiserror::Error;
 
 use crate::domain::solution::common::cell::Cell;
@@ -11,18 +13,29 @@ pub struct Rectangle<T> {
     height: usize,
 }
 
+/// Why rows cannot make a [`Rectangle`].
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidRectangle {
+    /// The first row has no cells.
     #[error("expected at least one column")]
     WidthIsZero,
+    /// There are no rows.
     #[error("expected at least one row")]
     HeightIsZero,
+    /// Some row differs in width from the first.
     #[error("expected every row the same width")]
     VariableWidth,
 }
 
 impl<T> Rectangle<T> {
     /// Checks that `inner` has a cell and that its rows are all one width.
+    ///
+    /// # Errors
+    ///
+    /// [`InvalidRectangle::HeightIsZero`] when `inner` has no rows,
+    /// [`InvalidRectangle::WidthIsZero`] when its first row is empty, and
+    /// [`InvalidRectangle::VariableWidth`] when any row differs in width from
+    /// the first.
     pub fn new(inner: Vec<Vec<T>>) -> Result<Self, InvalidRectangle> {
         let Some(first_row) = inner.first() else {
             return Err(InvalidRectangle::HeightIsZero);

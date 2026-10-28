@@ -2,10 +2,19 @@
 
 use std::ops::Range;
 
+/// Set operations on a half-open [`Range`]. Every range they give back is
+/// non-empty.
 pub trait RangeExt<T> {
+    /// `self` cut at whichever of `other`'s ends fall inside it, in order.
     fn split(self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
+    /// The values in both, or `None` when they share none. Ranges that only
+    /// touch share none.
     fn intersection(self, other: Range<T>) -> Option<Range<T>>;
+    /// The parts of `self` outside `other`, in order: none, one, or two when
+    /// `other` sits inside `self`.
     fn difference(self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
+    /// The union: one range when the two overlap or touch, otherwise `self`
+    /// then `other` unchanged.
     fn merge(self, other: Range<T>) -> impl Iterator<Item = Range<T>>;
 }
 

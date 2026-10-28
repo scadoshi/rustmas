@@ -1,3 +1,5 @@
+//! Unsigned row and column positions on a grid.
+
 use crate::domain::solution::common::direction::Direction;
 
 /// An unsigned grid index, rows counting down from the top-left.
@@ -11,23 +13,29 @@ pub struct Cell {
 }
 
 impl Cell {
+    /// A cell `column` across from the left edge and `row` down from the top,
+    /// both counted from 0.
     pub fn new(column: usize, row: usize) -> Self {
         Self { column, row }
     }
 
+    /// Counted from 0 at the left edge.
     pub fn column(&self) -> usize {
         self.column
     }
 
+    /// Counted from 0 at the top edge, so it grows downward.
     pub fn row(&self) -> usize {
         self.row
     }
 
+    /// The same row, at `column`.
     #[must_use]
     pub fn with_column(self, column: usize) -> Self {
         Self { column, ..self }
     }
 
+    /// The same column, at `row`.
     #[must_use]
     pub fn with_row(self, row: usize) -> Self {
         Self { row, ..self }

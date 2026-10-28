@@ -8,6 +8,7 @@ use crate::domain::solution::common::cell::Cell;
 
 /// Reading and iterating a grid by [`Cell`], whatever shape it is.
 pub trait Grid {
+    /// What each cell holds.
     type Item;
 
     /// The item at `cell`, `None` if it is off the grid.
@@ -26,15 +27,18 @@ pub trait Grid {
     /// Whether `cell` is on the grid.
     fn contains_cell(&self, cell: &Cell) -> bool;
 
+    /// How many rows the grid has.
     fn height(&self) -> usize;
 
     /// Each row as a slice, top to bottom.
     fn iter_rows(&self) -> impl Iterator<Item = &[Self::Item]>;
+    /// Each row as a mutable slice, top to bottom.
     fn iter_rows_mut(&mut self) -> impl Iterator<Item = &mut [Self::Item]>;
 }
 
 /// A grid whose rows are all the same width.
 pub trait FixedWidth {
+    /// How many cells each row has.
     fn width(&self) -> usize;
 }
 

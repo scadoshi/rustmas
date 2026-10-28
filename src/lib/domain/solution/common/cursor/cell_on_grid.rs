@@ -1,3 +1,5 @@
+//! A cell bound to its grid, so every move is checked against the grid.
+
 use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::cursor::CellOutOfBounds;
 use crate::domain::solution::common::direction::Direction;
@@ -44,10 +46,12 @@ impl<'grid, G: Grid<Item = T>, T> CellOnGrid<'grid, G, T> {
         Self::new(cell, self.grid).unwrap_or(self)
     }
 
+    /// Where the cursor is, always a cell of [`CellOnGrid::grid`].
     pub fn cell(&self) -> Cell {
         self.cell
     }
 
+    /// The grid the cursor walks, borrowed for as long as the cursor lives.
     pub fn grid(&self) -> &'grid G {
         self.grid
     }

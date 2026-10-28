@@ -1,15 +1,21 @@
+//! A rectangle as tall as it is wide.
+
 use thiserror::Error;
 
 use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
 use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
+/// Why rows cannot make a [`Square`].
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidSquare {
+    /// There are no rows.
     #[error("expected at least one row and one column")]
     DimensionIsZero,
+    /// The row count differs from the first row's width.
     #[error("expected as many rows as columns")]
     WidthAndHeightInequal,
+    /// Some row differs in width from the first.
     #[error("expected every row the same width")]
     VariableWidth,
 }
@@ -30,6 +36,13 @@ pub struct Square<T>(Rectangle<T>);
 impl<T> Square<T> {
     /// Checks that `inner` is as wide as it is tall, then defers to
     /// [`Rectangle::new`] for the rest.
+    ///
+    /// # Errors
+    ///
+    /// [`InvalidSquare::DimensionIsZero`] when `inner` has no rows,
+    /// [`InvalidSquare::WidthAndHeightInequal`] when the row count differs from
+    /// the first row's width, and [`InvalidSquare::VariableWidth`] when any
+    /// later row differs in width from the first.
     pub fn new(inner: Vec<Vec<T>>) -> Result<Self, InvalidSquare> {
         if inner.len() != inner.first().ok_or(InvalidSquare::DimensionIsZero)?.len() {
             return Err(InvalidSquare::WidthAndHeightInequal);

@@ -1,3 +1,5 @@
+//! Signed positions on an unbounded plane.
+
 use crate::domain::solution::common::direction::Direction;
 
 /// A signed position on the cartesian plane, `y` growing upward.
@@ -5,11 +7,14 @@ use crate::domain::solution::common::direction::Direction;
 /// For row and column indices into a grid, use [`Cell`](super::cell::Cell).
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct Point {
+    /// Grows to the right.
     pub x: i32,
+    /// Grows upward, the opposite of [`Cell::row`](super::cell::Cell::row).
     pub y: i32,
 }
 
 impl Point {
+    /// The point `x` right of and `y` above the origin.
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }

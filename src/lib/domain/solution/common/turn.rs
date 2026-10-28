@@ -1,3 +1,5 @@
+//! Left or right quarter turns, as puzzle inputs spell them.
+
 use std::str::FromStr;
 
 use thiserror::Error;
@@ -13,7 +15,9 @@ pub struct InvalidTurn(String);
 /// to accept `Up` and `Down` where they name no turn.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Turn {
+    /// Anticlockwise.
     Left,
+    /// Clockwise.
     Right,
 }
 
