@@ -17,8 +17,14 @@ impl FromStr for Report {
 }
 
 /// Safe when every step is 1 to 3 in the same direction.
+///
+/// Steps are taken in [`i64`], where the gap between two [`i32`] levels
+/// always fits.
 fn is_safe(levels: &[i32]) -> bool {
-    let mut steps = levels.windows(2).map(|w| w[1] - w[0]);
+    let mut steps = levels
+        .iter()
+        .zip(levels.iter().skip(1))
+        .map(|(&from, &to)| i64::from(to) - i64::from(from));
     steps.clone().all(|s| (1..=3).contains(&s)) || steps.all(|s| (-3..=-1).contains(&s))
 }
 
@@ -67,5 +73,12 @@ mod tests {
         assert!(report("1 3 2 4 5").is_safe_dampened());
         assert!(report("8 6 4 4 1").is_safe_dampened());
         assert!(!report("1 2 7 8 9").is_safe_dampened());
+    }
+
+    /// A step from the bottom of an `i32` to the top is far more than 3.
+    #[test]
+    fn a_step_across_the_whole_i32_range_is_unsafe() {
+        assert!(!report("-2147483648 2147483647").is_safe());
+        assert!(!report("2147483647 -2147483648").is_safe());
     }
 }
