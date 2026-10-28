@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use anyhow::bail;
 use reqwest::Url;
 use reqwest::blocking::Client;
@@ -50,11 +48,10 @@ impl SolverClient {
     pub(crate) fn validate_answer(
         &self,
         day: &Day,
-        input: impl Display,
+        input: &str,
         part: Part,
         answer: impl AsRef<str>,
     ) -> anyhow::Result<SolverVerdict> {
-        let input = input.to_string();
         let answer = answer.as_ref();
         let path = format!(
             "/solve/{}/{}/{}",
@@ -66,7 +63,7 @@ impl SolverClient {
         for base in BASE_URLS {
             let url = Url::parse(base)?.join(&path)?;
 
-            let response = match self.client.post(url.clone()).body(input.clone()).send() {
+            let response = match self.client.post(url.clone()).body(input.to_owned()).send() {
                 Ok(response) => response,
                 Err(e) => {
                     eprintln!("failed to reach solver at {url}: {e:?}; trying next url");

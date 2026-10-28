@@ -70,9 +70,8 @@ fn fetch_tagged_input(
     cookie: Option<&SessionCookie>,
 ) -> anyhow::Result<Input> {
     let data = client.connected()?.fetch_input(day)?;
-    let cookie = match cookie {
-        Some(cookie) => cookie.clone(),
-        None => Environment::cookie()?,
-    };
-    Ok(Input::new(cookie, data))
+    Ok(match cookie {
+        Some(cookie) => Input::new(cookie, data),
+        None => Input::new(Environment::cookie()?, data),
+    })
 }
