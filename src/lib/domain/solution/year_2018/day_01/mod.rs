@@ -27,10 +27,10 @@ impl Solution for Puzzle {
     }
 
     /// The first frequency reached twice, looping over the changes as often
-    /// as it takes.
+    /// as it takes. [`Answer::None`] when no frequency ever repeats.
     fn part_two(&self) -> anyhow::Result<Answer> {
         if !self.ever_repeats()? {
-            return Err(anyhow!("the frequencies never repeat"));
+            return Ok(Answer::None);
         }
         let mut current = 0_i32;
         let mut seen = HashSet::<i32>::from([current]);
@@ -120,14 +120,14 @@ mod tests {
 
     /// Climbing by one forever never comes back to a frequency.
     #[test]
-    fn changes_that_never_repeat_are_an_error() {
-        assert!(puzzle("+1").part_two().is_err());
-        assert!(puzzle("+2, +4").part_two().is_err());
+    fn changes_that_never_repeat_have_no_answer() {
+        assert_eq!(puzzle("+1").part_two().unwrap(), Answer::None);
+        assert_eq!(puzzle("+2, +4").part_two().unwrap(), Answer::None);
     }
 
     #[test]
     fn a_frequency_past_i32_is_an_error() {
         assert!(puzzle("+2147483647, +1").part_one().is_err());
-        assert!(puzzle("+2147483647, +1").part_two().is_err());
+        assert!(puzzle("+2147483647, +1, -2147483648").part_two().is_err());
     }
 }

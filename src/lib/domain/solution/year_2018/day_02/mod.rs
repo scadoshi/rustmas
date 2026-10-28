@@ -48,10 +48,10 @@ impl Solution for Puzzle {
         Ok(Answer::solved(checksum.to_string()))
     }
 
+    /// The letters two ids share when they differ in exactly one place.
+    /// [`Answer::None`] when no two ids do.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let Some(len) = self.input.first().map(String::len) else {
-            return Err(anyhow!("no input lines"));
-        };
+        let len = self.input.first().map_or(0, String::len);
         for i in 0..len {
             let mut seen: HashSet<(&str, &str)> = HashSet::new();
             for line in &self.input {
@@ -66,7 +66,7 @@ impl Solution for Puzzle {
                 }
             }
         }
-        Err(anyhow!("no two lines differ by one character"))
+        Ok(Answer::None)
     }
 }
 
@@ -84,6 +84,12 @@ mod tests {
     fn part_two_example() {
         let puzzle = Puzzle::new("abcde\nfghij\nklmno\npqrst\nfguij\naxcye\nwvxyz").unwrap();
         assert_eq!(puzzle.part_two().unwrap(), Answer::solved("fgij"));
+    }
+
+    #[test]
+    fn ids_that_never_differ_by_one_letter_have_no_answer() {
+        let puzzle = Puzzle::new("abc\nxyz").unwrap();
+        assert_eq!(puzzle.part_two().unwrap(), Answer::None);
     }
 
     /// Anything outside `a-z` would index past the letter counts.
