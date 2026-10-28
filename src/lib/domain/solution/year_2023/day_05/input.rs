@@ -1,9 +1,20 @@
 use std::str::FromStr;
 
-use anyhow::anyhow;
+use thiserror::Error;
 
+use crate::domain::solution::year_2023::day_05::range::mapping::InvalidRangeMapping;
 use crate::domain::solution::year_2023::day_05::range::maps::RangeMaps;
-use crate::domain::solution::year_2023::day_05::seeds::Seeds;
+use crate::domain::solution::year_2023::day_05::seeds::{InvalidSeeds, Seeds};
+
+#[derive(Debug, Error)]
+pub(super) enum InvalidInput {
+    #[error("expected a blank line between the seeds and the maps")]
+    MissingMaps,
+    #[error(transparent)]
+    Seeds(#[from] InvalidSeeds),
+    #[error(transparent)]
+    Maps(#[from] InvalidRangeMapping),
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct Input {
@@ -12,12 +23,10 @@ pub(super) struct Input {
 }
 
 impl FromStr for Input {
-    type Err = anyhow::Error;
+    type Err = InvalidInput;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (seeds, range_maps) = s
-            .split_once("\n\n")
-            .ok_or_else(|| anyhow!("seed section not found"))?;
+        let (seeds, range_maps) = s.split_once("\n\n").ok_or(InvalidInput::MissingMaps)?;
         let seeds = Seeds::from_str(seeds)?;
         let maps = RangeMaps::from_str(range_maps)?;
         Ok(Self { seeds, maps })

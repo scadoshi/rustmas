@@ -28,7 +28,7 @@ impl Solution for Puzzle {
                 .iter()
                 .map(|s| self.input.maps().map(*s))
                 .min()
-                .ok_or_else(|| anyhow!("no min found"))?
+                .ok_or_else(|| anyhow!("expected at least one seed"))?
                 .to_string(),
         ))
     }
@@ -41,7 +41,7 @@ impl Solution for Puzzle {
                 .into_iter()
                 .flat_map(|r| self.input.maps().map_range(r).into_iter().map(|r| r.start))
                 .min()
-                .ok_or_else(|| anyhow!("no min found"))?
+                .ok_or_else(|| anyhow!("expected a seed range that is not empty"))?
                 .to_string(),
         ))
     }
