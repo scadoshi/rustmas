@@ -9,10 +9,15 @@ use crate::domain::solution::common::cell::Cell;
 pub enum InvalidClaim {
     #[error("expected `#id @ left,top: widthxheight`")]
     Malformed,
+    /// The claim reaches past the largest [`usize`] index.
+    #[error("expected the claim to end within usize")]
+    TooFar,
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
+/// A rectangle of fabric, whose right and bottom edges fit in a [`usize`],
+/// checked when parsed.
 #[derive(Debug, Clone, Copy)]
 pub struct Claim {
     pub id: u32,
@@ -35,21 +40,29 @@ impl FromStr for Claim {
         let (corner, size) = rest.split_once(": ").ok_or(InvalidClaim::Malformed)?;
         let (left, top) = corner.split_once(',').ok_or(InvalidClaim::Malformed)?;
         let (width, height) = size.split_once('x').ok_or(InvalidClaim::Malformed)?;
-        Ok(Self {
+        let claim = Self {
             id: id.parse()?,
             left: left.parse()?,
             top: top.parse()?,
             width: width.parse()?,
             height: height.parse()?,
-        })
+        };
+        if claim.left.checked_add(claim.width).is_none()
+            || claim.top.checked_add(claim.height).is_none()
+        {
+            return Err(InvalidClaim::TooFar);
+        }
+        Ok(claim)
     }
 }
 
 impl Claim {
     /// Every square inch this claim covers.
     pub fn cells(self) -> impl Iterator<Item = Cell> {
-        (0..self.height).flat_map(move |row| {
-            (0..self.width).map(move |column| Cell::new(self.left + column, self.top + row))
+        (self.top..).take(self.height).flat_map(move |row| {
+            (self.left..)
+                .take(self.width)
+                .map(move |column| Cell::new(column, row))
         })
     }
 }
@@ -78,6 +91,12 @@ mod tests {
             "#x @ 55,885: 22x10".parse::<Claim>(),
             Err(InvalidClaim::ParseInt(_))
         ));
+    }
+
+    #[test]
+    fn a_claim_ending_past_usize_is_rejected() {
+        let line = format!("#1 @ {},0: 1x1", usize::MAX);
+        assert!(matches!(line.parse::<Claim>(), Err(InvalidClaim::TooFar)));
     }
 
     #[test]

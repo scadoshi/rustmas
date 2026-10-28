@@ -11,20 +11,14 @@ pub struct Puzzle {
     input: Vec<String>,
 }
 
+/// The letters a box id may hold, in order.
+const ALPHABET: [u8; 26] = *b"abcdefghijklmnopqrstuvwxyz";
+
 /// How many times each lowercase letter appears in `line`.
 ///
 /// Index `0` is `a`, `1` is `b`, and so on. Anything outside `a-z` is not counted.
 fn letter_counts(line: &str) -> [usize; 26] {
-    let mut counts = [0; 26];
-    for b in line.bytes() {
-        if let Some(count) = b
-            .checked_sub(b'a')
-            .and_then(|i| counts.get_mut(usize::from(i)))
-        {
-            *count += 1;
-        }
-    }
-    counts
+    ALPHABET.map(|letter| line.bytes().filter(|b| *b == letter).count())
 }
 
 impl Solution for Puzzle {
@@ -45,14 +39,13 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let (doubles, triples) = self.input.iter().fold((0, 0), |(d, t), line| {
-            let counts = letter_counts(line);
-            (
-                d + usize::from(counts.contains(&2)),
-                t + usize::from(counts.contains(&3)),
-            )
-        });
-        Ok(Answer::solved((doubles * triples).to_string()))
+        let counts: Vec<[usize; 26]> = self.input.iter().map(|line| letter_counts(line)).collect();
+        let doubles = counts.iter().filter(|counts| counts.contains(&2)).count();
+        let triples = counts.iter().filter(|counts| counts.contains(&3)).count();
+        let checksum = doubles
+            .checked_mul(triples)
+            .ok_or_else(|| anyhow!("the checksum passes usize"))?;
+        Ok(Answer::solved(checksum.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
@@ -62,7 +55,9 @@ impl Solution for Puzzle {
         for i in 0..len {
             let mut seen: HashSet<(&str, &str)> = HashSet::new();
             for line in &self.input {
-                let (Some(head), Some(tail)) = (line.get(..i), line.get(i + 1..)) else {
+                let (Some(head), Some(tail)) =
+                    (line.get(..i), line.get(i..).and_then(|rest| rest.get(1..)))
+                else {
                     return Err(anyhow!("box id {line:?} is shorter than the first"));
                 };
                 let halves = (head, tail);
