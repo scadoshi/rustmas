@@ -1,5 +1,6 @@
 use std::fmt::{self, Display};
 
+use chrono::{DateTime, Utc};
 use thiserror::Error;
 
 use crate::domain::address::filter::Filter;
@@ -8,8 +9,8 @@ use crate::domain::address::year::{FIRST_YEAR, Year};
 /// Christmas Day, whose second star is awarded rather than puzzled.
 pub(crate) const FINAL_DAY: i32 = 25;
 
-/// Returned when a day falls outside its bound, which is the year's own day
-/// count when a year is known and 25 otherwise.
+/// Returned when a day falls outside its bound: the days its year has
+/// unlocked when a year is known, and 25 otherwise.
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("day {given} is outside 1..={bound}")]
 pub struct DayOutOfRange {
@@ -41,7 +42,7 @@ impl Day {
         self.value != FINAL_DAY
     }
 
-    /// Every published puzzle day that `filter` allows.
+    /// Every unlocked puzzle day that `filter` allows.
     pub fn matching(filter: Filter) -> impl Iterator<Item = Day> {
         Day::all().filter(move |d| {
             filter
@@ -53,17 +54,29 @@ impl Day {
         })
     }
 
-    /// Every published puzzle day, in year then day order.
+    /// Every unlocked puzzle day, in year then day order.
     pub fn all() -> impl Iterator<Item = Self> {
-        (FIRST_YEAR..=Year::latest()).flat_map(|y| {
-            let year = Year::new(y).expect("range is FIRST_YEAR..=latest");
-            (1..=year.days_in()).map(move |d| Day::new(d, year).expect("d is within days_in"))
+        Self::all_at(Utc::now())
+    }
+
+    /// [`Day::all`] as of `now`.
+    pub(crate) fn all_at(now: DateTime<Utc>) -> impl Iterator<Item = Self> {
+        (FIRST_YEAR..=Year::latest_at(now)).flat_map(move |y| {
+            let year = Year::new_at(y, now).expect("range is FIRST_YEAR..=latest");
+            (1..=year.unlocked_days_at(now))
+                .map(move |d| Day::new_at(d, year, now).expect("d is within the unlocked days"))
         })
     }
 
-    /// Rejects any day outside `1..=year.days_in()`.
+    /// Rejects any day of `year` outside `1..=year.days_in()` or not yet
+    /// unlocked.
     pub fn new(day: i32, year: Year) -> Result<Self, DayOutOfRange> {
-        let bound = year.days_in();
+        Self::new_at(day, year, Utc::now())
+    }
+
+    /// [`Day::new`] as of `now`.
+    pub(crate) fn new_at(day: i32, year: Year, now: DateTime<Utc>) -> Result<Self, DayOutOfRange> {
+        let bound = year.unlocked_days_at(now);
         if day < 1 || day > bound {
             return Err(DayOutOfRange { given: day, bound });
         }
@@ -106,11 +119,12 @@ mod tests {
 
     #[test]
     fn all_walks_every_published_day() {
-        let expected: i32 = (FIRST_YEAR..=Year::latest())
-            .filter_map(|y| Year::new(y).ok())
+        let now: DateTime<Utc> = "2026-10-28T12:00:00Z".parse().unwrap();
+        let expected: i32 = (FIRST_YEAR..=Year::latest_at(now))
+            .filter_map(|y| Year::new_at(y, now).ok())
             .map(|y| y.days_in())
             .sum();
-        assert_eq!(Day::all().count(), expected as usize);
+        assert_eq!(Day::all_at(now).count(), expected as usize);
     }
 
     fn filter(year: Option<i32>, day: Option<i32>) -> Filter {
@@ -157,5 +171,14 @@ mod tests {
     fn displays_as_year_then_day() {
         let day = Day::new(1, year(2015)).unwrap();
         assert_eq!(day.to_string(), "year 2015 day 1");
+    }
+
+    /// An unfiltered walk in December stops at the last unlocked day, since a
+    /// locked one has no page or input to fetch.
+    #[test]
+    fn all_stops_at_the_last_unlocked_day() {
+        let now: DateTime<Utc> = "2026-12-03T12:00:00Z".parse().unwrap();
+        let last = Day::all_at(now).last().expect("past events are unlocked");
+        assert_eq!((last.year(), last.value()), (2026, 3));
     }
 }

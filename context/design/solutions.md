@@ -136,7 +136,7 @@ A missing `mod` also fails silently, as a day that quietly doesn't exist. A miss
 
 ## Walking the days
 
-`Day::matching(filter)` yields every published day that a `Filter` allows. Both subcommands use it, so the year and day loops exist once instead of twice with slightly different guards. `None` on either side of the filter means all of them.
+`Day::matching(filter)` yields every unlocked day that a `Filter` allows. Both subcommands use it, so the year and day loops exist once instead of twice with slightly different guards. `None` on either side of the filter means all of them.
 
 It sits on `Day` because a `Day` already carries its `Year`, so enumerating days is enumerating the pairs. `Day::all` iterates validated `Year`s rather than raw integers, which is why `days_in` can stay a method rather than a loose function taking an unchecked number.
 

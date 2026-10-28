@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use thiserror::Error;
 
 use crate::domain::address::day::{DayOutOfRange, FINAL_DAY};
@@ -28,13 +29,22 @@ pub struct Filter {
 impl Filter {
     /// Validates whatever was given: each side alone, and the pair strictly.
     pub fn new(year: Option<i32>, day: Option<i32>) -> Result<Filter, InvalidFilter> {
+        Self::new_at(year, day, Utc::now())
+    }
+
+    /// [`Filter::new`] as of `now`.
+    fn new_at(
+        year: Option<i32>,
+        day: Option<i32>,
+        now: DateTime<Utc>,
+    ) -> Result<Filter, InvalidFilter> {
         let (year, day) = match (year, day) {
             (Some(y), Some(d)) => {
-                let year = Year::new(y)?;
-                let _day = Day::new(d, year)?;
+                let year = Year::new_at(y, now)?;
+                let _day = Day::new_at(d, year, now)?;
                 (Some(year), Some(d))
             }
-            (Some(y), None) => (Some(Year::new(y)?), None),
+            (Some(y), None) => (Some(Year::new_at(y, now)?), None),
             (None, Some(d)) => {
                 if !(1..=FINAL_DAY).contains(&d) {
                     return Err(InvalidFilter::DayOutOfRange(DayOutOfRange {
@@ -105,5 +115,15 @@ mod tests {
 
         let error = Filter::new(Some(2030), None).unwrap_err();
         assert!(error.to_string().contains("2030"));
+    }
+
+    /// A day of the running event that has not unlocked yet is out of range,
+    /// with the unlocked count as the bound.
+    #[test]
+    fn rejects_a_day_that_has_not_unlocked() {
+        let now: DateTime<Utc> = "2026-12-03T12:00:00Z".parse().unwrap();
+        assert!(Filter::new_at(Some(2026), Some(3), now).is_ok());
+        let error = Filter::new_at(Some(2026), Some(4), now).unwrap_err();
+        assert_eq!(error.to_string(), "day 4 is outside 1..=3");
     }
 }
