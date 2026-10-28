@@ -87,10 +87,7 @@ impl SolverClient {
             let body = body.trim();
 
             if status.is_success() {
-                return Ok(match (answer.parse::<i64>(), body.parse::<i64>()) {
-                    (Ok(answer), Ok(solved)) => answer.cmp(&solved).into(),
-                    _ => (answer == body).into(),
-                });
+                return Ok(compare(answer, body));
             }
 
             if status.is_client_error() {
@@ -108,5 +105,27 @@ impl SolverClient {
             day.year(),
             day.value()
         );
+    }
+}
+
+/// Grades `answer` against the solver's `solved`: as numbers when both parse,
+/// so a mismatch has a direction, else as text.
+fn compare(answer: &str, solved: &str) -> SolverVerdict {
+    match (answer.parse::<i64>(), solved.parse::<i64>()) {
+        (Ok(answer), Ok(solved)) => answer.cmp(&solved).into(),
+        _ if answer == solved => SolverVerdict::Correct,
+        _ => SolverVerdict::Incorrect,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Non-numeric answers can only match or not, with no direction to report.
+    #[test]
+    fn text_comparison_has_no_direction() {
+        assert!(matches!(compare("abc", "abc"), SolverVerdict::Correct));
+        assert!(matches!(compare("abc", "abd"), SolverVerdict::Incorrect));
     }
 }

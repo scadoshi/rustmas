@@ -45,10 +45,10 @@ context/                     # these notes
 
 ```
 cli               parses solve -y 2015 -d 1 --validate
-  solve/run       looks up the day in solver_for, gets solve::<Puzzle>
+  solve/run       looks up the day in solver_for, gets solve::run_day::<Puzzle>
     input         reads the cache, downloads whatever is missing
       store       one directory per day of plain files
-    solve         S::new(input), times each part, holds a failure per part
+    run_day       S::new(input), times each part, holds a failure per part
       Puzzle      the day's own logic
       solver_client  checks each submittable answer when validating
     Outcome       renders answer, verdicts, and timing on one line

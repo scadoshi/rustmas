@@ -5,14 +5,20 @@ use crate::domain::solution::outcome::Outcome;
 use crate::domain::solution::{Solution, Solved};
 use crate::outbound::client::solver_client::SolverClient;
 
-/// Runs both parts, checking each answer against the solver when `validate`.
+/// Whether a run checks its answers against the solver, and with which client.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum Validation<'client> {
+    Off,
+    Against(&'client SolverClient),
+}
+
+/// Runs both parts of one day, checking each answer as `validation` says.
 ///
 /// Validation runs after both parts are measured, so no timing includes a
 /// network round trip. A failing part goes into its own [`Outcome`], so the
 /// other still runs; only [`Solution::new`] failing ends the day.
-pub(crate) fn solve<S: Solution>(
-    client: &SolverClient,
-    validate: bool,
+pub(crate) fn run_day<S: Solution>(
+    validation: Validation<'_>,
     input: &str,
     day: &Day,
 ) -> anyhow::Result<Solved> {
@@ -28,7 +34,7 @@ pub(crate) fn solve<S: Solution>(
     let part_two = solution.part_two();
     let mut part_two = Outcome::new(part_two, start.elapsed());
 
-    if validate {
+    if let Validation::Against(client) = validation {
         if let Some(value) = part_one.value() {
             let verdict = client.validate_answer(day, input, Part::One, value)?;
             part_one = part_one.with_solver_verdict(verdict);

@@ -25,16 +25,6 @@ impl From<Ordering> for SolverVerdict {
     }
 }
 
-impl From<bool> for SolverVerdict {
-    fn from(value: bool) -> Self {
-        if value {
-            Self::Correct
-        } else {
-            Self::Incorrect
-        }
-    }
-}
-
 impl Display for SolverVerdict {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -65,16 +55,6 @@ mod tests {
         assert!(matches!(
             SolverVerdict::from(Ordering::Equal),
             SolverVerdict::Correct
-        ));
-    }
-
-    /// Non-numeric answers can only match or not, with no direction to report.
-    #[test]
-    fn text_comparison_has_no_direction() {
-        assert!(matches!(SolverVerdict::from(true), SolverVerdict::Correct));
-        assert!(matches!(
-            SolverVerdict::from(false),
-            SolverVerdict::Incorrect
         ));
     }
 }

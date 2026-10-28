@@ -12,10 +12,11 @@ use crate::inbound::input;
 use crate::inbound::solve::args::SolveArgs;
 use crate::outbound::client::aoc_client::LazyAocClient;
 use crate::outbound::client::solve;
+use crate::outbound::client::solve::Validation;
 use crate::outbound::client::solver_client::SolverClient;
 
 /// A day's solver, once its concrete type is known.
-type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;
+type Solver = fn(Validation<'_>, &str, &Day) -> anyhow::Result<Solved>;
 
 /// The solver for a day, or `None` when nobody has written one.
 ///
@@ -24,50 +25,50 @@ type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;
 /// list of what has been solved.
 fn solver_for(year: i32, day: i32) -> Option<Solver> {
     Some(match (year, day) {
-        (2015, 1) => solve::solve::<year_2015::day_01::Puzzle>,
-        (2015, 2) => solve::solve::<year_2015::day_02::Puzzle>,
-        (2015, 3) => solve::solve::<year_2015::day_03::Puzzle>,
-        (2015, 4) => solve::solve::<year_2015::day_04::Puzzle>,
-        (2015, 5) => solve::solve::<year_2015::day_05::Puzzle>,
-        (2016, 1) => solve::solve::<year_2016::day_01::Puzzle>,
-        (2016, 2) => solve::solve::<year_2016::day_02::Puzzle>,
-        (2016, 3) => solve::solve::<year_2016::day_03::Puzzle>,
-        (2016, 4) => solve::solve::<year_2016::day_04::Puzzle>,
-        (2016, 5) => solve::solve::<year_2016::day_05::Puzzle>,
-        (2017, 1) => solve::solve::<year_2017::day_01::Puzzle>,
-        (2017, 2) => solve::solve::<year_2017::day_02::Puzzle>,
-        (2017, 3) => solve::solve::<year_2017::day_03::Puzzle>,
-        (2017, 4) => solve::solve::<year_2017::day_04::Puzzle>,
-        (2018, 1) => solve::solve::<year_2018::day_01::Puzzle>,
-        (2018, 2) => solve::solve::<year_2018::day_02::Puzzle>,
-        (2018, 3) => solve::solve::<year_2018::day_03::Puzzle>,
-        (2018, 4) => solve::solve::<year_2018::day_04::Puzzle>,
-        (2019, 1) => solve::solve::<year_2019::day_01::Puzzle>,
-        (2019, 3) => solve::solve::<year_2019::day_03::Puzzle>,
-        (2020, 1) => solve::solve::<year_2020::day_01::Puzzle>,
-        (2020, 2) => solve::solve::<year_2020::day_02::Puzzle>,
-        (2020, 3) => solve::solve::<year_2020::day_03::Puzzle>,
-        (2020, 4) => solve::solve::<year_2020::day_04::Puzzle>,
-        (2021, 1) => solve::solve::<year_2021::day_01::Puzzle>,
-        (2021, 2) => solve::solve::<year_2021::day_02::Puzzle>,
-        (2021, 3) => solve::solve::<year_2021::day_03::Puzzle>,
-        (2021, 4) => solve::solve::<year_2021::day_04::Puzzle>,
-        (2022, 1) => solve::solve::<year_2022::day_01::Puzzle>,
-        (2022, 2) => solve::solve::<year_2022::day_02::Puzzle>,
-        (2022, 3) => solve::solve::<year_2022::day_03::Puzzle>,
-        (2022, 4) => solve::solve::<year_2022::day_04::Puzzle>,
-        (2023, 1) => solve::solve::<year_2023::day_01::Puzzle>,
-        (2023, 2) => solve::solve::<year_2023::day_02::Puzzle>,
-        (2023, 3) => solve::solve::<year_2023::day_03::Puzzle>,
-        (2023, 4) => solve::solve::<year_2023::day_04::Puzzle>,
-        (2023, 5) => solve::solve::<year_2023::day_05::Puzzle>,
-        (2024, 1) => solve::solve::<year_2024::day_01::Puzzle>,
-        (2024, 2) => solve::solve::<year_2024::day_02::Puzzle>,
-        (2024, 3) => solve::solve::<year_2024::day_03::Puzzle>,
-        (2024, 4) => solve::solve::<year_2024::day_04::Puzzle>,
-        (2024, 5) => solve::solve::<year_2024::day_05::Puzzle>,
-        (2024, 6) => solve::solve::<year_2024::day_06::Puzzle>,
-        (2025, 1) => solve::solve::<year_2025::day_01::Puzzle>,
+        (2015, 1) => solve::run_day::<year_2015::day_01::Puzzle>,
+        (2015, 2) => solve::run_day::<year_2015::day_02::Puzzle>,
+        (2015, 3) => solve::run_day::<year_2015::day_03::Puzzle>,
+        (2015, 4) => solve::run_day::<year_2015::day_04::Puzzle>,
+        (2015, 5) => solve::run_day::<year_2015::day_05::Puzzle>,
+        (2016, 1) => solve::run_day::<year_2016::day_01::Puzzle>,
+        (2016, 2) => solve::run_day::<year_2016::day_02::Puzzle>,
+        (2016, 3) => solve::run_day::<year_2016::day_03::Puzzle>,
+        (2016, 4) => solve::run_day::<year_2016::day_04::Puzzle>,
+        (2016, 5) => solve::run_day::<year_2016::day_05::Puzzle>,
+        (2017, 1) => solve::run_day::<year_2017::day_01::Puzzle>,
+        (2017, 2) => solve::run_day::<year_2017::day_02::Puzzle>,
+        (2017, 3) => solve::run_day::<year_2017::day_03::Puzzle>,
+        (2017, 4) => solve::run_day::<year_2017::day_04::Puzzle>,
+        (2018, 1) => solve::run_day::<year_2018::day_01::Puzzle>,
+        (2018, 2) => solve::run_day::<year_2018::day_02::Puzzle>,
+        (2018, 3) => solve::run_day::<year_2018::day_03::Puzzle>,
+        (2018, 4) => solve::run_day::<year_2018::day_04::Puzzle>,
+        (2019, 1) => solve::run_day::<year_2019::day_01::Puzzle>,
+        (2019, 3) => solve::run_day::<year_2019::day_03::Puzzle>,
+        (2020, 1) => solve::run_day::<year_2020::day_01::Puzzle>,
+        (2020, 2) => solve::run_day::<year_2020::day_02::Puzzle>,
+        (2020, 3) => solve::run_day::<year_2020::day_03::Puzzle>,
+        (2020, 4) => solve::run_day::<year_2020::day_04::Puzzle>,
+        (2021, 1) => solve::run_day::<year_2021::day_01::Puzzle>,
+        (2021, 2) => solve::run_day::<year_2021::day_02::Puzzle>,
+        (2021, 3) => solve::run_day::<year_2021::day_03::Puzzle>,
+        (2021, 4) => solve::run_day::<year_2021::day_04::Puzzle>,
+        (2022, 1) => solve::run_day::<year_2022::day_01::Puzzle>,
+        (2022, 2) => solve::run_day::<year_2022::day_02::Puzzle>,
+        (2022, 3) => solve::run_day::<year_2022::day_03::Puzzle>,
+        (2022, 4) => solve::run_day::<year_2022::day_04::Puzzle>,
+        (2023, 1) => solve::run_day::<year_2023::day_01::Puzzle>,
+        (2023, 2) => solve::run_day::<year_2023::day_02::Puzzle>,
+        (2023, 3) => solve::run_day::<year_2023::day_03::Puzzle>,
+        (2023, 4) => solve::run_day::<year_2023::day_04::Puzzle>,
+        (2023, 5) => solve::run_day::<year_2023::day_05::Puzzle>,
+        (2024, 1) => solve::run_day::<year_2024::day_01::Puzzle>,
+        (2024, 2) => solve::run_day::<year_2024::day_02::Puzzle>,
+        (2024, 3) => solve::run_day::<year_2024::day_03::Puzzle>,
+        (2024, 4) => solve::run_day::<year_2024::day_04::Puzzle>,
+        (2024, 5) => solve::run_day::<year_2024::day_05::Puzzle>,
+        (2024, 6) => solve::run_day::<year_2024::day_06::Puzzle>,
+        (2025, 1) => solve::run_day::<year_2025::day_01::Puzzle>,
         _ => return None,
     })
 }
@@ -81,9 +82,13 @@ fn part_count(filter: Filter) -> usize {
 }
 
 pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
-    // Submitting gates on a solver verdict, so it validates too.
-    let validate = args.validate || args.submit;
     let solver = SolverClient::from_env()?;
+    // Submitting gates on a solver verdict, so it validates too.
+    let validation = if args.validate || args.submit {
+        Validation::Against(&solver)
+    } else {
+        Validation::Off
+    };
     let filter = Filter::new(args.year, args.day)?;
 
     let count = part_count(filter);
@@ -113,7 +118,7 @@ pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
         };
 
         let entry = input::ensure_entry(&mut aoc, &day)?;
-        match solver_fn(&solver, validate, entry.input.data(), &day) {
+        match solver_fn(validation, entry.input.data(), &day) {
             Ok(mut solved) => {
                 // Before printing, so each part reports both checkers on one
                 // line. Gated on the flag, not on the client existing.

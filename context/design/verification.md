@@ -136,7 +136,7 @@ The two clients are built independently. Validating alone never needs a cookie, 
 
 Intent travels as flags, not as the presence of a client.
 
-- `solve` takes `validate: bool` alongside a `&SolverClient` that's always built. That client needs no cookie and fails to build only when the `User-Agent` can't be a header value.
+- `solve::run_day` takes a `Validation`, which is `Off` or `Against` a `&SolverClient` that's always built. That client needs no cookie and fails to build only when the `User-Agent` can't be a header value.
 - `AocClient` sits behind a `LazyAocClient`, because it genuinely can be absent. Nothing reads intent from it.
 - Submission is gated on `--submit`.
 - `ensure_entry` connects the `LazyAocClient` only when a download is needed, so a connected client doesn't imply anything was asked for.
