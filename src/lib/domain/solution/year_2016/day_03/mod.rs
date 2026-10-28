@@ -37,7 +37,7 @@ impl Solution for Puzzle {
         Ok(Answer::solved(
             self.triangles
                 .iter()
-                .filter(|t| t.is_valid())
+                .filter(|triangle| triangle.is_valid())
                 .count()
                 .to_string(),
         ))
@@ -66,7 +66,7 @@ mod tests {
             Triangle([7, 8, 9]),
             Triangle([1, 1, 1]),
         ];
-        let columns: Vec<[u32; 3]> = by_column(&rows).map(|t| t.0).collect();
+        let columns: Vec<[u32; 3]> = by_column(&rows).map(|triangle| triangle.0).collect();
         assert_eq!(columns, vec![[1, 4, 7], [2, 5, 8], [3, 6, 9]]);
     }
 }

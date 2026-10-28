@@ -22,7 +22,7 @@ impl Solution for Puzzle {
     fn part_one(&self) -> anyhow::Result<Answer> {
         let total: u32 = self.games.iter().try_fold(0_u32, |total, g| {
             total
-                .checked_add(g.to_game_other_is_player()?.player_score())
+                .checked_add(g.to_game_by_play()?.player_score())
                 .context("the scores add up past u32")
         })?;
         Ok(Answer::solved(total.to_string()))
@@ -31,7 +31,7 @@ impl Solution for Puzzle {
     fn part_two(&self) -> anyhow::Result<Answer> {
         let total: u32 = self.games.iter().try_fold(0_u32, |total, g| {
             total
-                .checked_add(g.to_game_other_is_result()?.player_score())
+                .checked_add(g.to_game_by_result()?.player_score())
                 .context("the scores add up past u32")
         })?;
         Ok(Answer::solved(total.to_string()))

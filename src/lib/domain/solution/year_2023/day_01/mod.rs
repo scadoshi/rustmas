@@ -9,22 +9,23 @@ use crate::domain::solution::year_2023::day_01::calibration::Calibration;
 #[derive(Debug)]
 pub struct Puzzle {
     /// One line per calibration document entry, trimmed of the trailing blank.
-    input: Vec<String>,
+    lines: Vec<String>,
 }
 
 impl Puzzle {
     /// Sums `f` over every line, naming the first that yields no number.
     fn solve_with(&self, f: fn(&str) -> Option<u32>) -> anyhow::Result<Answer> {
-        let total: u32 = self
-            .input
-            .iter()
-            .zip(1_usize..)
-            .try_fold(0_u32, |total, (s, line)| {
-                let value = f(s).with_context(|| format!("line {line} has no numbers: {s:?}"))?;
-                total
-                    .checked_add(value)
-                    .context("the calibration values add up past u32")
-            })?;
+        let total: u32 =
+            self.lines
+                .iter()
+                .zip(1_usize..)
+                .try_fold(0_u32, |total, (line, number)| {
+                    let value = f(line)
+                        .with_context(|| format!("line {number} has no numbers: {line:?}"))?;
+                    total
+                        .checked_add(value)
+                        .context("the calibration values add up past u32")
+                })?;
         Ok(Answer::solved(total.to_string()))
     }
 }
@@ -32,7 +33,7 @@ impl Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input.as_ref().trim().lines().map(str::to_owned).collect(),
+            lines: input.as_ref().trim().lines().map(str::to_owned).collect(),
         })
     }
 

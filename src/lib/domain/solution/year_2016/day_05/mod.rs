@@ -27,8 +27,8 @@ impl Solution for Puzzle {
         Ok(Answer::solved(password))
     }
 
-    /// The sixth digit is now the position, the seventh the character, and only
-    /// the first digest to name a position counts.
+    /// The sixth digit names the position and the seventh the character, and
+    /// only the first digest to name a position counts.
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut password = [None; PASSWORD_LEN];
         for (position, character) in hashing::interesting_digests(&self.door) {

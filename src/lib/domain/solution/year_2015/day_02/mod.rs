@@ -9,7 +9,7 @@ use crate::domain::solution::year_2015::day_02::dimensions::Dimensions;
 
 #[derive(Debug)]
 pub struct Puzzle {
-    input: Vec<Dimensions>,
+    presents: Vec<Dimensions>,
 }
 
 /// What every present needs, added up.
@@ -29,17 +29,17 @@ fn total(presents: &[Dimensions], need: fn(&Dimensions) -> Option<u32>) -> anyho
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: parse::lines(input.as_ref())?,
+            presents: parse::lines(input.as_ref())?,
         })
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let paper = total(&self.input, Dimensions::wrapping_paper_required)?;
+        let paper = total(&self.presents, Dimensions::wrapping_paper_required)?;
         Ok(Answer::solved(paper.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let ribbon = total(&self.input, Dimensions::ribbon_required)?;
+        let ribbon = total(&self.presents, Dimensions::ribbon_required)?;
         Ok(Answer::solved(ribbon.to_string()))
     }
 }

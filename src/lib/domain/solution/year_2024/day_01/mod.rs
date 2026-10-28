@@ -7,50 +7,52 @@ use crate::domain::solution::answer::Answer;
 
 #[derive(Debug)]
 pub struct Puzzle {
-    list_1: Vec<i32>,
-    list_2: Vec<i32>,
+    left: Vec<i32>,
+    right: Vec<i32>,
 }
 
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
-        let (mut list_1, mut list_2): (Vec<i32>, Vec<i32>) = input
+        let (mut left, mut right): (Vec<i32>, Vec<i32>) = input
             .as_ref()
             .trim()
             .lines()
-            .filter(|l| !l.is_empty())
-            .map(|l| {
-                let (s1, s2) = l
-                    .split_once("   ")
-                    .ok_or_else(|| anyhow!("invalid input line: {l:?}"))?;
-                Ok((s1.parse::<i32>()?, s2.parse::<i32>()?))
+            .filter(|line| !line.is_empty())
+            .map(|line| {
+                let (left, right) = line.split_once("   ").ok_or_else(|| {
+                    anyhow!("expected two numbers three spaces apart, read {line:?}")
+                })?;
+                Ok((left.parse::<i32>()?, right.parse::<i32>()?))
             })
             .collect::<Result<Vec<(i32, i32)>, anyhow::Error>>()?
             .into_iter()
             .unzip();
-        list_1.sort_unstable();
-        list_2.sort_unstable();
-        Ok(Self { list_1, list_2 })
+        left.sort_unstable();
+        right.sort_unstable();
+        Ok(Self { left, right })
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
         let total = self
-            .list_1
+            .left
             .iter()
-            .zip(&self.list_2)
-            .try_fold(0_u32, |total, (n1, n2)| total.checked_add(n1.abs_diff(*n2)))
+            .zip(&self.right)
+            .try_fold(0_u32, |total, (left, right)| {
+                total.checked_add(left.abs_diff(*right))
+            })
             .ok_or_else(|| anyhow!("the distances add up past u32"))?;
         Ok(Answer::solved(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut counts: HashMap<i32, i32> = HashMap::new();
-        for n in &self.list_2 {
+        for n in &self.right {
             let count = counts.entry(*n).or_default();
-            *count = count
-                .checked_add(1)
-                .ok_or_else(|| anyhow!("a number appears in list_2 more than i32::MAX times"))?;
+            *count = count.checked_add(1).ok_or_else(|| {
+                anyhow!("a number appears in the right list more than i32::MAX times")
+            })?;
         }
-        let total = self.list_1.iter().try_fold(0_i32, |total, n| {
+        let total = self.left.iter().try_fold(0_i32, |total, n| {
             n.checked_mul(*counts.get(n).unwrap_or(&0))
                 .and_then(|score| total.checked_add(score))
                 .ok_or_else(|| anyhow!("the similarity score passes the i32 range"))

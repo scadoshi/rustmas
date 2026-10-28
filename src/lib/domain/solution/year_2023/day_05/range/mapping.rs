@@ -35,13 +35,16 @@ impl FromStr for RangeMapping {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split_whitespace();
-        let (Some(d), Some(s), Some(l)) = (parts.next(), parts.next(), parts.next()) else {
+        let (Some(destination), Some(source), Some(length)) =
+            (parts.next(), parts.next(), parts.next())
+        else {
             return Err(InvalidRangeMapping::TooFewParts);
         };
         if parts.next().is_some() {
             return Err(InvalidRangeMapping::TooManyParts);
         }
-        let (destination, source, length): (u64, u64, u64) = (d.parse()?, s.parse()?, l.parse()?);
+        let (destination, source, length): (u64, u64, u64) =
+            (destination.parse()?, source.parse()?, length.parse()?);
         let past_u64 = |start: u64| InvalidRangeMapping::PastU64 { start, length };
         let source_end = source.checked_add(length).ok_or_else(|| past_u64(source))?;
         destination

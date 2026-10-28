@@ -7,7 +7,7 @@ use crate::domain::solution::year_2023::day_05::range::maps::RangeMaps;
 use crate::domain::solution::year_2023::day_05::seeds::{InvalidSeeds, Seeds};
 
 #[derive(Debug, Error)]
-pub(super) enum InvalidInput {
+pub(super) enum InvalidAlmanac {
     #[error("expected a blank line between the seeds and the maps")]
     MissingMaps,
     #[error(transparent)]
@@ -17,23 +17,23 @@ pub(super) enum InvalidInput {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(super) struct Input {
+pub(super) struct Almanac {
     seeds: Seeds,
     maps: RangeMaps,
 }
 
-impl FromStr for Input {
-    type Err = InvalidInput;
+impl FromStr for Almanac {
+    type Err = InvalidAlmanac;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (seeds, range_maps) = s.split_once("\n\n").ok_or(InvalidInput::MissingMaps)?;
+        let (seeds, range_maps) = s.split_once("\n\n").ok_or(InvalidAlmanac::MissingMaps)?;
         let seeds = Seeds::from_str(seeds)?;
         let maps = RangeMaps::from_str(range_maps)?;
         Ok(Self { seeds, maps })
     }
 }
 
-impl Input {
+impl Almanac {
     pub(super) fn seeds(&self) -> &Seeds {
         &self.seeds
     }
@@ -46,7 +46,7 @@ impl Input {
 mod tests {
     use super::*;
 
-    fn example_input<'a>() -> &'a str {
+    fn example_almanac<'a>() -> &'a str {
         r"seeds: 79 14 55 13
 
                 seed-to-soil map:
@@ -83,14 +83,14 @@ mod tests {
     }
 
     #[test]
-    fn input_from_str_ok() {
-        assert!(Input::from_str(example_input()).is_ok());
+    fn almanac_from_str_ok() {
+        assert!(Almanac::from_str(example_almanac()).is_ok());
     }
 
     #[test]
-    fn input_from_str_err_invalid_range_mapping_too_few_parts() {
+    fn almanac_from_str_err_invalid_range_mapping_too_few_parts() {
         assert!(
-            Input::from_str(
+            Almanac::from_str(
                 r"seeds: 79 14 55 13
 
                 seed-to-soil map:
@@ -107,9 +107,9 @@ mod tests {
     }
 
     #[test]
-    fn input_from_str_err_invalid_range_mapping_too_many_parts() {
+    fn almanac_from_str_err_invalid_range_mapping_too_many_parts() {
         assert!(
-            Input::from_str(
+            Almanac::from_str(
                 r"seeds: 79 14 55 13
 
                 seed-to-soil map:
@@ -126,9 +126,9 @@ mod tests {
     }
 
     #[test]
-    fn input_from_str_err_invalid_range_mapping_parse_int() {
+    fn almanac_from_str_err_invalid_range_mapping_parse_int() {
         assert!(
-            Input::from_str(
+            Almanac::from_str(
                 r"seeds: 79 14 55 13
 
                 seed-to-soil map:
@@ -145,9 +145,9 @@ mod tests {
     }
 
     #[test]
-    fn input_from_str_err_seed_parse_int() {
+    fn almanac_from_str_err_seed_parse_int() {
         assert!(
-            Input::from_str(
+            Almanac::from_str(
                 r"seeds: foo 14 55 13
 
                 seed-to-soil map:

@@ -7,17 +7,18 @@ use crate::domain::solution::common::grid::rectangle::Rectangle;
 
 #[derive(Debug)]
 pub struct Puzzle {
-    input: Vec<Vec<Direction>>,
+    /// The moves toward each button of the code, one list per button.
+    moves: Vec<Vec<Direction>>,
 }
 
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input
+            moves: input
                 .as_ref()
                 .lines()
-                .map(|l| {
-                    l.chars()
+                .map(|line| {
+                    line.chars()
                         .filter(|c| !c.is_whitespace())
                         .map(Direction::try_from)
                         .collect::<Result<Vec<_>, _>>()
@@ -33,7 +34,7 @@ impl Solution for Puzzle {
             vec!['7', '8', '9'],
         ])?;
         let code: String = self
-            .input
+            .moves
             .iter()
             .scan(
                 CellOnGrid::new(Cell::new(1, 1), &grid)?,
@@ -57,7 +58,7 @@ impl Solution for Puzzle {
             vec![None, None, Some('D'), None, None],
         ])?;
         let code: String = self
-            .input
+            .moves
             .iter()
             .scan(
                 CellOnGrid::new(Cell::new(0, 2), &grid)?,

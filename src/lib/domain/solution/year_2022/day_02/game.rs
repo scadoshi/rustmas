@@ -149,7 +149,7 @@ impl RawGame {
     /// # Errors
     ///
     /// [`InvalidPlay`] if the second column is not `X`, `Y` or `Z`.
-    pub fn to_game_other_is_player(self) -> Result<Game, InvalidPlay> {
+    pub fn to_game_by_play(self) -> Result<Game, InvalidPlay> {
         let player = Play::try_from(self.other)?;
         Ok(Game {
             player,
@@ -162,7 +162,7 @@ impl RawGame {
     /// # Errors
     ///
     /// [`InvalidGameResult`] if the second column is not `X`, `Y` or `Z`.
-    pub fn to_game_other_is_result(self) -> Result<Game, InvalidGameResult> {
+    pub fn to_game_by_result(self) -> Result<Game, InvalidGameResult> {
         let result = GameResult::try_from(self.other)?;
         Ok(Game {
             player: result.against(self.opponent),
@@ -259,11 +259,11 @@ mod tests {
             .collect();
         let as_player: u32 = raws
             .iter()
-            .map(|r| r.to_game_other_is_player().unwrap().player_score())
+            .map(|r| r.to_game_by_play().unwrap().player_score())
             .sum();
         let as_result: u32 = raws
             .iter()
-            .map(|r| r.to_game_other_is_result().unwrap().player_score())
+            .map(|r| r.to_game_by_result().unwrap().player_score())
             .sum();
         assert_eq!(as_player, 15);
         assert_eq!(as_result, 12);

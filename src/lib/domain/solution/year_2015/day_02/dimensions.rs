@@ -30,12 +30,12 @@ impl Dimensions {
     /// Twice every side's area plus the smallest side's, or `None` past
     /// [`u32::MAX`].
     pub fn wrapping_paper_required(&self) -> Option<u32> {
-        let s1 = self.length.checked_mul(self.width)?;
-        let s2 = self.width.checked_mul(self.height)?;
-        let s3 = self.length.checked_mul(self.height)?;
-        let smallest = s1.min(s2).min(s3);
-        s1.checked_add(s2)?
-            .checked_add(s3)?
+        let base = self.length.checked_mul(self.width)?;
+        let front = self.width.checked_mul(self.height)?;
+        let side = self.length.checked_mul(self.height)?;
+        let smallest = base.min(front).min(side);
+        base.checked_add(front)?
+            .checked_add(side)?
             .checked_mul(2)?
             .checked_add(smallest)
     }

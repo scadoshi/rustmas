@@ -5,7 +5,7 @@ use crate::domain::solution::answer::Answer;
 
 #[derive(Debug)]
 pub struct Puzzle {
-    input: Vec<Vec<u32>>,
+    rows: Vec<Vec<u32>>,
 }
 
 /// `a` over `b` or `b` over `a`, whichever divides evenly, `None` if neither.
@@ -39,8 +39,8 @@ impl Puzzle {
         row: impl Fn(&[u32]) -> anyhow::Result<Option<u32>>,
     ) -> anyhow::Result<String> {
         let mut total = 0_u32;
-        for nums in &self.input {
-            if let Some(value) = row(nums)? {
+        for numbers in &self.rows {
+            if let Some(value) = row(numbers)? {
                 total = total
                     .checked_add(value)
                     .ok_or_else(|| anyhow!("the checksum passes {}", u32::MAX))?;
@@ -53,13 +53,13 @@ impl Puzzle {
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
         Ok(Self {
-            input: input
+            rows: input
                 .as_ref()
                 .trim()
                 .lines()
-                .map(|l| {
-                    l.split_whitespace()
-                        .map(|str| str.trim().parse::<u32>())
+                .map(|line| {
+                    line.split_whitespace()
+                        .map(|number| number.trim().parse::<u32>())
                         .collect::<Result<Vec<_>, _>>()
                 })
                 .collect::<Result<Vec<_>, _>>()?,
@@ -67,10 +67,11 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(self.checksum(|nums| {
-            nums.iter()
-                .fold(None::<(u32, u32)>, |acc, &n| {
-                    Some(match acc {
+        Ok(Answer::solved(self.checksum(|numbers| {
+            numbers
+                .iter()
+                .fold(None::<(u32, u32)>, |span, &n| {
+                    Some(match span {
                         None => (n, n),
                         Some((lo, hi)) => (lo.min(n), hi.max(n)),
                     })
@@ -85,8 +86,8 @@ impl Solution for Puzzle {
 
     /// The first pair in each row where one divides the other evenly.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(self.checksum(|nums| {
-            let mut rest = nums;
+        Ok(Answer::solved(self.checksum(|numbers| {
+            let mut rest = numbers;
             while let Some((&a, tail)) = rest.split_first() {
                 for &b in tail {
                     if let Some(quotient) = even_quotient(a, b)? {

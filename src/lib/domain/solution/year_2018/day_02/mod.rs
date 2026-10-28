@@ -7,8 +7,8 @@ use crate::domain::solution::answer::Answer;
 
 #[derive(Debug)]
 pub struct Puzzle {
-    /// Box ids, each only `a-z` and all the same length, checked when parsed.
-    input: Vec<String>,
+    /// Each only `a-z` and all the same length, checked when parsed.
+    box_ids: Vec<String>,
 }
 
 /// The letters a box id may hold, in order.
@@ -23,9 +23,9 @@ fn letter_counts(line: &str) -> [usize; 26] {
 
 impl Solution for Puzzle {
     fn new(input: impl AsRef<str>) -> anyhow::Result<Self> {
-        let input: Vec<String> = input.as_ref().lines().map(str::to_owned).collect();
-        let len = input.first().map_or(0, String::len);
-        for line in &input {
+        let box_ids: Vec<String> = input.as_ref().lines().map(str::to_owned).collect();
+        let len = box_ids.first().map_or(0, String::len);
+        for line in &box_ids {
             if let Some(other) = line.chars().find(|c| !c.is_ascii_lowercase()) {
                 return Err(anyhow!("expected only lowercase letters, read {other:?}"));
             }
@@ -35,11 +35,15 @@ impl Solution for Puzzle {
                 ));
             }
         }
-        Ok(Self { input })
+        Ok(Self { box_ids })
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let counts: Vec<[usize; 26]> = self.input.iter().map(|line| letter_counts(line)).collect();
+        let counts: Vec<[usize; 26]> = self
+            .box_ids
+            .iter()
+            .map(|line| letter_counts(line))
+            .collect();
         let doubles = counts.iter().filter(|counts| counts.contains(&2)).count();
         let triples = counts.iter().filter(|counts| counts.contains(&3)).count();
         let checksum = doubles
@@ -51,10 +55,10 @@ impl Solution for Puzzle {
     /// The letters two ids share when they differ in exactly one place.
     /// [`Answer::None`] when no two ids do.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let len = self.input.first().map_or(0, String::len);
+        let len = self.box_ids.first().map_or(0, String::len);
         for i in 0..len {
             let mut seen: HashSet<(&str, &str)> = HashSet::new();
-            for line in &self.input {
+            for line in &self.box_ids {
                 let (Some(head), Some(tail)) =
                     (line.get(..i), line.get(i..).and_then(|rest| rest.get(1..)))
                 else {

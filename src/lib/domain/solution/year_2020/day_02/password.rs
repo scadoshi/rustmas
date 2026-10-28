@@ -25,22 +25,20 @@ impl FromStr for Policy {
     type Err = InvalidPolicy;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         let mut parts = value.split_whitespace();
-        let (Some(rng), Some(ltr)) = (parts.next(), parts.next()) else {
+        let (Some(range), Some(letter)) = (parts.next(), parts.next()) else {
             return Err(InvalidPolicy::TooFewParts);
         };
-        let Some((a, b)) = rng.split_once('-') else {
+        let Some((lo, hi)) = range.split_once('-') else {
             return Err(InvalidPolicy::MalformedRange);
         };
-        let (Ok(lo), Ok(hi)) = (a.parse::<usize>(), b.parse::<usize>()) else {
+        let (Ok(lo), Ok(hi)) = (lo.parse::<usize>(), hi.parse::<usize>()) else {
             return Err(InvalidPolicy::MalformedRange);
         };
         if lo > hi {
             return Err(InvalidPolicy::Backwards);
         }
-        if ltr.len() > 1 {
-            return Err(InvalidPolicy::MalformedLetter);
-        }
-        let Some(letter) = ltr.chars().nth(0) else {
+        let mut letters = letter.chars();
+        let (Some(letter), None) = (letters.next(), letters.next()) else {
             return Err(InvalidPolicy::MalformedLetter);
         };
         Ok(Self { lo, hi, letter })
