@@ -143,7 +143,7 @@ An unfiltered `--submit` walks every year and day, so it prompts first with the 
 - The prompt writes to stderr, so redirecting output doesn't swallow the question.
 - Closed stdin counts as no, so a script doesn't hang or accidentally proceed.
 
-The two clients are built independently. Validating alone never needs a cookie, since only `AocClient` has one.
+The two clients are built independently. Validating alone never needs a cookie, since only `AocClient` has one. Its `Cookie` header is marked sensitive, so a `{:?}` on anything that prints the client's headers shows `Sensitive` instead of the session.
 
 Intent travels as flags, not as the presence of a client.
 

@@ -10,6 +10,7 @@ use reqwest::{StatusCode, Url};
 use crate::domain::address::{Day, Part};
 use crate::domain::solution::aoc_verdict::AocVerdict;
 use crate::outbound::client::environment::Environment;
+use crate::outbound::client::session_cookie::SessionCookie;
 
 /// Marks a puzzle part on a day page. Two means part two is unlocked.
 const ARTICLE_OPEN_TAG: &str = r#"<article class="day-desc">"#;
@@ -43,13 +44,14 @@ impl AocClient {
     /// Sends nothing, but a missing or malformed cookie fails here, before any
     /// work is done.
     pub(crate) fn from_env() -> anyhow::Result<Self> {
+        Self::new(&Environment::cookie()?, &Environment::user_agent())
+    }
+
+    /// Builds a client sending `cookie` and `user_agent` on every request.
+    fn new(cookie: &SessionCookie, user_agent: &str) -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
-        let cookie = Environment::cookie()?;
-        headers.insert(
-            USER_AGENT,
-            HeaderValue::from_str(&Environment::user_agent())?,
-        );
-        headers.insert(COOKIE, HeaderValue::from_str(&format!("session={cookie}"))?);
+        headers.insert(USER_AGENT, HeaderValue::from_str(user_agent)?);
+        headers.insert(COOKIE, cookie_header(cookie)?);
         let client = Client::builder().default_headers(headers).build()?;
         Ok(Self {
             client,
@@ -140,6 +142,15 @@ impl AocClient {
 
         Ok(verdict_from(&body))
     }
+}
+
+/// The `Cookie` header carrying `cookie` as AOC's `session`, marked sensitive
+/// so its `Debug` prints `Sensitive` rather than the secret. The bytes sent
+/// are unchanged.
+fn cookie_header(cookie: &SessionCookie) -> anyhow::Result<HeaderValue> {
+    let mut header = HeaderValue::from_str(&format!("session={cookie}"))?;
+    header.set_sensitive(true);
+    Ok(header)
 }
 
 /// The response if its status is a success, else an error that says what the
@@ -293,6 +304,31 @@ mod tests {
         };
         assert!(snippet.chars().count() <= SNIPPET_CHARS + 3, "{snippet}");
         assert!(snippet.ends_with("..."));
+    }
+
+    fn cookie() -> (String, SessionCookie) {
+        let value = "a1b2c3d4".repeat(16);
+        let cookie = SessionCookie::try_from(value.as_str()).unwrap();
+        (value, cookie)
+    }
+
+    /// Anything that prints the client's default headers with `{:?}` shows
+    /// the cookie's as `Sensitive`, never the secret.
+    #[test]
+    fn the_cookie_header_is_sensitive() {
+        let (value, cookie) = cookie();
+        let header = cookie_header(&cookie).unwrap();
+
+        assert!(header.is_sensitive());
+        assert!(!format!("{header:?}").contains(&value));
+        assert_eq!(header.to_str().unwrap(), format!("session={value}"));
+    }
+
+    #[test]
+    fn debug_never_prints_the_cookie() {
+        let (value, cookie) = cookie();
+        let client = AocClient::new(&cookie, "rustmas test").unwrap();
+        assert!(!format!("{client:?}").contains(&value));
     }
 
     /// A graded reply never carries the login link, so no verdict is stolen.
