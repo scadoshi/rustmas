@@ -4,7 +4,7 @@ use anyhow::anyhow;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2021::day_03::rating::{Keep, rate, rating_by_filter};
+use crate::domain::solution::year_2021::day_03::rating::Keep;
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -39,8 +39,8 @@ impl Solution for Puzzle {
 
     /// Gamma is the commonest bit everywhere, epsilon the rarest.
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let gamma = rate(&self.readings, self.width, Keep::MostCommon);
-        let epsilon = rate(&self.readings, self.width, Keep::LeastCommon);
+        let gamma = rating::rate(&self.readings, self.width, Keep::MostCommon);
+        let epsilon = rating::rate(&self.readings, self.width, Keep::LeastCommon);
         let power = u64::from(gamma)
             .checked_mul(u64::from(epsilon))
             .ok_or_else(|| anyhow!("the power consumption passes u64"))?;
@@ -49,8 +49,8 @@ impl Solution for Puzzle {
 
     /// Oxygen keeps the commonest bit at each step, CO2 the rarest.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let oxygen = rating_by_filter(&self.readings, self.width, Keep::MostCommon);
-        let co2 = rating_by_filter(&self.readings, self.width, Keep::LeastCommon);
+        let oxygen = rating::rating_by_filter(&self.readings, self.width, Keep::MostCommon);
+        let co2 = rating::rating_by_filter(&self.readings, self.width, Keep::LeastCommon);
         match (oxygen, co2) {
             (Some(oxygen), Some(co2)) => {
                 let life_support = u64::from(oxygen)

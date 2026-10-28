@@ -4,7 +4,7 @@ use anyhow::Context;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2024::day_03::instruction::{Instruction, instructions};
+use crate::domain::solution::year_2024::day_03::instruction::Instruction;
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -19,7 +19,7 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let total = instructions(&self.memory)
+        let total = instruction::instructions(&self.memory)
             .try_fold(0_u64, |total, i| match i {
                 Instruction::Mul(a, b) => total.checked_add(a.checked_mul(b)?),
                 _ => Some(total),
@@ -30,7 +30,7 @@ impl Solution for Puzzle {
 
     /// `don't()` switches the multiplications off until the next `do()`.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let (total, _) = instructions(&self.memory)
+        let (total, _) = instruction::instructions(&self.memory)
             .try_fold((0_u64, true), |(total, enabled), i| {
                 Some(match i {
                     Instruction::Mul(a, b) if enabled => {

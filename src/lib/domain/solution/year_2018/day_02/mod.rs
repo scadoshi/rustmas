@@ -49,7 +49,7 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let Some(len) = self.input.first().map(std::string::String::len) else {
+        let Some(len) = self.input.first().map(String::len) else {
             return Err(anyhow!("no input lines"));
         };
         for i in 0..len {

@@ -2,7 +2,6 @@ pub mod nice;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2015::day_05::nice::{is_nice, is_nicer};
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -28,10 +27,10 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(self.count(is_nice)))
+        Ok(Answer::solved(self.count(nice::is_nice)))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(self.count(is_nicer)))
+        Ok(Answer::solved(self.count(nice::is_nicer)))
     }
 }

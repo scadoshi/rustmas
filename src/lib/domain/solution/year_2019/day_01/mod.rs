@@ -1,3 +1,5 @@
+use std::iter;
+
 use anyhow::Context;
 
 use crate::domain::solution::Solution;
@@ -37,7 +39,7 @@ impl Solution for Puzzle {
             .masses
             .iter()
             .flat_map(|&mass| {
-                std::iter::successors(Some(fuel_for(mass)), |&fuel| Some(fuel_for(fuel)))
+                iter::successors(Some(fuel_for(mass)), |&fuel| Some(fuel_for(fuel)))
                     .take_while(|&fuel| fuel > 0)
             })
             .try_fold(0_u32, u32::checked_add)

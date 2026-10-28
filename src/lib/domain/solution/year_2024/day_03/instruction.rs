@@ -1,3 +1,5 @@
+use std::iter;
+
 /// The instructions that survive the corruption.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Instruction {
@@ -27,7 +29,7 @@ fn mul(text: &str) -> Option<(Instruction, &str)> {
 /// Every instruction in `memory`, in order, skipping the garbage between.
 pub fn instructions(memory: &str) -> impl Iterator<Item = Instruction> + '_ {
     let mut rest = memory;
-    std::iter::from_fn(move || {
+    iter::from_fn(move || {
         while !rest.is_empty() {
             if let Some((found, after)) = mul(rest) {
                 rest = after;

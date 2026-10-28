@@ -7,7 +7,6 @@ use anyhow::Context;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::point::Point;
-use crate::domain::solution::year_2017::day_03::spiral::{neighbors, spiral};
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -24,7 +23,7 @@ impl Solution for Puzzle {
     /// Walk the spiral to the target square and measure it back to the center.
     fn part_one(&self) -> anyhow::Result<Answer> {
         let index = self.target.checked_sub(1).context("squares start at 1")?;
-        let point = spiral()
+        let point = spiral::spiral()
             .nth(index)
             .context("the spiral leaves the i32 grid before that square")?;
         Ok(Answer::solved(point.distance_from_origin().to_string()))
@@ -34,8 +33,8 @@ impl Solution for Puzzle {
     /// passes the target.
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut values: HashMap<Point, usize> = HashMap::from([(Point::default(), 1)]);
-        for point in spiral().skip(1) {
-            let value = neighbors(point)
+        for point in spiral::spiral().skip(1) {
+            let value = spiral::neighbors(point)
                 .filter_map(|neighbor| values.get(&neighbor))
                 .try_fold(0_usize, |total, &value| total.checked_add(value))
                 .context("a square's neighbors add up past usize")?;

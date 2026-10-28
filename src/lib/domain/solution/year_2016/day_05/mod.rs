@@ -2,7 +2,6 @@ pub mod hashing;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2016::day_05::hashing::interesting_digests;
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -21,7 +20,7 @@ impl Solution for Puzzle {
 
     /// Each interesting digest gives the next character, in order.
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let password = interesting_digests(&self.door)
+        let password = hashing::interesting_digests(&self.door)
             .take(PASSWORD_LEN)
             .map(|(sixth, _)| hex_digit(sixth))
             .collect::<anyhow::Result<String>>()?;
@@ -32,7 +31,7 @@ impl Solution for Puzzle {
     /// the first digest to name a position counts.
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut password = [None; PASSWORD_LEN];
-        for (position, character) in interesting_digests(&self.door) {
+        for (position, character) in hashing::interesting_digests(&self.door) {
             let Some(slot) = password.get_mut(usize::from(position)) else {
                 continue;
             };

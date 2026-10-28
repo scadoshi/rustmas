@@ -4,7 +4,7 @@ use anyhow::Context;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2023::day_03::schematic::{Schematic, is_symbol};
+use crate::domain::solution::year_2023::day_03::schematic::Schematic;
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -20,7 +20,7 @@ impl Solution for Puzzle {
 
     /// A number is a part number if any symbol touches it.
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let symbols = self.schematic.symbols(is_symbol);
+        let symbols = self.schematic.symbols(schematic::is_symbol);
         let total = self
             .schematic
             .numbers()?

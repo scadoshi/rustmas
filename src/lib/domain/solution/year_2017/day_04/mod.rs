@@ -2,7 +2,6 @@ pub mod passphrase;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2017::day_04::passphrase::{count_valid, sorted_letters};
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -18,13 +17,13 @@ impl Solution for Puzzle {
 
     fn part_one(&self) -> anyhow::Result<Answer> {
         Ok(Answer::solved(
-            count_valid(&self.passphrases, |word| word).to_string(),
+            passphrase::count_valid(&self.passphrases, |word| word).to_string(),
         ))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
         Ok(Answer::solved(
-            count_valid(&self.passphrases, sorted_letters).to_string(),
+            passphrase::count_valid(&self.passphrases, passphrase::sorted_letters).to_string(),
         ))
     }
 }

@@ -1,3 +1,5 @@
+use std::iter;
+
 use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::point::Point;
 
@@ -12,7 +14,7 @@ pub fn spiral() -> impl Iterator<Item = Point> {
     let mut run: u32 = 1;
     let mut left_in_run: u32 = 1;
     let mut lengthen = false;
-    std::iter::once(point).chain(std::iter::from_fn(move || {
+    iter::once(point).chain(iter::from_fn(move || {
         point = point.checked_moved(direction, 1)?;
         left_in_run = left_in_run.checked_sub(1)?;
         if left_in_run == 0 {

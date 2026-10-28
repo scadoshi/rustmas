@@ -4,11 +4,10 @@ use anyhow::anyhow;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2015::day_04::hashing::lowest_suffix;
 
-/// [`lowest_suffix`], with running out of numbers as an error.
+/// [`hashing::lowest_suffix`], with running out of numbers as an error.
 fn lowest(secret: &str, zeros: usize) -> anyhow::Result<usize> {
-    lowest_suffix(secret, zeros)
+    hashing::lowest_suffix(secret, zeros)
         .ok_or_else(|| anyhow!("no suffix up to {} gives {zeros} zeros", usize::MAX))
 }
 

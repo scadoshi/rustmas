@@ -9,8 +9,6 @@ use anyhow::anyhow;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_05::input::Input;
-use crate::domain::solution::year_2023::day_05::range::maps::RangeMaps;
-use crate::domain::solution::year_2023::day_05::seeds::Seeds;
 #[derive(Debug)]
 pub struct Puzzle {
     input: Input,

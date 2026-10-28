@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::RangeInclusive;
 use std::str::FromStr;
 
 use thiserror::Error;
@@ -51,7 +52,7 @@ impl Passport {
 }
 
 /// A four digit year inside `range`.
-fn year_in(value: &str, range: std::ops::RangeInclusive<u32>) -> bool {
+fn year_in(value: &str, range: RangeInclusive<u32>) -> bool {
     value.len() == 4 && value.parse().is_ok_and(|year| range.contains(&year))
 }
 
