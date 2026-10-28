@@ -87,13 +87,15 @@ impl GameResult {
 
     /// The play that ends this way against `other`.
     ///
-    /// Searches [`Play::against`] rather than restating the rules, so the two
-    /// directions cannot disagree. Exactly one play matches, hence the `expect`.
+    /// A test checks this against [`Play::against`] for every pairing, so the
+    /// two directions cannot disagree.
     pub fn against(self, other: Play) -> Play {
-        Play::ALL
-            .into_iter()
-            .find(|play| play.against(other) == self)
-            .expect("one play produces every result")
+        match (self, other) {
+            (Self::Draw, play) => play,
+            (Self::Win, Play::Rock) | (Self::Loss, Play::Scissors) => Play::Paper,
+            (Self::Win, Play::Paper) | (Self::Loss, Play::Rock) => Play::Scissors,
+            (Self::Win, Play::Scissors) | (Self::Loss, Play::Paper) => Play::Rock,
+        }
     }
 }
 
