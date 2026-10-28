@@ -123,7 +123,7 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
                     solved.part_two = utils::submit(client, &day, Part::Two, solved.part_two)?;
                 }
 
-                // A new star on part one unlocks part two, locked until now.
+                // A new star on part one unlocks part two's text, so fetch it.
                 if matches!(solved.part_one.aoc_verdict(), Some(AocVerdict::Correct)) {
                     input::ensure_entry(&mut aoc, &day)?;
                 }

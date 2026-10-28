@@ -59,7 +59,7 @@ impl Day {
         })
     }
 
-    /// Validates `year`, then rejects any day outside [`Year::days_in`].
+    /// Rejects any day outside `1..=year.days_in()`.
     pub fn new(day: i32, year: Year) -> Result<Self, DayOutOfRange> {
         let bound = year.days_in();
         if day < 1 || day > bound {

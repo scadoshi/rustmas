@@ -172,7 +172,7 @@ mod tests {
         assert_eq!(outcome.to_string(), "foo [7µs]");
     }
 
-    /// The invariant that survived splitting `Answer` from `Outcome`.
+    /// Only a submittable answer takes a verdict.
     #[test]
     fn unsubmittable_answers_never_take_a_verdict() {
         for answer in [Answer::Visual("art".to_string()), Answer::None] {

@@ -32,8 +32,8 @@ impl Environment {
     /// Errors only when a value exists and cannot be read, which keeps "not
     /// configured" separate from "configured wrongly".
     fn get(key: &str) -> anyhow::Result<Option<String>> {
-        // `.env` wins over the real environment, so editing it always takes
-        // effect. A stale export otherwise masks it silently.
+        // `.env` wins over the real environment, so a stale export cannot mask
+        // an edit to it.
         dotenvy::dotenv_override().ok();
         match std::env::var(key) {
             Ok(value) => Ok(Some(value.trim().to_string()).filter(|s| !s.is_empty())),

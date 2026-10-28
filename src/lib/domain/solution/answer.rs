@@ -1,6 +1,6 @@
 use std::fmt::{self, Display};
 
-/// What one part of a puzzle produced. Nothing else.
+/// What one part of a puzzle produced.
 ///
 /// Verdicts and timings live in [`super::outcome::Outcome`].
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,7 +18,7 @@ pub enum Answer {
 }
 
 impl Answer {
-    /// A submittable answer. What a day returns.
+    /// Shorthand for [`Answer::Value`].
     pub fn solved(value: impl Into<String>) -> Self {
         Self::Value(value.into())
     }

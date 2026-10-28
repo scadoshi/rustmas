@@ -83,15 +83,6 @@ impl FromStr for Direction {
 mod tests {
     use super::*;
 
-    /// [`Direction`] has no `PartialEq`, and the tests should not dictate that.
-    fn is(direction: Direction, expected: Direction) -> bool {
-        use Direction::*;
-        matches!(
-            (direction, expected),
-            (Up, Up) | (Right, Right) | (Down, Down) | (Left, Left)
-        )
-    }
-
     const ALL: [Direction; 4] = [
         Direction::Up,
         Direction::Right,
@@ -101,18 +92,18 @@ mod tests {
 
     #[test]
     fn turns_clockwise() {
-        assert!(is(Direction::Up.turn_right(), Direction::Right));
-        assert!(is(Direction::Right.turn_right(), Direction::Down));
-        assert!(is(Direction::Down.turn_right(), Direction::Left));
-        assert!(is(Direction::Left.turn_right(), Direction::Up));
+        assert_eq!(Direction::Up.turn_right(), Direction::Right);
+        assert_eq!(Direction::Right.turn_right(), Direction::Down);
+        assert_eq!(Direction::Down.turn_right(), Direction::Left);
+        assert_eq!(Direction::Left.turn_right(), Direction::Up);
     }
 
     #[test]
     fn turns_anticlockwise() {
-        assert!(is(Direction::Up.turn_left(), Direction::Left));
-        assert!(is(Direction::Left.turn_left(), Direction::Down));
-        assert!(is(Direction::Down.turn_left(), Direction::Right));
-        assert!(is(Direction::Right.turn_left(), Direction::Up));
+        assert_eq!(Direction::Up.turn_left(), Direction::Left);
+        assert_eq!(Direction::Left.turn_left(), Direction::Down);
+        assert_eq!(Direction::Down.turn_left(), Direction::Right);
+        assert_eq!(Direction::Right.turn_left(), Direction::Up);
     }
 
     /// Catches an ordering mistake that four single steps can each survive.
@@ -123,27 +114,27 @@ mod tests {
             for _ in 0..4 {
                 turned = turned.turn_right();
             }
-            assert!(is(turned, start));
+            assert_eq!(turned, start);
         }
     }
 
     #[test]
     fn turned_follows_the_turn() {
         for start in ALL {
-            assert!(is(start.turned(Turn::Left), start.turn_left()));
-            assert!(is(start.turned(Turn::Right), start.turn_right()));
+            assert_eq!(start.turned(Turn::Left), start.turn_left());
+            assert_eq!(start.turned(Turn::Right), start.turn_right());
         }
     }
 
     #[test]
     fn reads_letters_and_words_in_either_case() {
-        assert!(is("u".parse::<Direction>().unwrap(), Direction::Up));
-        assert!(is("UP".parse::<Direction>().unwrap(), Direction::Up));
-        assert!(is("<".parse::<Direction>().unwrap(), Direction::Left));
-        assert!(is(Direction::try_from('>').unwrap(), Direction::Right));
-        assert!(is("Left".parse::<Direction>().unwrap(), Direction::Left));
-        assert!(is(Direction::try_from('R').unwrap(), Direction::Right));
-        assert!(is(Direction::try_from('d').unwrap(), Direction::Down));
+        assert_eq!("u".parse::<Direction>().unwrap(), Direction::Up);
+        assert_eq!("UP".parse::<Direction>().unwrap(), Direction::Up);
+        assert_eq!("<".parse::<Direction>().unwrap(), Direction::Left);
+        assert_eq!(Direction::try_from('>').unwrap(), Direction::Right);
+        assert_eq!("Left".parse::<Direction>().unwrap(), Direction::Left);
+        assert_eq!(Direction::try_from('R').unwrap(), Direction::Right);
+        assert_eq!(Direction::try_from('d').unwrap(), Direction::Down);
     }
 
     #[test]

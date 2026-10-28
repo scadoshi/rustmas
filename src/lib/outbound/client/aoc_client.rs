@@ -34,7 +34,8 @@ impl AocClient {
     ///
     /// Only `COOKIE` is required, so a fresh clone runs without the rest. Both
     /// headers go on the client, so nothing can send a request without them.
-    /// Connected now, so a bad cookie fails before any work is done.
+    /// Sends nothing, but a missing or malformed cookie fails here, before any
+    /// work is done.
     pub fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         let cookie = Environment::cookie()?;
@@ -207,13 +208,14 @@ fn wait_from(body: &str) -> String {
 pub struct LazyAocClient(Option<AocClient>);
 
 impl LazyAocClient {
-    /// Connected now, so a bad cookie fails before any work is done.
+    /// Builds the client here, so a missing or malformed cookie fails before
+    /// any work is done.
     pub fn from_env() -> anyhow::Result<Self> {
         Ok(Self(Some(AocClient::from_env()?)))
     }
 
-    /// The client, built now if it never was. Idempotent, so calling it
-    /// eagerly and again later costs one construction.
+    /// The client, built on the first call. Idempotent, so calling it eagerly
+    /// and again later costs one construction.
     pub fn connected(&mut self) -> anyhow::Result<&AocClient> {
         if self.0.is_none() {
             *self = LazyAocClient::from_env()?;
