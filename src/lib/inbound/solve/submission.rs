@@ -60,6 +60,10 @@ fn submit(
 /// Asks before an unfiltered submit run, which would post every solved day.
 ///
 /// Goes to stderr so redirecting output cannot swallow it. Closed stdin is no.
+#[expect(
+    clippy::print_stderr,
+    reason = "a CLI prompt, on stderr so redirected output cannot swallow it"
+)]
 pub(crate) fn confirm(count: usize) -> anyhow::Result<bool> {
     eprintln!(
         "About to submit up to {count} answers to adventofcode.com, across every \

@@ -25,6 +25,7 @@ pub enum Direction {
 
 impl Direction {
     /// A quarter turn clockwise.
+    #[must_use]
     pub fn turn_right(self) -> Self {
         match self {
             Self::Up => Self::Right,
@@ -35,6 +36,7 @@ impl Direction {
     }
 
     /// A quarter turn anticlockwise.
+    #[must_use]
     pub fn turn_left(self) -> Self {
         match self {
             Self::Up => Self::Left,
@@ -45,6 +47,7 @@ impl Direction {
     }
 
     /// A quarter turn whichever way [`Turn`] says.
+    #[must_use]
     pub fn turned(self, turn: Turn) -> Self {
         match turn {
             Turn::Left => self.turn_left(),

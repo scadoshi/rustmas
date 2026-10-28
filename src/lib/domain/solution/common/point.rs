@@ -31,6 +31,7 @@ impl Point {
     }
 
     /// Moves `distance` in `direction`, clamping at the edges of [`i32`].
+    #[must_use]
     pub fn saturating_moved(self, direction: Direction, distance: i32) -> Self {
         Self {
             x: match direction {

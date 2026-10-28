@@ -23,10 +23,12 @@ impl Cell {
         self.row
     }
 
+    #[must_use]
     pub fn with_column(self, column: usize) -> Self {
         Self { column, ..self }
     }
 
+    #[must_use]
     pub fn with_row(self, row: usize) -> Self {
         Self { row, ..self }
     }
@@ -48,6 +50,7 @@ impl Cell {
     }
 
     /// Moves `distance` in `direction`, clamping at the edges of the grid.
+    #[must_use]
     pub fn saturating_moved(self, direction: Direction, distance: usize) -> Self {
         Self {
             column: match direction {

@@ -140,7 +140,7 @@ mod tests {
             .filter_map(|y| Year::new_at(y, now).ok())
             .map(|y| y.days_in())
             .sum();
-        assert_eq!(Day::all_at(now).count(), expected as usize);
+        assert_eq!(Day::all_at(now).count(), usize::try_from(expected).unwrap());
     }
 
     fn filter(year: Option<i32>, day: Option<i32>) -> Filter {
@@ -154,7 +154,10 @@ mod tests {
         assert!(year.iter().all(|day| day.year() == 2015));
 
         let day: Vec<_> = Day::matching(filter(None, Some(1))).collect();
-        assert_eq!(day.len(), (Year::latest() - FIRST_YEAR + 1) as usize);
+        assert_eq!(
+            day.len(),
+            usize::try_from(Year::latest() - FIRST_YEAR + 1).unwrap()
+        );
         assert!(day.iter().all(|day| day.value() == 1));
 
         let mut both = Day::matching(filter(Some(2015), Some(1)));
@@ -186,7 +189,10 @@ mod tests {
     fn matching_skips_years_without_that_day() {
         let days: Vec<_> = Day::matching(filter(None, Some(25))).collect();
         assert!(days.iter().all(|day| day.year() != 2025));
-        assert_eq!(days.len(), (Year::latest() - FIRST_YEAR) as usize);
+        assert_eq!(
+            days.len(),
+            usize::try_from(Year::latest() - FIRST_YEAR).unwrap()
+        );
     }
 
     #[test]

@@ -82,7 +82,7 @@ impl Year {
         if unlocked_this_december(now).is_some() {
             now.year()
         } else {
-            now.year() - 1
+            now.year().saturating_sub(1)
         }
     }
 

@@ -45,6 +45,10 @@ impl SolverClient {
     /// Numeric answers compare as numbers and report a direction, anything
     /// else as text. Every failure is a 400 with the reason in the body. Only
     /// transport failures and 5xx try the next host.
+    #[expect(
+        clippy::print_stderr,
+        reason = "a CLI: a failed host is reported before the next is tried"
+    )]
     pub(crate) fn validate_answer(
         &self,
         day: &Day,

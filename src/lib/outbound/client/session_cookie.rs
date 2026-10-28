@@ -88,7 +88,7 @@ mod tests {
 
     #[test]
     fn rejects_the_wrong_length() {
-        assert!(SessionCookie::try_from(&valid()[1..]).is_err());
+        assert!(SessionCookie::try_from(valid().get(1..).unwrap()).is_err());
         assert!(SessionCookie::try_from(format!("{}a", valid()).as_str()).is_err());
         assert!(SessionCookie::try_from("").is_err());
     }

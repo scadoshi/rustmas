@@ -31,15 +31,15 @@ impl Totals {
     /// Folds in one day's run. Only parts that produced an answer count
     /// towards solving; the day counts towards parsing either way.
     pub fn add(&mut self, day: &Day, solved: &Solved) {
-        self.parsed += solved.parsed_in;
-        self.days += 1;
+        self.parsed = self.parsed.saturating_add(solved.parsed_in);
+        self.days = self.days.saturating_add(1);
 
         for (part, outcome) in [(Part::One, &solved.part_one), (Part::Two, &solved.part_two)] {
             let Some(elapsed) = outcome.solve_time() else {
                 continue;
             };
-            self.solved += elapsed;
-            self.parts += 1;
+            self.solved = self.solved.saturating_add(elapsed);
+            self.parts = self.parts.saturating_add(1);
             if self.slowest.as_ref().is_none_or(|s| elapsed > s.elapsed) {
                 self.slowest = Some(Slowest {
                     day: *day,
@@ -57,12 +57,12 @@ impl Totals {
 
     /// `None` when no day ran, since there is nothing to divide by.
     pub fn parse_mean(&self) -> Option<Duration> {
-        (self.days > 0).then(|| self.parsed / self.days)
+        self.parsed.checked_div(self.days)
     }
 
     /// `None` when no part produced an answer, which a run of stubs manages.
     pub fn solve_mean(&self) -> Option<Duration> {
-        (self.parts > 0).then(|| self.solved / self.parts)
+        self.solved.checked_div(self.parts)
     }
 }
 

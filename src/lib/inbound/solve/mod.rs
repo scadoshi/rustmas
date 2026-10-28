@@ -78,9 +78,14 @@ fn part_count(filter: Filter) -> usize {
     Day::matching(filter)
         .filter(|day| solver_for(day.year(), day.value()).is_some())
         .count()
-        * PARTS_PER_DAY
+        .saturating_mul(PARTS_PER_DAY)
 }
 
+#[expect(
+    clippy::print_stdout,
+    clippy::print_stderr,
+    reason = "a CLI: the report and skipped days are its output"
+)]
 pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
     let solver = SolverClient::from_env()?;
     // Submitting gates on a solver verdict, so it validates too.

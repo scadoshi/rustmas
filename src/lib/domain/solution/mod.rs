@@ -90,6 +90,8 @@ pub struct Solved {
 impl Solved {
     /// Parsing plus both parts. Excludes any network time.
     pub fn total_elapsed(&self) -> Duration {
-        self.parsed_in + self.part_one.elapsed() + self.part_two.elapsed()
+        self.parsed_in
+            .saturating_add(self.part_one.elapsed())
+            .saturating_add(self.part_two.elapsed())
     }
 }
