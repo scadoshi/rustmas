@@ -68,8 +68,7 @@ impl Solution for Puzzle {
 
     fn part_one(&self) -> anyhow::Result<Answer> {
         Ok(Answer::solved(self.checksum(|nums| {
-            Ok(nums
-                .iter()
+            nums.iter()
                 .fold(None::<(u32, u32)>, |acc, &n| {
                     Some(match acc {
                         None => (n, n),
@@ -80,7 +79,7 @@ impl Solution for Puzzle {
                     hi.checked_sub(lo)
                         .context("expected the high to be at least the low")
                 })
-                .transpose()?)
+                .transpose()
         })?))
     }
 
