@@ -1,10 +1,9 @@
 use crate::domain::solution::common::cell::Cell;
-use crate::domain::solution::common::cursor::{
-    CellOutOfBounds, Cursor, FixedWidthGridCursor, VariableWidthGridCursor,
-};
+use crate::domain::solution::common::cursor::CellOutOfBounds;
+use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::{FixedWidth, Grid, VariableWidth};
 
-/// A [`Cursor`] holding a cell and a borrow of the grid it sits on.
+/// A [`Cell`] paired with a borrow of the grid it indexes, always in bounds.
 #[derive(Debug)]
 pub struct CellOnGrid<'grid, G> {
     cell: Cell,
@@ -20,38 +19,91 @@ impl<G> Clone for CellOnGrid<'_, G> {
     }
 }
 
-impl<'grid, G: Grid> Cursor<'grid, G> for CellOnGrid<'grid, G> {
-    fn new(cell: Cell, grid: &'grid G) -> Result<Self, CellOutOfBounds>
-    where
-        Self: Sized,
-    {
+impl<'grid, G: Grid> CellOnGrid<'grid, G> {
+    /// A cursor on `cell`, checked against `grid`.
+    ///
+    /// # Errors
+    ///
+    /// [`CellOutOfBounds`] if `cell` is not on `grid`.
+    pub fn new(cell: Cell, grid: &'grid G) -> Result<Self, CellOutOfBounds> {
         if !grid.contains_cell(&cell) {
             return Err(CellOutOfBounds);
         }
         Ok(Self { cell, grid })
     }
 
-    fn new_unchecked(cell: Cell, grid: &'grid G) -> Self {
+    /// Skips the bounds check. The caller guarantees `cell` is on `grid`.
+    fn new_trusted(cell: Cell, grid: &'grid G) -> Self {
         Self { cell, grid }
     }
 
-    fn cell(&self) -> Cell {
+    pub fn cell(&self) -> Cell {
         self.cell
     }
 
-    fn grid(&self) -> &'grid G {
+    pub fn grid(&self) -> &'grid G {
         self.grid
+    }
+
+    /// Moves `distance` in `direction`, `None` if that would leave the grid.
+    pub fn checked_moved(self, direction: Direction, distance: usize) -> Option<Self> {
+        self.cell
+            .checked_moved(direction, distance)
+            .filter(|c| self.grid.contains_cell(c))
+            .map(|c| Self::new_trusted(c, self.grid))
+    }
+
+    /// The item under the cursor.
+    pub fn value(&self) -> &'grid G::Item {
+        self.grid
+            .at(&self.cell)
+            .expect("a cursor is always in bounds")
     }
 }
 
-impl<'grid, G: Grid + FixedWidth> FixedWidthGridCursor<'grid, G> for CellOnGrid<'grid, G> {}
+impl<G: Grid + FixedWidth> CellOnGrid<'_, G> {
+    /// Moves `distance` in `direction`, clamping at the edges of a grid whose
+    /// rows are all one width.
+    #[must_use]
+    pub fn saturating_moved_on_fixed_width(self, direction: Direction, distance: usize) -> Self {
+        let cell = {
+            let unclamped = self.cell.saturating_moved(direction, distance);
+            let width_clamp = self.grid.width().saturating_sub(1);
+            let height_clamp = self.grid.height().saturating_sub(1);
+            unclamped
+                .with_column(unclamped.column().min(width_clamp))
+                .with_row(unclamped.row().min(height_clamp))
+        };
+        Self::new_trusted(cell, self.grid)
+    }
+}
 
-impl<'grid, G: Grid + VariableWidth> VariableWidthGridCursor<'grid, G> for CellOnGrid<'grid, G> {}
+impl<G: Grid + VariableWidth> CellOnGrid<'_, G> {
+    /// Moves `distance` in `direction`, clamping at the edges of a grid whose
+    /// rows are each their own width.
+    ///
+    /// The row clamps first, since which row you land on decides how wide it is.
+    #[must_use]
+    pub fn saturating_moved_on_variable_width(self, direction: Direction, distance: usize) -> Self {
+        let cell = {
+            let unclamped = self.cell.saturating_moved(direction, distance);
+            let height_clamp = self.grid.height().saturating_sub(1);
+            let clamped_row = unclamped.row().min(height_clamp);
+            let width_clamp = self
+                .grid
+                .width_of(clamped_row)
+                .map_or(0, |n| n.saturating_sub(1));
+            unclamped
+                .with_column(unclamped.column().min(width_clamp))
+                .with_row(clamped_row)
+        };
+        Self::new_trusted(cell, self.grid)
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::solution::common::direction::Direction;
     use crate::domain::solution::common::grid::jagged::Jagged;
     use crate::domain::solution::common::grid::rectangle::Rectangle;
 
@@ -103,18 +155,33 @@ mod tests {
         let grid = rectangle();
         let cursor = CellOnGrid::new(Cell::new(0, 0), &grid).unwrap();
         assert_eq!(
-            cursor.saturating_moved(Direction::Left, 99).cell().column(),
+            cursor
+                .saturating_moved_on_fixed_width(Direction::Left, 99)
+                .cell()
+                .column(),
             0
         );
-        assert_eq!(cursor.saturating_moved(Direction::Up, 99).cell().row(), 0);
         assert_eq!(
             cursor
-                .saturating_moved(Direction::Right, 99)
+                .saturating_moved_on_fixed_width(Direction::Up, 99)
+                .cell()
+                .row(),
+            0
+        );
+        assert_eq!(
+            cursor
+                .saturating_moved_on_fixed_width(Direction::Right, 99)
                 .cell()
                 .column(),
             2
         );
-        assert_eq!(cursor.saturating_moved(Direction::Down, 99).cell().row(), 1);
+        assert_eq!(
+            cursor
+                .saturating_moved_on_fixed_width(Direction::Down, 99)
+                .cell()
+                .row(),
+            1
+        );
     }
 
     /// The row has to clamp before the width lookup, or an overshoot reads the
@@ -129,7 +196,7 @@ mod tests {
         .unwrap();
         let cursor = CellOnGrid::new(Cell::new(4, 0), &grid).unwrap();
 
-        let landed = cursor.saturating_moved(Direction::Down, 99);
+        let landed = cursor.saturating_moved_on_variable_width(Direction::Down, 99);
         assert_eq!(landed.cell().row(), 2);
         assert_eq!(landed.cell().column(), 3);
         assert!(grid.contains_cell(&landed.cell()));
@@ -140,7 +207,7 @@ mod tests {
         let grid = Jagged::new(vec![vec!['a', 'b', 'c'], vec!['d']]).unwrap();
         let cursor = CellOnGrid::new(Cell::new(2, 0), &grid).unwrap();
 
-        let landed = cursor.saturating_moved(Direction::Down, 1);
+        let landed = cursor.saturating_moved_on_variable_width(Direction::Down, 1);
         assert_eq!(landed.cell().row(), 1);
         assert_eq!(landed.cell().column(), 0);
     }

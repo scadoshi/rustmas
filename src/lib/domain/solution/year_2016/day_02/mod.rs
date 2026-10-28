@@ -2,7 +2,6 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::cursor::cell_on_grid::CellOnGrid;
-use crate::domain::solution::common::cursor::{Cursor, FixedWidthGridCursor};
 use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::rectangle::Rectangle;
 
@@ -39,7 +38,7 @@ impl Solution for Puzzle {
                 CellOnGrid::new(Cell::new(1, 1), &grid)?,
                 |cursor, directions| {
                     *cursor = directions.iter().fold(*cursor, |cursor, direction| {
-                        cursor.saturating_moved(*direction, 1)
+                        cursor.saturating_moved_on_fixed_width(*direction, 1)
                     });
                     Some(*cursor.value())
                 },
