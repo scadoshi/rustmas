@@ -8,7 +8,8 @@ use crate::domain::solution::year_2021::day_03::rating::{Keep, rate, rating_by_f
 
 pub struct Puzzle {
     readings: Vec<u32>,
-    /// How many bits each reading has, taken from the input rather than assumed.
+    /// How many bits each reading has, taken from the input rather than
+    /// assumed, and never more than a `u32` holds, so every shift fits.
     width: u32,
 }
 
@@ -19,12 +20,19 @@ impl Solution for Puzzle {
         if lines.iter().any(|line| line.len() != width) {
             return Err(anyhow!("expected every line the same width"));
         }
+        let width = u32::try_from(width)?;
+        if width > u32::BITS {
+            return Err(anyhow!(
+                "expected at most {} bits per reading, read {width}",
+                u32::BITS
+            ));
+        }
         Ok(Self {
             readings: lines
                 .iter()
                 .map(|line| u32::from_str_radix(line, 2))
                 .collect::<Result<_, _>>()?,
-            width: u32::try_from(width)?,
+            width,
         })
     }
 
@@ -45,5 +53,18 @@ impl Solution for Puzzle {
             (Some(o), Some(c)) => Ok(Answer::solved((u64::from(o) * u64::from(c)).to_string())),
             _ => Ok(Answer::None),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// 33 digits still parse into a `u32` with leading zeros, but shifting by
+    /// the top position would overflow.
+    #[test]
+    fn readings_wider_than_a_u32_are_rejected() {
+        let wide = format!("{}1", "0".repeat(32));
+        assert!(Puzzle::new(format!("{wide}\n{wide}")).is_err());
     }
 }
