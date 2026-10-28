@@ -65,8 +65,9 @@ impl Handful {
     }
 
     /// The puzzle's "power": the counts multiplied together.
-    pub fn power(self) -> u32 {
-        self.red * self.green * self.blue
+    /// Red times green times blue, or `None` past [`u32::MAX`].
+    pub fn power(self) -> Option<u32> {
+        self.red.checked_mul(self.green)?.checked_mul(self.blue)
     }
 }
 
