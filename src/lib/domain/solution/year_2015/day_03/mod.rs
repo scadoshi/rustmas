@@ -15,6 +15,7 @@ impl Solution for Puzzle {
         Ok(Self {
             directions: input
                 .as_ref()
+                .trim()
                 .chars()
                 .map(Direction::try_from)
                 .collect::<Result<Vec<_>, _>>()?,
@@ -76,6 +77,12 @@ impl Solution for Puzzle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_trailing_newline_is_not_a_move() {
+        let got = Puzzle::new("^>v<\n").unwrap().part_one().unwrap();
+        assert_eq!(got, Answer::solved("4"));
+    }
 
     #[test]
     fn part_one_examples() {
