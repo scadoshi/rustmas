@@ -24,6 +24,9 @@ const AOC_BASE_URL: &str = "https://adventofcode.com";
 /// request per puzzle at a human pace.
 const REQUEST_GAP: Duration = Duration::from_millis(1500);
 
+/// Most characters of an unrecognized submit reply worth printing.
+const SNIPPET_CHARS: usize = 60;
+
 /// An authenticated handle to adventofcode.com, pooling one client.
 #[derive(Debug)]
 pub(crate) struct AocClient {
@@ -157,8 +160,9 @@ fn accepted(response: Response, day: &Day) -> anyhow::Result<Response> {
 ///
 /// Direction is checked before the generic wrong-answer phrase, since "too
 /// high" replies contain that phrase too. A logged-out submission redirects to
-/// the puzzle page, which grades nothing, so that is checked first. Strings
-/// verified live; see `context/references.md`.
+/// the puzzle page, which grades nothing, so that is checked first. A reply
+/// matching none of them is [`AocVerdict::Unrecognized`], never a guess.
+/// Strings verified live; see `context/references.md`.
 fn verdict_from(body: &str) -> AocVerdict {
     if body.contains("auth/login") {
         return AocVerdict::NotLoggedIn;
@@ -178,7 +182,38 @@ fn verdict_from(body: &str) -> AocVerdict {
     if body.contains("You gave an answer too recently") {
         return AocVerdict::Cooldown(wait_from(body));
     }
-    AocVerdict::Incorrect
+    if body.contains("That's not the right answer") {
+        return AocVerdict::Incorrect;
+    }
+    AocVerdict::Unrecognized(snippet_from(body))
+}
+
+/// The start of a reply's message as plain text: the `<article>` if there is
+/// one, tags dropped, whitespace collapsed, cut at [`SNIPPET_CHARS`].
+fn snippet_from(body: &str) -> String {
+    let message = body
+        .split_once("<article>")
+        .and_then(|(_, rest)| rest.split_once("</article>"))
+        .map_or(body, |(inner, _)| inner);
+
+    let mut text = String::new();
+    let mut in_tag = false;
+    for c in message.chars() {
+        match c {
+            '<' => in_tag = true,
+            '>' => in_tag = false,
+            c if !in_tag => text.push(c),
+            _ => {}
+        }
+    }
+
+    let words: Vec<&str> = text.split_whitespace().collect();
+    let text = words.join(" ");
+    if text.chars().count() <= SNIPPET_CHARS {
+        return text;
+    }
+    let cut: String = text.chars().take(SNIPPET_CHARS).collect();
+    format!("{}...", cut.trim_end())
 }
 
 /// Pulls the remaining wait out of a cooldown reply, e.g. `1m 0s`.
@@ -236,6 +271,28 @@ mod tests {
         assert!(matches!(verdict_from(SOLVED), AocVerdict::AlreadySolved));
         assert!(matches!(verdict_from(COOLDOWN), AocVerdict::Cooldown(_)));
         assert!(matches!(verdict_from(LOGGED_OUT), AocVerdict::NotLoggedIn));
+    }
+
+    /// Only the generic wrong-answer phrase means incorrect. Anything else is
+    /// shown rather than guessed at, with the message trimmed out of the page.
+    #[test]
+    fn an_unknown_reply_is_unrecognized_not_incorrect() {
+        let body = "<html><main><article><p>Something   new\n happened.  <a href=\"/2015\">[Return]</a></p></article></main></html>";
+        assert_eq!(
+            verdict_from(body),
+            AocVerdict::Unrecognized("Something new happened. [Return]".to_string())
+        );
+    }
+
+    /// A long reply is cut short, so it fits on the part's line.
+    #[test]
+    fn an_unrecognized_snippet_is_short() {
+        let body = "word ".repeat(100);
+        let AocVerdict::Unrecognized(snippet) = verdict_from(&body) else {
+            panic!("an unknown reply is unrecognized");
+        };
+        assert!(snippet.chars().count() <= SNIPPET_CHARS + 3, "{snippet}");
+        assert!(snippet.ends_with("..."));
     }
 
     /// A graded reply never carries the login link, so no verdict is stolen.

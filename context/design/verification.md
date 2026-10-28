@@ -31,7 +31,7 @@ The plan is to route on solved state: submit to AOC while a part is unsolved, an
 `src/lib/domain/solution/solver_verdict.rs` and `aoc_verdict.rs` hold two types, one per source.
 
 - `SolverVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Unsupported`, or `Unchecked(String)`. Numeric comparisons build it with `From<Ordering>`; text answers either match or are `Incorrect`.
-- `AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(Option<String>)`, `AlreadySolved`, or `NotLoggedIn`.
+- `AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(Option<String>)`, `AlreadySolved`, `NotLoggedIn`, or `Unrecognized(String)`.
 
 Direction is worth keeping rather than flattening into a bool, and both sources produce it.
 
@@ -82,7 +82,7 @@ Every run pays for what it validates, since nothing is cached. That's the point:
 
 `submit_answer` form-encodes `level` and `answer` to `/<year>/day/<day>/answer`. AOC returns 200 for everything, wrong answers included, so the verdict comes entirely from the body.
 
-The strings and match order are in [`../references.md`](../references.md). Fixtures are unit tests at the bottom of `src/lib/outbound/client/aoc_client.rs`.
+The strings and match order are in [`../references.md`](../references.md). A reply that matches none of them is `Unrecognized`, holding the first 60 characters of its message, and prints as `(unrecognized reply: <text>)`. Calling it `Incorrect` would claim a grade nobody saw, and it doesn't let part two through. Fixtures are unit tests at the bottom of `src/lib/outbound/client/aoc_client.rs`.
 
 ## What counts as solved
 

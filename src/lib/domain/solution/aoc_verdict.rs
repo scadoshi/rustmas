@@ -17,6 +17,9 @@ pub enum AocVerdict {
     AlreadySolved,
     /// The session cookie is missing or expired, so nothing was graded.
     NotLoggedIn,
+    /// A reply that matches no known phrasing. Holds the start of its text,
+    /// since the answer may or may not have been graded.
+    Unrecognized(String),
 }
 
 impl Display for AocVerdict {
@@ -30,6 +33,7 @@ impl Display for AocVerdict {
             Self::Cooldown(None) => write!(f, "rate limited, unknown left to wait"),
             Self::AlreadySolved => write!(f, "already solved"),
             Self::NotLoggedIn => write!(f, "not logged in"),
+            Self::Unrecognized(snippet) => write!(f, "unrecognized reply: {snippet}"),
         }
     }
 }
@@ -47,6 +51,14 @@ mod tests {
         assert_eq!(
             AocVerdict::Cooldown(None).to_string(),
             "rate limited, unknown left to wait"
+        );
+    }
+
+    #[test]
+    fn unrecognized_says_so_and_shows_the_reply() {
+        assert_eq!(
+            AocVerdict::Unrecognized("Something new happened.".to_string()).to_string(),
+            "unrecognized reply: Something new happened."
         );
     }
 }
