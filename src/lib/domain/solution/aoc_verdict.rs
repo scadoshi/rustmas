@@ -1,3 +1,5 @@
+//! What adventofcode.com said about a submitted answer.
+
 use std::fmt::{self, Display};
 
 /// What adventofcode.com said about a submission.
@@ -6,9 +8,13 @@ use std::fmt::{self, Display};
 /// [`AocVerdict::AlreadySolved`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AocVerdict {
+    /// Right, and the star is new.
     Correct,
+    /// Wrong, with no hint which way.
     Incorrect,
+    /// Wrong, and too low.
     Low,
+    /// Wrong, and too high.
     High,
     /// Submitted too recently. Holds the wait as AOC phrased it, like `1m 0s`,
     /// or `None` when the reply did not say.

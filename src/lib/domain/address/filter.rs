@@ -1,3 +1,5 @@
+//! The `--year` and `--day` narrowing, validated before any day is walked.
+
 use chrono::{DateTime, Utc};
 use thiserror::Error;
 
@@ -8,8 +10,11 @@ use crate::domain::address::{Day, Year};
 /// The ways a filter can name something outside the published range.
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidFilter {
+    /// `--year` names no published event.
     #[error(transparent)]
     YearOutOfRange(#[from] YearOutOfRange),
+    /// `--day` is outside 1 through 25 alone, or outside what the given year
+    /// had or has unlocked.
     #[error(transparent)]
     DayOutOfRange(#[from] DayOutOfRange),
 }
@@ -28,6 +33,12 @@ pub struct Filter {
 
 impl Filter {
     /// Validates whatever was given: each side alone, and the pair strictly.
+    ///
+    /// # Errors
+    ///
+    /// [`InvalidFilter::YearOutOfRange`] for a year outside the published
+    /// events. [`InvalidFilter::DayOutOfRange`] for a day outside 1 through
+    /// 25, or, with a year, outside the days that year had or has unlocked.
     pub fn new(year: Option<i32>, day: Option<i32>) -> Result<Filter, InvalidFilter> {
         Self::new_at(year, day, Utc::now())
     }
@@ -59,10 +70,13 @@ impl Filter {
         Ok(Filter { year, day })
     }
 
+    /// The one year to run, or `None` for every year.
     pub fn year(&self) -> Option<Year> {
         self.year
     }
 
+    /// The one day to run in each year, or `None` for every day. Not a
+    /// [`Day`], since it may name a day only some years had.
     pub fn day(&self) -> Option<i32> {
         self.day
     }

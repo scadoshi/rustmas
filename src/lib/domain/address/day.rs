@@ -1,3 +1,5 @@
+//! A puzzle day, validated against its year.
+
 use std::fmt::{self, Display};
 
 use chrono::{DateTime, Utc};
@@ -14,11 +16,18 @@ pub(crate) const FINAL_DAY: i32 = 25;
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("day {given} is outside 1..={bound}")]
 pub struct DayOutOfRange {
+    /// The day as asked for.
     pub given: i32,
+    /// The highest day allowed at the time of asking.
     pub bound: i32,
 }
 
 /// A validated day within a validated [`Year`], which it always carries.
+///
+/// Only [`Day::new`] and the iterators build one, so holding a `Day` means the
+/// event had that day and it has unlocked. Code that takes a `Day` never needs
+/// to re-check the range, and a raw `i32` is the wrong type to pass around for
+/// an address.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Day {
     value: i32,
@@ -26,6 +35,7 @@ pub struct Day {
 }
 
 impl Day {
+    /// The day of December, from 1 through [`Year::days_in`].
     pub fn value(&self) -> i32 {
         self.value
     }
@@ -69,6 +79,12 @@ impl Day {
 
     /// Rejects any day of `year` outside `1..=year.days_in()` or not yet
     /// unlocked.
+    ///
+    /// # Errors
+    ///
+    /// [`DayOutOfRange`] when `day` is below 1, past the event's last day, or
+    /// a day of the running event that has not unlocked yet. Its `bound` is
+    /// the highest day that would have passed.
     pub fn new(day: i32, year: Year) -> Result<Self, DayOutOfRange> {
         Self::new_at(day, year, Utc::now())
     }

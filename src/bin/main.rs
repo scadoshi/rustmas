@@ -1,3 +1,5 @@
+//! The `rustmas` binary, a thin shell over [`rustmas::inbound::cli::Cli`].
+
 use clap::Parser;
 use rustmas::inbound::cli::Cli;
 

@@ -50,6 +50,7 @@ impl Totals {
         }
     }
 
+    /// How many days have been folded in, solved or not.
     pub fn days(&self) -> u32 {
         self.days
     }

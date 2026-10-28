@@ -8,7 +8,9 @@ pub const PARTS_PER_DAY: usize = 2;
 /// Named so call sites read `Part::One` rather than a `1` that could be a day.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Part {
+    /// The puzzle given when the day unlocks.
     One,
+    /// The puzzle given once part one is solved.
     Two,
 }
 

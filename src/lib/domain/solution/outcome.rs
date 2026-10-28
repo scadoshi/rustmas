@@ -1,3 +1,5 @@
+//! One part's result, carried from solving through checking and submitting.
+
 use std::fmt::{self, Display, Write};
 use std::time::Duration;
 
@@ -21,6 +23,7 @@ pub struct Outcome {
 }
 
 impl Outcome {
+    /// A fresh result with no verdicts. `elapsed` is the solving time alone.
     pub fn new(answer: anyhow::Result<Answer>, elapsed: Duration) -> Self {
         Self {
             answer,
@@ -48,6 +51,8 @@ impl Outcome {
         self
     }
 
+    /// Time spent solving this part, counted even when it failed or had
+    /// nothing to say. [`Outcome::solve_time`] leaves those out.
     pub fn elapsed(&self) -> Duration {
         self.elapsed
     }
@@ -57,18 +62,20 @@ impl Outcome {
         self.answer.as_ref().ok()?.value()
     }
 
+    /// What the third-party solver said, or `None` when nobody asked it.
     pub fn solver_verdict(&self) -> Option<&SolverVerdict> {
         self.solver_verdict.as_ref()
     }
 
+    /// What adventofcode.com said, or `None` when nothing was submitted.
     pub fn aoc_verdict(&self) -> Option<&AocVerdict> {
         self.aoc_verdict.as_ref()
     }
 
     /// How long this part took, if it produced an answer.
     ///
-    /// `None` for a stub, a failure, and the final day's second star, none of which
-    /// did work worth totalling.
+    /// `None` for a stub, a failure, and the final day's second star, none of
+    /// which did work worth totalling.
     pub fn solve_time(&self) -> Option<Duration> {
         match self.answer.as_ref().ok()? {
             Answer::Value(_) | Answer::Visual(_) => Some(self.elapsed),

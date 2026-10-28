@@ -1,3 +1,5 @@
+//! What one part of a puzzle produced, before anyone checks it.
+
 use std::fmt::{self, Display};
 
 /// What one part of a puzzle produced.

@@ -1,3 +1,5 @@
+//! An event year, and the clock rules for which days of it have unlocked.
+
 use chrono::{DateTime, Datelike, Timelike, Utc};
 use thiserror::Error;
 
@@ -23,20 +25,31 @@ const SHORT_EVENT_FINAL_DAY: i32 = 12;
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("year {given} is outside {FIRST_YEAR}..={latest}")]
 pub struct YearOutOfRange {
+    /// The year as asked for.
     pub given: i32,
+    /// [`Year::latest`] at the time of asking.
     pub latest: i32,
 }
 
 /// A validated event year, from [`FIRST_YEAR`] through [`Year::latest`].
+///
+/// The upper bound moves with the clock: a year joins once its day 1 unlocks,
+/// so a `Year` built in November cannot be the coming December's.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Year(i32);
 
 impl Year {
+    /// The calendar year, like `2015`.
     pub fn value(&self) -> i32 {
         self.0
     }
 
     /// Bounded by the latest *published* event, not the calendar year.
+    ///
+    /// # Errors
+    ///
+    /// [`YearOutOfRange`] when `year` is before [`FIRST_YEAR`] or after
+    /// [`Year::latest`].
     pub fn new(year: i32) -> Result<Self, YearOutOfRange> {
         Self::new_at(year, Utc::now())
     }

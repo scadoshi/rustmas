@@ -1,3 +1,5 @@
+//! What the third-party solver made of an answer.
+
 use std::cmp::Ordering;
 use std::fmt::{self, Display};
 
@@ -7,9 +9,13 @@ use std::fmt::{self, Display};
 /// as a gate before submitting.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SolverVerdict {
+    /// Matches the solver's answer.
     Correct,
+    /// Differs from the solver's answer, where the two are not both numbers.
     Incorrect,
+    /// A number below the solver's.
     Low,
+    /// A number above the solver's.
     High,
     /// No implementation for that puzzle.
     Unsupported,
