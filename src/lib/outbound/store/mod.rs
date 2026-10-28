@@ -33,27 +33,32 @@ fn day_path_in(root: &Path, day: &Day) -> PathBuf {
         .join(format!("{:02}", day.value()))
 }
 
+/// The real cache's root, `cache/` under the project root.
+pub(crate) fn cache_root() -> anyhow::Result<PathBuf> {
+    Ok(project_root()?.join(CACHE_PATH))
+}
+
 /// Reads `day`'s cache, or `None` when nothing has been downloaded.
 ///
 /// A missing session file reads as `None`, since an input nothing can vouch
 /// for is one to fetch again.
 pub(crate) fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
-    read_entry_in(&project_root()?.join(CACHE_PATH), day)
+    read_entry_in(&cache_root()?, day)
 }
 
-fn read_entry_in(root: &Path, day: &Day) -> anyhow::Result<Option<Entry>> {
+/// [`read_entry`] under `root`.
+pub(crate) fn read_entry_in(root: &Path, day: &Day) -> anyhow::Result<Option<Entry>> {
     let dir = day_path_in(root, day);
 
-    let (Some(data), Some(hash), Some(part_one)) = (
-        read_opt(&dir.join(INPUT_FILE))?,
-        read_opt(&dir.join(SESSION_FILE))?,
+    let (Some(input), Some(part_one)) = (
+        read_input_in(root, day)?,
         read_opt(&dir.join(PART_ONE_FILE))?,
     ) else {
         return Ok(None);
     };
 
     Ok(Some(Entry {
-        input: Input::from_parts(hash.trim(), data),
+        input,
         instructions: Instructions {
             part_one,
             part_two: read_opt(&dir.join(PART_TWO_FILE))?,
@@ -61,23 +66,43 @@ fn read_entry_in(root: &Path, day: &Day) -> anyhow::Result<Option<Entry>> {
     }))
 }
 
+/// Reads `day`'s input under `root` on its own, or `None` when it or its
+/// session file is missing.
+pub(crate) fn read_input_in(root: &Path, day: &Day) -> anyhow::Result<Option<Input>> {
+    let dir = day_path_in(root, day);
+    let (Some(data), Some(hash)) = (
+        read_opt(&dir.join(INPUT_FILE))?,
+        read_opt(&dir.join(SESSION_FILE))?,
+    ) else {
+        return Ok(None);
+    };
+    Ok(Some(Input::from_parts(hash.trim(), data)))
+}
+
 /// Writes `day`'s cache, creating the directory if needed. Only files whose
 /// contents differ are written.
 pub(crate) fn write_entry(day: &Day, entry: &Entry) -> anyhow::Result<()> {
-    write_entry_in(&project_root()?.join(CACHE_PATH), day, entry)
+    write_entry_in(&cache_root()?, day, entry)
 }
 
-fn write_entry_in(root: &Path, day: &Day, entry: &Entry) -> anyhow::Result<()> {
+/// [`write_entry`] under `root`.
+pub(crate) fn write_entry_in(root: &Path, day: &Day, entry: &Entry) -> anyhow::Result<()> {
+    write_input_in(root, day, &entry.input)?;
     let dir = day_path_in(root, day);
-    ensure_dir(&dir)?;
-
-    write_file(&dir.join(INPUT_FILE), entry.input.data())?;
-    write_file(&dir.join(SESSION_FILE), entry.input.hash())?;
     write_file(&dir.join(PART_ONE_FILE), &entry.instructions.part_one)?;
     if let Some(part_two) = &entry.instructions.part_two {
         write_file(&dir.join(PART_TWO_FILE), part_two)?;
     }
     Ok(())
+}
+
+/// Writes `day`'s input and its session under `root`, creating the directory
+/// if needed.
+pub(crate) fn write_input_in(root: &Path, day: &Day, input: &Input) -> anyhow::Result<()> {
+    let dir = day_path_in(root, day);
+    ensure_dir(&dir)?;
+    write_file(&dir.join(INPUT_FILE), input.data())?;
+    write_file(&dir.join(SESSION_FILE), input.hash())
 }
 
 /// Reads a file, or `None` when it is missing or blank.

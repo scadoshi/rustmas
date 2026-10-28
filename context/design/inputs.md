@@ -42,6 +42,7 @@ With no cookie configured at all, a cached entry is used as-is. Being unable to 
 - `fetch` calls it and discards the result.
 - `solve` calls it and solves.
 - With nothing cached, it fetches both the input and the page, so a day always arrives complete.
+- The input is written the moment it arrives, before the page is asked for. A failed page leaves it on disk, and the next run downloads only the page, as long as the stored input belongs to the current session.
 
 `LazyAocClient` builds the `AocClient` on first download rather than up front. A run over cached inputs stays entirely offline and needs no cookie.
 
