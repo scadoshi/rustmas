@@ -4,37 +4,44 @@ use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::{FixedWidth, Grid, VariableWidth};
 
 /// A [`Cell`] paired with a borrow of the grid it indexes, always in bounds.
+///
+/// `T` is the grid's item. The cursor holds the item under it, looked up each
+/// time it lands, so being in bounds is proven once rather than asserted on
+/// every read.
 #[derive(Debug)]
-pub struct CellOnGrid<'grid, G> {
+pub struct CellOnGrid<'grid, G, T> {
     cell: Cell,
     grid: &'grid G,
+    value: &'grid T,
 }
 
-// Written out rather than derived: `derive` would demand `G: Copy`, which a
-// `&G` field never needs, and no grid type is `Copy`.
-impl<G> Copy for CellOnGrid<'_, G> {}
-impl<G> Clone for CellOnGrid<'_, G> {
+// Written out rather than derived: `derive` would demand `G: Copy` and
+// `T: Copy`, which `&` fields never need, and no grid type is `Copy`.
+impl<G, T> Copy for CellOnGrid<'_, G, T> {}
+impl<G, T> Clone for CellOnGrid<'_, G, T> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<'grid, G: Grid> CellOnGrid<'grid, G> {
+impl<'grid, G: Grid<Item = T>, T> CellOnGrid<'grid, G, T> {
     /// A cursor on `cell`, checked against `grid`.
     ///
     /// # Errors
     ///
     /// [`CellOutOfBounds`] if `cell` is not on `grid`.
     pub fn new(cell: Cell, grid: &'grid G) -> Result<Self, CellOutOfBounds> {
-        if !grid.contains_cell(&cell) {
+        let Some(value) = grid.at(&cell) else {
             return Err(CellOutOfBounds);
-        }
-        Ok(Self { cell, grid })
+        };
+        Ok(Self { cell, grid, value })
     }
 
-    /// Skips the bounds check. The caller guarantees `cell` is on `grid`.
-    fn new_trusted(cell: Cell, grid: &'grid G) -> Self {
-        Self { cell, grid }
+    /// The cursor on `cell`, or left where it is if `cell` is off the grid.
+    ///
+    /// For the clamping moves, whose clamped cell is always on a valid grid.
+    fn landed_on(self, cell: Cell) -> Self {
+        Self::new(cell, self.grid).unwrap_or(self)
     }
 
     pub fn cell(&self) -> Cell {
@@ -49,19 +56,16 @@ impl<'grid, G: Grid> CellOnGrid<'grid, G> {
     pub fn checked_moved(self, direction: Direction, distance: usize) -> Option<Self> {
         self.cell
             .checked_moved(direction, distance)
-            .filter(|c| self.grid.contains_cell(c))
-            .map(|c| Self::new_trusted(c, self.grid))
+            .and_then(|c| Self::new(c, self.grid).ok())
     }
 
     /// The item under the cursor.
-    pub fn value(&self) -> &'grid G::Item {
-        self.grid
-            .at(&self.cell)
-            .expect("a cursor is always in bounds")
+    pub fn value(&self) -> &'grid T {
+        self.value
     }
 }
 
-impl<G: Grid + FixedWidth> CellOnGrid<'_, G> {
+impl<G: Grid<Item = T> + FixedWidth, T> CellOnGrid<'_, G, T> {
     /// Moves `distance` in `direction`, clamping at the edges of a grid whose
     /// rows are all one width.
     #[must_use]
@@ -74,11 +78,11 @@ impl<G: Grid + FixedWidth> CellOnGrid<'_, G> {
                 .with_column(unclamped.column().min(width_clamp))
                 .with_row(unclamped.row().min(height_clamp))
         };
-        Self::new_trusted(cell, self.grid)
+        self.landed_on(cell)
     }
 }
 
-impl<G: Grid + VariableWidth> CellOnGrid<'_, G> {
+impl<G: Grid<Item = T> + VariableWidth, T> CellOnGrid<'_, G, T> {
     /// Moves `distance` in `direction`, clamping at the edges of a grid whose
     /// rows are each their own width.
     ///
@@ -97,7 +101,7 @@ impl<G: Grid + VariableWidth> CellOnGrid<'_, G> {
                 .with_column(unclamped.column().min(width_clamp))
                 .with_row(clamped_row)
         };
-        Self::new_trusted(cell, self.grid)
+        self.landed_on(cell)
     }
 }
 

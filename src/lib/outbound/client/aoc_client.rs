@@ -242,19 +242,14 @@ fn wait_from(body: &str) -> Option<String> {
 pub(crate) struct LazyAocClient(Option<AocClient>);
 
 impl LazyAocClient {
-    /// Builds the client here, so a missing or malformed cookie fails before
-    /// any work is done.
-    pub(crate) fn from_env() -> anyhow::Result<Self> {
-        Ok(Self(Some(AocClient::from_env()?)))
-    }
-
     /// The client, built on the first call. Idempotent, so calling it eagerly
     /// and again later costs one construction.
     pub(crate) fn connected(&mut self) -> anyhow::Result<&AocClient> {
-        if self.0.is_none() {
-            *self = LazyAocClient::from_env()?;
-        }
-        Ok(self.0.as_ref().expect("built just above"))
+        let client = match self.0.take() {
+            Some(client) => client,
+            None => AocClient::from_env()?,
+        };
+        Ok(self.0.insert(client))
     }
 }
 

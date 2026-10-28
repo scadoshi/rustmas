@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use thiserror::Error;
 
 use crate::domain::address::filter::Filter;
-use crate::domain::address::year::{FIRST_YEAR, Year};
+use crate::domain::address::year::Year;
 
 /// Christmas Day, whose second star is awarded rather than puzzled.
 pub(crate) const FINAL_DAY: i32 = 25;
@@ -61,10 +61,8 @@ impl Day {
 
     /// [`Day::all`] as of `now`.
     pub(crate) fn all_at(now: DateTime<Utc>) -> impl Iterator<Item = Self> {
-        (FIRST_YEAR..=Year::latest_at(now)).flat_map(move |y| {
-            let year = Year::new_at(y, now).expect("range is FIRST_YEAR..=latest");
-            (1..=year.unlocked_days_at(now))
-                .map(move |d| Day::new_at(d, year, now).expect("d is within the unlocked days"))
+        Year::all_at(now).flat_map(move |year| {
+            (1..=year.unlocked_days_at(now)).map(move |value| Day { value, year })
         })
     }
 
@@ -95,6 +93,7 @@ impl Display for Day {
 mod tests {
     use super::*;
     use crate::domain::address::Filter;
+    use crate::domain::address::year::FIRST_YEAR;
 
     fn year(value: i32) -> Year {
         Year::new(value).expect("test years are published events")

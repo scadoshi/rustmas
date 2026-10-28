@@ -53,6 +53,11 @@ impl Year {
         Ok(Self(year))
     }
 
+    /// Every event with a puzzle unlocked as of `now`, oldest first.
+    pub(crate) fn all_at(now: DateTime<Utc>) -> impl Iterator<Item = Self> {
+        (FIRST_YEAR..=Self::latest_at(now)).map(Self)
+    }
+
     /// The latest event with a puzzle unlocked. Until day 1 unlocks at 05:00
     /// UTC on December 1, that is last year.
     pub fn latest() -> i32 {
