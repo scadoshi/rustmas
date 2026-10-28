@@ -1,3 +1,6 @@
+//! The cached files of one day, as values: input with its session tag, and
+//! instructions by part.
+
 use sha2::{Digest, Sha256};
 
 /// A day's cached input, and the session that fetched it.

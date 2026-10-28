@@ -1,3 +1,6 @@
+//! The authenticated, rate-paced client for adventofcode.com: pages, inputs
+//! and submissions.
+
 use std::cell::Cell;
 use std::thread;
 use std::time::{Duration, Instant};

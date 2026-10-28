@@ -1,3 +1,5 @@
+//! Running one day's solution, timed, with each answer optionally checked.
+
 use std::time::Instant;
 
 use crate::domain::address::{Day, Part};
@@ -9,7 +11,9 @@ use crate::outbound::client::solver_client::SolverClient;
 /// Whether a run checks its answers against the solver, and with which client.
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum Validation<'client> {
+    /// Answers go unchecked and no request is sent.
     Off,
+    /// Each answer is checked against the solver through this client.
     Against(&'client SolverClient),
 }
 

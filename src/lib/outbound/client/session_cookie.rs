@@ -1,3 +1,6 @@
+//! The adventofcode.com session cookie, checked for shape and kept out of
+//! `Debug` output.
+
 use std::fmt::{self, Debug, Display};
 
 use thiserror::Error;

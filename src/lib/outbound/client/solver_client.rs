@@ -1,3 +1,5 @@
+//! The client for the third-party solver, tried host by host.
+
 use anyhow::bail;
 use reqwest::Url;
 use reqwest::blocking::Client;
