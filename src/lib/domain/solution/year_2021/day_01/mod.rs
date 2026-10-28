@@ -17,7 +17,7 @@ impl Solution for Puzzle {
         Ok(Answer::solved(
             self.nums
                 .windows(2)
-                .filter(|w| w[0] < w[1])
+                .filter(|w| matches!(w, [a, b] if a < b))
                 .count()
                 .to_string(),
         ))
@@ -27,9 +27,22 @@ impl Solution for Puzzle {
         Ok(Answer::solved(
             self.nums
                 .windows(4)
-                .filter(|w| w[0] < w[3])
+                .filter(|w| matches!(w, [a, _, _, d] if a < d))
                 .count()
                 .to_string(),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The puzzle's example for both parts.
+    #[test]
+    fn example() {
+        let puzzle = Puzzle::new("199\n200\n208\n210\n200\n207\n240\n269\n260\n263").unwrap();
+        assert_eq!(puzzle.part_one().unwrap(), Answer::solved("7"));
+        assert_eq!(puzzle.part_two().unwrap(), Answer::solved("5"));
     }
 }

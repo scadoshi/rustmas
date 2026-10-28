@@ -41,9 +41,10 @@ impl Solution for Puzzle {
     fn part_one(&self) -> anyhow::Result<Answer> {
         let gamma = rate(&self.readings, self.width, Keep::MostCommon);
         let epsilon = rate(&self.readings, self.width, Keep::LeastCommon);
-        Ok(Answer::solved(
-            (u64::from(gamma) * u64::from(epsilon)).to_string(),
-        ))
+        let power = u64::from(gamma)
+            .checked_mul(u64::from(epsilon))
+            .ok_or_else(|| anyhow!("the power consumption passes u64"))?;
+        Ok(Answer::solved(power.to_string()))
     }
 
     /// Oxygen keeps the commonest bit at each step, CO2 the rarest.
@@ -51,7 +52,12 @@ impl Solution for Puzzle {
         let oxygen = rating_by_filter(&self.readings, self.width, Keep::MostCommon);
         let co2 = rating_by_filter(&self.readings, self.width, Keep::LeastCommon);
         match (oxygen, co2) {
-            (Some(o), Some(c)) => Ok(Answer::solved((u64::from(o) * u64::from(c)).to_string())),
+            (Some(oxygen), Some(co2)) => {
+                let life_support = u64::from(oxygen)
+                    .checked_mul(u64::from(co2))
+                    .ok_or_else(|| anyhow!("the life support rating passes u64"))?;
+                Ok(Answer::solved(life_support.to_string()))
+            }
             _ => Ok(Answer::None),
         }
     }

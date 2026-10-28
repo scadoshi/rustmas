@@ -10,7 +10,8 @@ pub enum Keep {
 /// The bit `keep` picks at position `bit` across `readings`.
 fn bit_to_keep(readings: &[u32], bit: u32, keep: Keep) -> u32 {
     let ones = readings.iter().filter(|r| *r >> bit & 1 == 1).count();
-    let ones_lead = ones * 2 >= readings.len();
+    let zeros = readings.iter().filter(|r| *r >> bit & 1 == 0).count();
+    let ones_lead = ones >= zeros;
     match keep {
         Keep::MostCommon => u32::from(ones_lead),
         Keep::LeastCommon => u32::from(!ones_lead),

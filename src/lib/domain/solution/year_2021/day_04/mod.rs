@@ -17,20 +17,22 @@ impl Puzzle {
     ///
     /// A board's score is its unmarked sum times the draw that completed it.
     /// Boards leave the game when they win, so nothing scores twice.
-    fn scores_in_winning_order(&self) -> Vec<u32> {
+    fn scores_in_winning_order(&self) -> anyhow::Result<Vec<u32>> {
         let mut boards = self.boards.clone();
         let mut scores = Vec::new();
         for &draw in &self.draws {
             for board in &mut boards {
                 board.mark(draw);
             }
-            scores.extend(
-                boards
-                    .extract_if(.., |board| board.has_bingo())
-                    .map(|board| board.unmarked_sum() * u32::from(draw)),
-            );
+            for board in boards.extract_if(.., |board| board.has_bingo()) {
+                let score = board
+                    .unmarked_sum()
+                    .checked_mul(u32::from(draw))
+                    .ok_or_else(|| anyhow!("a board's score passes u32"))?;
+                scores.push(score);
+            }
         }
-        scores
+        Ok(scores)
     }
 }
 
@@ -52,14 +54,14 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        match self.scores_in_winning_order().first() {
+        match self.scores_in_winning_order()?.first() {
             Some(score) => Ok(Answer::solved(score.to_string())),
             None => Ok(Answer::None),
         }
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        match self.scores_in_winning_order().last() {
+        match self.scores_in_winning_order()?.last() {
             Some(score) => Ok(Answer::solved(score.to_string())),
             None => Ok(Answer::None),
         }
