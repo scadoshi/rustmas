@@ -1,6 +1,6 @@
 /// Which bit value to keep when the readings are split on one position.
 #[derive(Debug, Clone, Copy)]
-pub enum Keep {
+pub(super) enum Keep {
     /// The commoner bit, ones winning a tie.
     MostCommon,
     /// The rarer bit, zeros winning a tie.
@@ -19,14 +19,14 @@ fn bit_to_keep(readings: &[u32], bit: u32, keep: Keep) -> u32 {
 }
 
 /// A number built from the bit `keep` picks at every position.
-pub fn rate(readings: &[u32], width: u32, keep: Keep) -> u32 {
+pub(super) fn rate(readings: &[u32], width: u32, keep: Keep) -> u32 {
     (0..width).fold(0, |rate, bit| {
         rate | bit_to_keep(readings, bit, keep) << bit
     })
 }
 
 /// Narrows the readings one bit at a time, top down, until one is left.
-pub fn rating_by_filter(readings: &[u32], width: u32, keep: Keep) -> Option<u32> {
+pub(super) fn rating_by_filter(readings: &[u32], width: u32, keep: Keep) -> Option<u32> {
     let mut left = readings.to_vec();
     for bit in (0..width).rev() {
         if left.len() <= 1 {

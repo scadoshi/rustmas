@@ -1,4 +1,4 @@
-pub mod rating;
+mod rating;
 
 use anyhow::anyhow;
 
@@ -7,7 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2021::day_03::rating::Keep;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     readings: Vec<u32>,
     /// How many bits each reading has, taken from the input rather than
     /// assumed, and never more than a `u32` holds, so every shift fits.

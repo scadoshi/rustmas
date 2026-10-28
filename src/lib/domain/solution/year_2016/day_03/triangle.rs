@@ -4,7 +4,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidTriangle {
+pub(super) enum InvalidTriangle {
     #[error("expected three sides")]
     SideCount,
     #[error(transparent)]
@@ -12,7 +12,7 @@ pub enum InvalidTriangle {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Triangle(pub [u32; 3]);
+pub(super) struct Triangle(pub(super) [u32; 3]);
 
 impl FromStr for Triangle {
     type Err = InvalidTriangle;
@@ -31,7 +31,7 @@ impl Triangle {
     /// Whether the two shorter sides together beat the longest.
     ///
     /// Two shorter sides whose sum passes [`u32`] beat any longest side.
-    pub fn is_valid(&self) -> bool {
+    pub(super) fn is_valid(&self) -> bool {
         let mut sides = self.0;
         sides.sort_unstable();
         let [shortest, middle, longest] = sides;

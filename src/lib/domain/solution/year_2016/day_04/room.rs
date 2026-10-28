@@ -4,7 +4,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidRoom {
+pub(super) enum InvalidRoom {
     #[error("expected a checksum in brackets")]
     MissingChecksum,
     #[error("expected a sector id after the name")]
@@ -23,10 +23,10 @@ const ALPHABET: &[u8; 26] = b"abcdefghijklmnopqrstuvwxyz";
 const CHECKSUM_LEN: usize = 5;
 
 #[derive(Debug, Clone)]
-pub struct Room {
+pub(super) struct Room {
     /// Only `a-z` and dashes, checked when parsed.
     encrypted_name: String,
-    pub id: u32,
+    pub(super) id: u32,
     checksum: String,
 }
 
@@ -54,7 +54,7 @@ impl FromStr for Room {
 
 impl Room {
     /// Whether the checksum is the five commonest letters, ties by letter.
-    pub fn is_real(&self) -> bool {
+    pub(super) fn is_real(&self) -> bool {
         let mut letters: Vec<(usize, u8)> = ALPHABET
             .iter()
             .map(|letter| {
@@ -74,7 +74,7 @@ impl Room {
     /// The name with each letter rotated forward by the sector id.
     ///
     /// Dashes become spaces, as the puzzle describes.
-    pub fn decrypted_name(&self) -> String {
+    pub(super) fn decrypted_name(&self) -> String {
         let shift = self.id % 26;
         self.encrypted_name
             .bytes()

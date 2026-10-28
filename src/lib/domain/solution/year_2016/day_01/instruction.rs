@@ -9,7 +9,7 @@ use crate::domain::solution::common::turn::{InvalidTurn, Turn};
 
 /// The ways a single instruction can fail to parse.
 #[derive(Debug, Error)]
-pub enum InvalidInstruction {
+pub(super) enum InvalidInstruction {
     #[error(transparent)]
     Turn(#[from] InvalidTurn),
     #[error(transparent)]
@@ -27,9 +27,9 @@ pub enum InvalidInstruction {
 /// instead of quietly turning nowhere and walking three.
 #[derive(Debug)]
 pub(super) struct Instruction {
-    pub turn: Turn,
+    pub(super) turn: Turn,
     /// Never negative, checked when parsed.
-    pub distance: i32,
+    pub(super) distance: i32,
 }
 
 impl FromStr for Instruction {

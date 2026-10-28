@@ -6,11 +6,11 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 #[error("expected lowercase words separated by spaces, read {0:?}")]
-pub struct InvalidPassphrase(char);
+pub(super) struct InvalidPassphrase(char);
 
 /// One line of the input: its words, each only `a-z`.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Passphrase(Vec<String>);
+pub(super) struct Passphrase(Vec<String>);
 
 impl FromStr for Passphrase {
     type Err = InvalidPassphrase;
@@ -30,7 +30,7 @@ impl FromStr for Passphrase {
 ///
 /// `HashSet::insert` reports a duplicate, and `all` stops at the first, so a
 /// repeated word ends the line rather than the scan.
-pub fn count_valid<'a, K: Eq + Hash>(
+pub(super) fn count_valid<'a, K: Eq + Hash>(
     passphrases: &'a [Passphrase],
     key: impl Fn(&'a str) -> K,
 ) -> usize {
@@ -44,7 +44,7 @@ pub fn count_valid<'a, K: Eq + Hash>(
 }
 
 /// A word's letters in order, which two anagrams share and nothing else does.
-pub fn sorted_letters(word: &str) -> Vec<u8> {
+pub(super) fn sorted_letters(word: &str) -> Vec<u8> {
     let mut letters = word.as_bytes().to_vec();
     letters.sort_unstable();
     letters

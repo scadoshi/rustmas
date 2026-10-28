@@ -6,7 +6,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     left: Vec<i32>,
     right: Vec<i32>,
 }

@@ -1,4 +1,4 @@
-pub mod wire;
+mod wire;
 
 use anyhow::{Context, anyhow};
 
@@ -7,7 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2019::day_03::wire::Wire;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     first: Wire,
     second: Wire,
 }

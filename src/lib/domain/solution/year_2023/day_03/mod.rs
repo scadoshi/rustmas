@@ -1,4 +1,4 @@
-pub mod schematic;
+mod schematic;
 
 use anyhow::Context;
 
@@ -7,7 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_03::schematic::Schematic;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     schematic: Schematic,
 }
 

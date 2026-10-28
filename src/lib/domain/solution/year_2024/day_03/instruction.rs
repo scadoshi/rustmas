@@ -2,7 +2,7 @@ use std::iter;
 
 /// The instructions that survive the corruption.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Instruction {
+pub(super) enum Instruction {
     Mul(u64, u64),
     Do,
     Dont,
@@ -27,7 +27,7 @@ fn mul(text: &str) -> Option<(Instruction, &str)> {
 }
 
 /// Every instruction in `memory`, in order, skipping the garbage between.
-pub fn instructions(memory: &str) -> impl Iterator<Item = Instruction> + '_ {
+pub(super) fn instructions(memory: &str) -> impl Iterator<Item = Instruction> + '_ {
     let mut rest = memory;
     iter::from_fn(move || {
         while !rest.is_empty() {

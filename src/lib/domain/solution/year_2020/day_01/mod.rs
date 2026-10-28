@@ -50,7 +50,7 @@ fn three_sum(nums: &[i32], target: i32) -> Option<(i32, i32, i32)> {
 }
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     nums: Vec<i32>,
 }
 

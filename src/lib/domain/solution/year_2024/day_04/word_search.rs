@@ -18,7 +18,7 @@ const DIRECTIONS: [(isize, isize); 8] = [
 
 /// The grid of letters the words hide in.
 #[derive(Debug)]
-pub struct WordSearch(Rectangle<char>);
+pub(super) struct WordSearch(Rectangle<char>);
 
 impl FromStr for WordSearch {
     type Err = InvalidRectangle;
@@ -37,20 +37,20 @@ impl FromStr for WordSearch {
 
 impl WordSearch {
     /// The letter `steps` cells from `cell` along `(dc, dr)`, if on the grid.
-    pub fn letter(&self, cell: Cell, (dc, dr): (isize, isize), steps: usize) -> Option<char> {
+    fn letter(&self, cell: Cell, (dc, dr): (isize, isize), steps: usize) -> Option<char> {
         let steps = isize::try_from(steps).ok()?;
         let column = cell.column().checked_add_signed(dc.checked_mul(steps)?)?;
         let row = cell.row().checked_add_signed(dr.checked_mul(steps)?)?;
         self.0.at(&Cell::new(column, row)).copied()
     }
 
-    pub fn cells(&self) -> impl Iterator<Item = Cell> + '_ {
+    pub(super) fn cells(&self) -> impl Iterator<Item = Cell> + '_ {
         (0..self.0.height())
             .flat_map(move |row| (0..self.0.width()).map(move |column| Cell::new(column, row)))
     }
 
     /// How many times XMAS reads outward from `cell`, in any direction.
-    pub fn xmas_from(&self, cell: Cell) -> usize {
+    pub(super) fn xmas_from(&self, cell: Cell) -> usize {
         DIRECTIONS
             .iter()
             .filter(|&&dir| {
@@ -63,7 +63,7 @@ impl WordSearch {
     }
 
     /// Whether `cell` is the A of two crossing MAS, either way round.
-    pub fn x_mas_at(&self, cell: Cell) -> bool {
+    pub(super) fn x_mas_at(&self, cell: Cell) -> bool {
         self.letter(cell, (0, 0), 0) == Some('A')
             && [((-1, -1), (1, 1)), ((1, -1), (-1, 1))]
                 .iter()

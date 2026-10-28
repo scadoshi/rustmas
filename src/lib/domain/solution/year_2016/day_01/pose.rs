@@ -7,15 +7,15 @@ use crate::domain::solution::common::turn::Turn;
 /// A [`Point`] alone will not do, since `R2` turns relative to wherever the
 /// last instruction left you pointing.
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Pose {
-    pub heading: Direction,
-    pub position: Point,
+pub(super) struct Pose {
+    heading: Direction,
+    pub(super) position: Point,
 }
 
 impl Pose {
     /// Walks `distance` along the current heading, clamping at the [`i32`] edges.
     #[must_use]
-    pub fn saturating_moved(self, distance: i32) -> Self {
+    pub(super) fn saturating_moved(self, distance: i32) -> Self {
         Self {
             heading: self.heading,
             position: self.position.saturating_moved(self.heading, distance),
@@ -24,7 +24,7 @@ impl Pose {
 
     /// Turns without moving.
     #[must_use]
-    pub fn turned(self, turn: Turn) -> Self {
+    pub(super) fn turned(self, turn: Turn) -> Self {
         Self {
             heading: self.heading.turned(turn),
             position: self.position,

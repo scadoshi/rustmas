@@ -40,7 +40,7 @@ impl Step {
 }
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     steps: Vec<Step>,
 }
 

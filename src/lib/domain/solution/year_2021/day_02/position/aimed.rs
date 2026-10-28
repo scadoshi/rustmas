@@ -4,9 +4,9 @@ use crate::domain::solution::year_2021::day_02::position::Position;
 
 /// A position plus the aim that steers how deep each forward move goes.
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Aimed {
-    pub aim: i64,
-    pub position: Position,
+pub(in super::super) struct Aimed {
+    pub(in super::super) aim: i64,
+    pub(in super::super) position: Position,
 }
 
 impl Aimed {
@@ -14,7 +14,7 @@ impl Aimed {
     /// forward dives by the distance times the aim. `None` if a value leaves
     /// [`i64`].
     #[must_use]
-    pub fn checked_moved(self, instruction: Instruction) -> Option<Self> {
+    pub(in super::super) fn checked_moved(self, instruction: Instruction) -> Option<Self> {
         let distance = i64::from(instruction.distance);
         Some(match instruction.direction {
             Direction::Forward => Self {

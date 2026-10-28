@@ -1,4 +1,4 @@
-pub mod record;
+mod record;
 
 use std::collections::HashMap;
 
@@ -13,7 +13,7 @@ use crate::domain::solution::year_2018::day_04::record::{Event, Record};
 const MINUTES: usize = 60;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     records: Vec<Record>,
 }
 

@@ -4,7 +4,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidRecord {
+pub(super) enum InvalidRecord {
     #[error("expected a timestamp in brackets")]
     MissingTimestamp,
     #[error("expected a minute in the timestamp")]
@@ -16,7 +16,7 @@ pub enum InvalidRecord {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Event {
+pub(super) enum Event {
     BeginsShift(u32),
     FallsAsleep,
     WakesUp,
@@ -27,10 +27,10 @@ pub enum Event {
 /// The timestamp stays as text because it is only ever sorted, and the format
 /// puts the fields largest first, so ordering the strings orders the events.
 #[derive(Debug, Clone)]
-pub struct Record {
-    pub timestamp: String,
-    pub minute: usize,
-    pub event: Event,
+pub(super) struct Record {
+    pub(super) timestamp: String,
+    pub(super) minute: usize,
+    pub(super) event: Event,
 }
 
 impl FromStr for Record {

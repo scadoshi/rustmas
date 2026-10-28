@@ -1,4 +1,4 @@
-pub mod hashing;
+mod hashing;
 
 use anyhow::anyhow;
 
@@ -12,7 +12,7 @@ fn lowest(secret: &str, zeros: usize) -> anyhow::Result<usize> {
 }
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     /// The secret key, checked when parsed to be one non-empty run of ASCII
     /// letters and digits.
     secret: String,

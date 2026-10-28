@@ -1,4 +1,4 @@
-pub mod claim;
+mod claim;
 
 use std::collections::HashMap;
 
@@ -11,7 +11,7 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2018::day_03::claim::Claim;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     claims: Vec<Claim>,
 }
 

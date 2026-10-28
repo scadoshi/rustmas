@@ -1,4 +1,4 @@
-pub mod instruction;
+mod instruction;
 
 use anyhow::Context;
 
@@ -7,7 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2024::day_03::instruction::Instruction;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     memory: String,
 }
 

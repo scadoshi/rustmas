@@ -6,10 +6,10 @@ use crate::domain::solution::common::direction::Direction as PointDirection;
 
 #[derive(Debug, Error)]
 #[error("expected forward, down or up")]
-pub struct InvalidDirection;
+pub(super) struct InvalidDirection;
 
 #[derive(Debug, Clone, Copy)]
-pub enum Direction {
+pub(super) enum Direction {
     Forward,
     Down,
     Up,

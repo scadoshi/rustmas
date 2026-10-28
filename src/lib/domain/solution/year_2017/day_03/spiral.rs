@@ -8,7 +8,7 @@ use crate::domain::solution::common::point::Point;
 ///
 /// Runs go right, up, left, down, and every second turn lengthens the run by
 /// one, which is what makes the path spiral outward rather than circle.
-pub fn spiral() -> impl Iterator<Item = Point> {
+pub(super) fn spiral() -> impl Iterator<Item = Point> {
     let mut point = Point::default();
     let mut direction = Direction::Right;
     let mut run: u32 = 1;
@@ -31,7 +31,7 @@ pub fn spiral() -> impl Iterator<Item = Point> {
 
 /// The eight squares touching `point`, corners included, skipping any off
 /// the [`i32`] grid.
-pub fn neighbors(point: Point) -> impl Iterator<Item = Point> {
+pub(super) fn neighbors(point: Point) -> impl Iterator<Item = Point> {
     (-1..=1).flat_map(move |dx| {
         (-1..=1)
             .filter(move |dy| dx != 0 || *dy != 0)

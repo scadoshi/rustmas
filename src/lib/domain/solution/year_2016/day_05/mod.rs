@@ -1,10 +1,10 @@
-pub mod hashing;
+mod hashing;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     door: String,
 }
 

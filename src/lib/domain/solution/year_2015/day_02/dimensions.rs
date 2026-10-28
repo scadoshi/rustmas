@@ -4,7 +4,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidDimensions {
+pub(super) enum InvalidDimensions {
     #[error("expected three sizes separated by `x`, like `2x3x4`")]
     WrongCount,
     #[error(transparent)]
@@ -12,14 +12,14 @@ pub enum InvalidDimensions {
 }
 
 #[derive(Debug)]
-pub struct Dimensions {
+pub(super) struct Dimensions {
     length: u32,
     width: u32,
     height: u32,
 }
 
 impl Dimensions {
-    pub fn new(length: u32, width: u32, height: u32) -> Self {
+    fn new(length: u32, width: u32, height: u32) -> Self {
         Self {
             length,
             width,
@@ -29,7 +29,7 @@ impl Dimensions {
 
     /// Twice every side's area plus the smallest side's, or `None` past
     /// [`u32::MAX`].
-    pub fn wrapping_paper_required(&self) -> Option<u32> {
+    pub(super) fn wrapping_paper_required(&self) -> Option<u32> {
         let base = self.length.checked_mul(self.width)?;
         let front = self.width.checked_mul(self.height)?;
         let side = self.length.checked_mul(self.height)?;
@@ -41,14 +41,14 @@ impl Dimensions {
     }
 
     /// Length times width times height, or `None` past [`u32::MAX`].
-    pub fn volume(&self) -> Option<u32> {
+    fn volume(&self) -> Option<u32> {
         self.length
             .checked_mul(self.width)?
             .checked_mul(self.height)
     }
 
     /// The smallest perimeter plus the volume, or `None` past [`u32::MAX`].
-    pub fn ribbon_required(&self) -> Option<u32> {
+    pub(super) fn ribbon_required(&self) -> Option<u32> {
         let mut sizes = [self.length, self.width, self.height];
         sizes.sort_unstable();
         let [shortest, middle, _] = sizes;
@@ -70,11 +70,7 @@ impl FromStr for Dimensions {
         else {
             return Err(InvalidDimensions::WrongCount);
         };
-        Ok(Self {
-            length: length.parse()?,
-            width: width.parse()?,
-            height: height.parse()?,
-        })
+        Ok(Self::new(length.parse()?, width.parse()?, height.parse()?))
     }
 }
 

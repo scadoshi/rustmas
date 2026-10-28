@@ -10,7 +10,7 @@ use crate::domain::solution::common::grid::{FixedWidth, Grid};
 const SLOPES: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     map: Rectangle<char>,
 }
 

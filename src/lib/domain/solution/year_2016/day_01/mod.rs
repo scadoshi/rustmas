@@ -1,5 +1,5 @@
-pub mod instruction;
-pub mod pose;
+mod instruction;
+mod pose;
 
 use std::collections::HashSet;
 
@@ -10,7 +10,7 @@ use crate::domain::solution::year_2016::day_01::instruction::Instructions;
 use crate::domain::solution::year_2016::day_01::pose::Pose;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     /// Parsed here so a bad input fails before either part runs.
     instructions: Instructions,
 }

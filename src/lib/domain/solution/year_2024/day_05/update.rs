@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 /// The pages of one update, in the order given.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Update(Vec<u32>);
+pub(super) struct Update(Vec<u32>);
 
 impl FromStr for Update {
     type Err = ParseIntError;
@@ -17,16 +17,16 @@ impl FromStr for Update {
 }
 
 impl Update {
-    pub fn new(pages: Vec<u32>) -> Self {
+    pub(super) fn new(pages: Vec<u32>) -> Self {
         Self(pages)
     }
 
-    pub fn pages(&self) -> &[u32] {
+    pub(super) fn pages(&self) -> &[u32] {
         &self.0
     }
 
     /// The page halfway along, or `None` for an update with no pages.
-    pub fn middle(&self) -> Option<u32> {
+    pub(super) fn middle(&self) -> Option<u32> {
         self.0.get(self.0.len() / 2).copied()
     }
 }

@@ -3,14 +3,14 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Clone, Copy)]
-pub struct Policy {
-    pub lo: usize,
-    pub hi: usize,
-    pub letter: char,
+struct Policy {
+    lo: usize,
+    hi: usize,
+    letter: char,
 }
 
 #[derive(Debug, Error)]
-pub enum InvalidPolicy {
+pub(super) enum InvalidPolicy {
     #[error("expected a range and a letter separated by whitespace")]
     TooFewParts,
     #[error("expected a range like `1-3`")]
@@ -46,7 +46,7 @@ impl FromStr for Policy {
 }
 
 #[derive(Debug, Error)]
-pub enum InvalidPassword {
+pub(super) enum InvalidPassword {
     #[error("expected a colon between the policy and the password")]
     MissingColon,
     #[error(transparent)]
@@ -54,7 +54,7 @@ pub enum InvalidPassword {
 }
 
 #[derive(Debug, Clone)]
-pub struct Password {
+pub(super) struct Password {
     policy: Policy,
     value: String,
 }
@@ -70,7 +70,7 @@ impl FromStr for Password {
 }
 
 impl Password {
-    pub fn valid_count(&self) -> bool {
+    pub(super) fn valid_count(&self) -> bool {
         let count = self
             .value
             .chars()
@@ -81,7 +81,7 @@ impl Password {
 
     /// Whether exactly one of the two positions, counted from 1, holds the
     /// letter. Position 0 holds nothing.
-    pub fn valid_position(&self) -> bool {
+    pub(super) fn valid_position(&self) -> bool {
         let at = |position: usize| {
             position
                 .checked_sub(1)

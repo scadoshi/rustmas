@@ -1,6 +1,6 @@
-pub mod direction;
-pub mod instruction;
-pub mod position;
+mod direction;
+mod instruction;
+mod position;
 
 use anyhow::Context;
 
@@ -12,7 +12,7 @@ use crate::domain::solution::year_2021::day_02::position::Position;
 use crate::domain::solution::year_2021::day_02::position::aimed::Aimed;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     instructions: Vec<Instruction>,
 }
 

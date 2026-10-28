@@ -7,7 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     masses: Vec<u32>,
 }
 

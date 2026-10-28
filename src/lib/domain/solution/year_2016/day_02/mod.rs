@@ -6,7 +6,7 @@ use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::rectangle::Rectangle;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     /// The moves toward each button of the code, one list per button.
     moves: Vec<Vec<Direction>>,
 }

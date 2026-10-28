@@ -1,2 +1,2 @@
-pub mod day_01;
-pub mod day_03;
+pub(crate) mod day_01;
+pub(crate) mod day_03;

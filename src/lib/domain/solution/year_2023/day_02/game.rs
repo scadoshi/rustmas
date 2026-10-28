@@ -4,7 +4,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidGame {
+pub(super) enum InvalidGame {
     #[error("expected `Game <id>: <handfuls>`")]
     MissingColon,
     #[error("expected `Game` followed by an id")]
@@ -19,10 +19,10 @@ pub enum InvalidGame {
 
 /// One handful drawn from the bag: how many cubes of each color showed.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub struct Handful {
-    pub red: u32,
-    pub green: u32,
-    pub blue: u32,
+pub(super) struct Handful {
+    pub(super) red: u32,
+    pub(super) green: u32,
+    pub(super) blue: u32,
 }
 
 impl FromStr for Handful {
@@ -51,13 +51,13 @@ impl FromStr for Handful {
 
 impl Handful {
     /// Whether this handful could have come out of `bag`.
-    pub fn fits_in(self, bag: Self) -> bool {
+    pub(super) fn fits_in(self, bag: Self) -> bool {
         self.red <= bag.red && self.green <= bag.green && self.blue <= bag.blue
     }
 
     /// The most of each color seen across `self` and `other`.
     #[must_use]
-    pub fn max(self, other: Self) -> Self {
+    fn max(self, other: Self) -> Self {
         Self {
             red: self.red.max(other.red),
             green: self.green.max(other.green),
@@ -67,15 +67,15 @@ impl Handful {
 
     /// The puzzle's "power": the counts multiplied together.
     /// Red times green times blue, or `None` past [`u32::MAX`].
-    pub fn power(self) -> Option<u32> {
+    pub(super) fn power(self) -> Option<u32> {
         self.red.checked_mul(self.green)?.checked_mul(self.blue)
     }
 }
 
 #[derive(Debug)]
-pub struct Game {
-    pub id: u32,
-    pub handfuls: Vec<Handful>,
+pub(super) struct Game {
+    pub(super) id: u32,
+    pub(super) handfuls: Vec<Handful>,
 }
 
 impl FromStr for Game {
@@ -104,7 +104,7 @@ impl FromStr for Game {
 
 impl Game {
     /// The smallest bag every handful in this game fits in.
-    pub fn smallest_bag(&self) -> Handful {
+    pub(super) fn smallest_bag(&self) -> Handful {
         self.handfuls
             .iter()
             .copied()

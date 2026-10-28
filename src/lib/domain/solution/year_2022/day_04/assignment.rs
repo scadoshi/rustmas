@@ -4,7 +4,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidAssignment {
+pub(super) enum InvalidAssignment {
     #[error("expected a range like `2-4`")]
     MissingDash,
     #[error("expected the range to run upward")]
@@ -17,7 +17,7 @@ pub enum InvalidAssignment {
 
 /// The sections one elf is assigned, both ends included.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Assignment {
+pub(super) struct Assignment {
     start: u32,
     end: u32,
 }
@@ -41,19 +41,19 @@ impl FromStr for Assignment {
 
 impl Assignment {
     /// Whether every section of `other` is also in this one.
-    pub fn contains(self, other: Self) -> bool {
+    fn contains(self, other: Self) -> bool {
         self.start <= other.start && other.end <= self.end
     }
 
     /// Whether the two share at least one section.
-    pub fn overlaps(self, other: Self) -> bool {
+    fn overlaps(self, other: Self) -> bool {
         self.start <= other.end && other.start <= self.end
     }
 }
 
 /// Two elves' assignments, as one line of the input.
 #[derive(Debug, Clone, Copy)]
-pub struct Pair(pub Assignment, pub Assignment);
+pub(super) struct Pair(Assignment, Assignment);
 
 impl FromStr for Pair {
     type Err = InvalidAssignment;
@@ -70,11 +70,11 @@ impl FromStr for Pair {
 
 impl Pair {
     /// Whether one elf's assignment is entirely inside the other's.
-    pub fn one_contains_the_other(self) -> bool {
+    pub(super) fn one_contains_the_other(self) -> bool {
         self.0.contains(self.1) || self.1.contains(self.0)
     }
 
-    pub fn overlap(self) -> bool {
+    pub(super) fn overlap(self) -> bool {
         self.0.overlaps(self.1)
     }
 }

@@ -1,4 +1,4 @@
-pub mod game;
+mod game;
 
 use anyhow::anyhow;
 
@@ -15,7 +15,7 @@ const BAG: Handful = Handful {
 };
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     games: Vec<Game>,
 }
 

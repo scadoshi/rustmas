@@ -6,7 +6,7 @@ use std::fmt::Write;
 /// digit is that byte's low nibble and the seventh is the next byte's high one.
 /// Working on the digest keeps this off the allocator, which matters across the
 /// millions of hashes a door takes.
-pub fn interesting_digests(door: &str) -> impl Iterator<Item = (u8, u8)> + '_ {
+pub(super) fn interesting_digests(door: &str) -> impl Iterator<Item = (u8, u8)> + '_ {
     let mut candidate = door.to_owned();
     (0u64..).filter_map(move |suffix| {
         candidate.truncate(door.len());

@@ -1,4 +1,4 @@
-pub mod aimed;
+pub(super) mod aimed;
 
 use crate::domain::solution::year_2021::day_02::direction::Direction;
 use crate::domain::solution::year_2021::day_02::instruction::Instruction;
@@ -7,16 +7,16 @@ use crate::domain::solution::year_2021::day_02::instruction::Instruction;
 ///
 /// Kept in [`i64`] so a product of two [`i32`]-sized moves still fits.
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Position {
-    pub horizontal: i64,
-    pub depth: i64,
+pub(super) struct Position {
+    horizontal: i64,
+    depth: i64,
 }
 
 impl Position {
     /// Follows `instruction` the first way: up and down change depth directly.
     /// `None` if a coordinate leaves [`i64`].
     #[must_use]
-    pub fn checked_moved(self, instruction: Instruction) -> Option<Self> {
+    pub(super) fn checked_moved(self, instruction: Instruction) -> Option<Self> {
         let distance = i64::from(instruction.distance);
         Some(match instruction.direction {
             Direction::Forward => Self {
@@ -36,7 +36,7 @@ impl Position {
 
     /// Horizontal position times depth, or `None` if that leaves [`i64`].
     #[must_use]
-    pub fn value(&self) -> Option<i64> {
+    pub(super) fn value(&self) -> Option<i64> {
         self.horizontal.checked_mul(self.depth)
     }
 }

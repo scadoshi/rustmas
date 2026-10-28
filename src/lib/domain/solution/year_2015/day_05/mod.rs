@@ -1,4 +1,4 @@
-pub mod nice;
+mod nice;
 
 use anyhow::anyhow;
 
@@ -6,7 +6,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     /// The non-blank lines, each checked when parsed to hold only `a-z`.
     lines: Vec<String>,
 }

@@ -6,7 +6,7 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 #[error("expected fields as `key:value` separated by whitespace")]
-pub struct InvalidPassport;
+pub(super) struct InvalidPassport;
 
 /// Every field a passport must carry. `cid` is optional, which is the loophole.
 const REQUIRED: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
@@ -15,7 +15,7 @@ const EYE_COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 
 /// One passport's fields, exactly as written.
 #[derive(Debug)]
-pub struct Passport(HashMap<String, String>);
+pub(super) struct Passport(HashMap<String, String>);
 
 impl FromStr for Passport {
     type Err = InvalidPassport;
@@ -37,12 +37,12 @@ impl FromStr for Passport {
 
 impl Passport {
     /// Whether every required field is present, whatever it holds.
-    pub fn is_complete(&self) -> bool {
+    pub(super) fn is_complete(&self) -> bool {
         REQUIRED.iter().all(|key| self.0.contains_key(*key))
     }
 
     /// Whether every required field is present and holds a sensible value.
-    pub fn is_valid(&self) -> bool {
+    pub(super) fn is_valid(&self) -> bool {
         REQUIRED.iter().all(|key| {
             self.0
                 .get(*key)

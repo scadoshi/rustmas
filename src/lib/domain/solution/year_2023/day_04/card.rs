@@ -4,7 +4,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidCard {
+pub(super) enum InvalidCard {
     #[error("expected `Card <id>: <winning numbers> | <numbers you have>`")]
     MissingColon,
     #[error("expected `Card` followed by an id")]
@@ -16,7 +16,7 @@ pub enum InvalidCard {
 }
 
 #[derive(Debug)]
-pub struct Card {
+pub(super) struct Card {
     winning: Vec<u32>,
     have: Vec<u32>,
 }
@@ -48,7 +48,7 @@ impl FromStr for Card {
 
 impl Card {
     /// How many of the numbers you have are winning numbers.
-    pub fn matches(&self) -> usize {
+    pub(super) fn matches(&self) -> usize {
         self.have
             .iter()
             .filter(|n| self.winning.contains(n))
@@ -57,7 +57,7 @@ impl Card {
 
     /// One point for the first match, doubling for each after, or `None`
     /// when that passes [`u32::MAX`].
-    pub fn points(&self) -> Option<u32> {
+    pub(super) fn points(&self) -> Option<u32> {
         match self.matches().checked_sub(1) {
             None => Some(0),
             Some(doublings) => u32::try_from(doublings)

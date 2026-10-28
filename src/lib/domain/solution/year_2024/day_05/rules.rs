@@ -8,7 +8,7 @@ use thiserror::Error;
 use crate::domain::solution::year_2024::day_05::update::Update;
 
 #[derive(Debug, Error)]
-pub enum InvalidRule {
+pub(super) enum InvalidRule {
     #[error("expected two pages separated by `|`, like `47|53`")]
     MissingBar,
     #[error(transparent)]
@@ -17,7 +17,7 @@ pub enum InvalidRule {
 
 /// Why an update has no single order the rules agree on.
 #[derive(Debug, Error)]
-pub enum UnorderableUpdate {
+pub(super) enum UnorderableUpdate {
     /// Two different pages in the update have no rule between them.
     #[error("no rule orders pages {0} and {1}")]
     Unrelated(u32, u32),
@@ -28,7 +28,7 @@ pub enum UnorderableUpdate {
 
 /// `before` must be printed somewhere ahead of `after`, if both appear.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Rule {
+pub(super) struct Rule {
     before: u32,
     after: u32,
 }
@@ -49,7 +49,7 @@ impl FromStr for Rule {
 
 /// Every rule as a pair, so "is `a` before `b`" is one lookup.
 #[derive(Debug, Clone)]
-pub struct Rules(HashSet<(u32, u32)>);
+pub(super) struct Rules(HashSet<(u32, u32)>);
 
 impl FromIterator<Rule> for Rules {
     fn from_iter<I: IntoIterator<Item = Rule>>(rules: I) -> Self {
@@ -70,7 +70,7 @@ impl Rules {
     }
 
     /// Whether no pair of pages in `update` is the wrong way round.
-    pub fn is_ordered(&self, update: &Update) -> bool {
+    pub(super) fn is_ordered(&self, update: &Update) -> bool {
         let mut rest = update.pages();
         while let Some((&a, tail)) = rest.split_first() {
             if tail.iter().any(|&b| self.order(a, b) == Ordering::Greater) {
@@ -91,7 +91,7 @@ impl Rules {
     /// [`UnorderableUpdate::Unrelated`] when no rule orders two different
     /// pages, and [`UnorderableUpdate::Cycle`] when the rules contradict
     /// each other.
-    pub fn reordered(&self, update: &Update) -> Result<Update, UnorderableUpdate> {
+    pub(super) fn reordered(&self, update: &Update) -> Result<Update, UnorderableUpdate> {
         let pages = update.pages();
         let mut rest = pages;
         while let Some((&a, tail)) = rest.split_first() {

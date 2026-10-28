@@ -4,10 +4,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 #[error("expected a play, `a` to `c` or `x` to `z`")]
-pub struct InvalidPlay;
+pub(super) struct InvalidPlay;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Play {
+pub(super) enum Play {
     Rock,
     Paper,
     Scissors,
@@ -30,7 +30,7 @@ impl Play {
     #[cfg(test)]
     const ALL: [Self; 3] = [Self::Rock, Self::Paper, Self::Scissors];
 
-    pub fn value(self) -> u32 {
+    fn value(self) -> u32 {
         match self {
             Self::Rock => 1,
             Self::Paper => 2,
@@ -39,7 +39,7 @@ impl Play {
     }
 
     /// How this play fares against `other`.
-    pub fn against(self, other: Play) -> GameResult {
+    fn against(self, other: Play) -> GameResult {
         match (self, other) {
             (Self::Rock, Self::Paper)
             | (Self::Paper, Self::Scissors)
@@ -56,10 +56,10 @@ impl Play {
 
 #[derive(Debug, Error)]
 #[error("expected a result, `x`, `y` or `z`")]
-pub struct InvalidGameResult;
+pub(super) struct InvalidGameResult;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum GameResult {
+enum GameResult {
     Loss,
     Draw,
     Win,
@@ -78,7 +78,7 @@ impl TryFrom<char> for GameResult {
 }
 
 impl GameResult {
-    pub fn value(self) -> u32 {
+    fn value(self) -> u32 {
         match self {
             Self::Loss => 0,
             Self::Draw => 3,
@@ -90,7 +90,7 @@ impl GameResult {
     ///
     /// A test checks this against [`Play::against`] for every pairing, so the
     /// two directions cannot disagree.
-    pub fn against(self, other: Play) -> Play {
+    fn against(self, other: Play) -> Play {
         match (self, other) {
             (Self::Draw, play) => play,
             (Self::Win, Play::Rock) | (Self::Loss, Play::Scissors) => Play::Paper,
@@ -101,7 +101,7 @@ impl GameResult {
 }
 
 #[derive(Debug, Error)]
-pub enum InvalidGame {
+pub(super) enum InvalidGame {
     #[error("expected two columns separated by whitespace")]
     MissingSeparator,
     #[error("expected one character in the first column")]
@@ -117,7 +117,7 @@ pub enum InvalidGame {
 /// The first column is always the opponent's play. The second is a letter whose
 /// meaning changes between the parts, so it stays a `char` until asked for.
 #[derive(Debug, Clone, Copy)]
-pub struct RawGame {
+pub(super) struct RawGame {
     opponent: Play,
     other: char,
 }
@@ -149,7 +149,7 @@ impl RawGame {
     /// # Errors
     ///
     /// [`InvalidPlay`] if the second column is not `X`, `Y` or `Z`.
-    pub fn to_game_by_play(self) -> Result<Game, InvalidPlay> {
+    pub(super) fn to_game_by_play(self) -> Result<Game, InvalidPlay> {
         let player = Play::try_from(self.other)?;
         Ok(Game {
             player,
@@ -162,7 +162,7 @@ impl RawGame {
     /// # Errors
     ///
     /// [`InvalidGameResult`] if the second column is not `X`, `Y` or `Z`.
-    pub fn to_game_by_result(self) -> Result<Game, InvalidGameResult> {
+    pub(super) fn to_game_by_result(self) -> Result<Game, InvalidGameResult> {
         let result = GameResult::try_from(self.other)?;
         Ok(Game {
             player: result.against(self.opponent),
@@ -172,13 +172,13 @@ impl RawGame {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Game {
+pub(super) struct Game {
     player: Play,
     result: GameResult,
 }
 
 impl Game {
-    pub fn player_score(self) -> u32 {
+    pub(super) fn player_score(self) -> u32 {
         self.player.value().saturating_add(self.result.value())
     }
 }

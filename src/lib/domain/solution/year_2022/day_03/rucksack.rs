@@ -3,7 +3,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum InvalidRucksack {
+pub(super) enum InvalidRucksack {
     #[error("expected only letters, read {0:?}")]
     NotAnItem(char),
     #[error("expected an even number of items, so the compartments match")]
@@ -12,13 +12,13 @@ pub enum InvalidRucksack {
 
 #[derive(Debug, Error)]
 #[error("expected exactly one item in common")]
-pub struct NoSingleCommonItem;
+pub(super) struct NoSingleCommonItem;
 
 /// Every item type, in priority order.
 const ITEMS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /// An item's priority: `a`-`z` are 1-26, `A`-`Z` are 27-52.
-pub fn priority(item: char) -> Option<u32> {
+fn priority(item: char) -> Option<u32> {
     ITEMS
         .chars()
         .zip(1..)
@@ -29,7 +29,7 @@ pub fn priority(item: char) -> Option<u32> {
 ///
 /// Bit 0 stays clear. 52 item types fit a `u64`, and "in common" becomes `&`.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub struct Items(u64);
+pub(super) struct Items(u64);
 
 impl FromStr for Items {
     type Err = InvalidRucksack;
@@ -49,7 +49,7 @@ impl Items {
 
     /// The items both sets hold.
     #[must_use]
-    pub fn common(self, other: Self) -> Self {
+    pub(super) fn common(self, other: Self) -> Self {
         Self(self.0 & other.0)
     }
 
@@ -58,7 +58,7 @@ impl Items {
     /// # Errors
     ///
     /// [`NoSingleCommonItem`] if there are no items or more than one.
-    pub fn single_priority(self) -> Result<u32, NoSingleCommonItem> {
+    pub(super) fn single_priority(self) -> Result<u32, NoSingleCommonItem> {
         match self.0.count_ones() {
             1 => Ok(self.0.trailing_zeros()),
             _ => Err(NoSingleCommonItem),
@@ -68,9 +68,9 @@ impl Items {
 
 /// One elf's rucksack, split into its two equal compartments.
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Rucksack {
-    pub left: Items,
-    pub right: Items,
+pub(super) struct Rucksack {
+    pub(super) left: Items,
+    pub(super) right: Items,
 }
 
 impl FromStr for Rucksack {
@@ -101,7 +101,7 @@ impl FromStr for Rucksack {
 
 impl Rucksack {
     /// Everything in either compartment.
-    pub fn all(self) -> Items {
+    pub(super) fn all(self) -> Items {
         Items(self.left.0 | self.right.0)
     }
 }

@@ -1,4 +1,4 @@
-pub mod room;
+mod room;
 
 use anyhow::Context;
 
@@ -8,7 +8,7 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2016::day_04::room::Room;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     rooms: Vec<Room>,
 }
 

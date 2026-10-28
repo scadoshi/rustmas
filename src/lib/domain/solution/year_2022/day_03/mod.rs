@@ -1,4 +1,4 @@
-pub mod rucksack;
+mod rucksack;
 
 use anyhow::anyhow;
 
@@ -11,7 +11,7 @@ use crate::domain::solution::year_2022::day_03::rucksack::{Items, Rucksack};
 const GROUP: usize = 3;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     rucksacks: Vec<Rucksack>,
 }
 

@@ -6,7 +6,7 @@ use thiserror::Error;
 use crate::domain::solution::year_2021::day_02::direction::{Direction, InvalidDirection};
 
 #[derive(Debug, Error)]
-pub enum InvalidInstruction {
+pub(super) enum InvalidInstruction {
     #[error("expected a direction and a distance separated by whitespace")]
     TooFewParts,
     #[error("expected nothing after the distance")]
@@ -18,9 +18,9 @@ pub enum InvalidInstruction {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Instruction {
-    pub direction: Direction,
-    pub distance: i32,
+pub(super) struct Instruction {
+    pub(super) direction: Direction,
+    pub(super) distance: i32,
 }
 
 impl FromStr for Instruction {

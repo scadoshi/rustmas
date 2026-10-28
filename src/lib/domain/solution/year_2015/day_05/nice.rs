@@ -1,8 +1,8 @@
 /// Pairs that disqualify a line under the first rules.
-pub const NAUGHTY: [&[u8]; 4] = [b"ab", b"cd", b"pq", b"xy"];
+const NAUGHTY: [&[u8]; 4] = [b"ab", b"cd", b"pq", b"xy"];
 
 /// Three vowels, a doubled letter, and none of [`NAUGHTY`].
-pub fn is_nice(line: &[u8]) -> bool {
+pub(super) fn is_nice(line: &[u8]) -> bool {
     let vowels = line.iter().filter(|b| b"aeiou".contains(b)).count();
     let doubled = line.windows(2).any(|w| matches!(w, [a, b] if a == b));
     let clean = !line.windows(2).any(|w| NAUGHTY.contains(&w));
@@ -13,7 +13,7 @@ pub fn is_nice(line: &[u8]) -> bool {
 ///
 /// Searching only past the pair is what keeps the two pairs from overlapping,
 /// so `aaa` holds one pair rather than two.
-pub fn is_nicer(line: &[u8]) -> bool {
+pub(super) fn is_nicer(line: &[u8]) -> bool {
     let sandwiched = line.windows(3).any(|w| matches!(w, [a, _, c] if a == c));
     has_repeated_pair(line) && sandwiched
 }

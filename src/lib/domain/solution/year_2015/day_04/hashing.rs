@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
 /// How many leading hex digits of `digest` are zero.
-pub fn leading_zeros(digest: &[u8; 16]) -> usize {
+fn leading_zeros(digest: &[u8; 16]) -> usize {
     digest
         .iter()
         .flat_map(|byte| [byte / 16, byte % 16])
@@ -13,7 +13,7 @@ pub fn leading_zeros(digest: &[u8; 16]) -> usize {
 /// zeros in hex, or `None` if no [`usize`] does.
 ///
 /// Reuses one buffer, since part two tries this several million times.
-pub fn lowest_suffix(secret: &str, zeros: usize) -> Option<usize> {
+pub(super) fn lowest_suffix(secret: &str, zeros: usize) -> Option<usize> {
     let mut candidate = secret.to_owned();
     (0..=usize::MAX).find(|suffix| {
         candidate.truncate(secret.len());

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 /// The spelled-out digits part two accepts. No `zero`, which never appears.
-pub(super) static NUMBER_WORD_MAP: LazyLock<HashMap<&str, u32>> = LazyLock::new(|| {
+static NUMBER_WORD_MAP: LazyLock<HashMap<&str, u32>> = LazyLock::new(|| {
     HashMap::from([
         ("one", 1),
         ("two", 2),

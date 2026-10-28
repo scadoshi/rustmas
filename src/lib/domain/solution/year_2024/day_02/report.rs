@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 /// One reactor report: the levels it read, in order.
 #[derive(Debug, Clone)]
-pub struct Report(Vec<i32>);
+pub(super) struct Report(Vec<i32>);
 
 impl FromStr for Report {
     type Err = ParseIntError;
@@ -32,12 +32,12 @@ fn is_safe(levels: &[i32]) -> bool {
 }
 
 impl Report {
-    pub fn is_safe(&self) -> bool {
+    pub(super) fn is_safe(&self) -> bool {
         is_safe(&self.0)
     }
 
     /// Safe as is, or safe once any single level is removed.
-    pub fn is_safe_dampened(&self) -> bool {
+    pub(super) fn is_safe_dampened(&self) -> bool {
         self.is_safe()
             || (0..self.0.len()).any(|skip| {
                 let without: Vec<i32> = self

@@ -1,3 +1,3 @@
-pub mod map;
-pub mod mapping;
-pub mod maps;
+pub(super) mod map;
+pub(super) mod mapping;
+pub(super) mod maps;

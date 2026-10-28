@@ -1,4 +1,4 @@
-pub mod spiral;
+mod spiral;
 
 use std::collections::HashMap;
 
@@ -9,7 +9,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::point::Point;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     target: usize,
 }
 

@@ -6,7 +6,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     /// Each only `a-z` and all the same length, checked when parsed.
     box_ids: Vec<String>,
 }

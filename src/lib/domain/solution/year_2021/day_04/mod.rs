@@ -1,4 +1,4 @@
-pub mod board;
+mod board;
 
 use anyhow::anyhow;
 
@@ -7,7 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2021::day_04::board::Board;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     draws: Vec<u8>,
     boards: Vec<Board>,
 }

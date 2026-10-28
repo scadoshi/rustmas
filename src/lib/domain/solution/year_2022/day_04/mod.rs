@@ -1,4 +1,4 @@
-pub mod assignment;
+mod assignment;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
@@ -6,7 +6,7 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2022::day_04::assignment::Pair;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     pairs: Vec<Pair>,
 }
 

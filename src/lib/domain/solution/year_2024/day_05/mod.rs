@@ -1,5 +1,5 @@
-pub mod rules;
-pub mod update;
+mod rules;
+mod update;
 
 use anyhow::anyhow;
 
@@ -10,7 +10,7 @@ use crate::domain::solution::year_2024::day_05::rules::{Rule, Rules};
 use crate::domain::solution::year_2024::day_05::update::Update;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     rules: Rules,
     updates: Vec<Update>,
 }

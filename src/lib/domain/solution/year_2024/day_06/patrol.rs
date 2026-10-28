@@ -9,7 +9,7 @@ use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectang
 use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
 #[derive(Debug, Error)]
-pub enum InvalidPatrol {
+pub(super) enum InvalidPatrol {
     #[error(transparent)]
     Shape(#[from] InvalidRectangle),
     #[error("expected a guard, one of `^>v<`")]
@@ -18,7 +18,7 @@ pub enum InvalidPatrol {
 
 /// The lab map and where the guard begins her patrol.
 #[derive(Debug)]
-pub struct Patrol {
+pub(super) struct Patrol {
     map: Rectangle<char>,
     start: Cell,
     facing: Direction,
@@ -49,13 +49,13 @@ impl FromStr for Patrol {
 
 /// Where a walk went and whether it ever came back round on itself.
 #[derive(Debug)]
-pub struct Walk {
-    pub visited: HashSet<Cell>,
-    pub looped: bool,
+pub(super) struct Walk {
+    pub(super) visited: HashSet<Cell>,
+    pub(super) looped: bool,
 }
 
 impl Patrol {
-    pub fn start(&self) -> Cell {
+    pub(super) fn start(&self) -> Cell {
         self.start
     }
 
@@ -64,7 +64,7 @@ impl Patrol {
     ///
     /// `extra` is one more obstacle, so part two can try a placement without
     /// copying the map.
-    pub fn walk(&self, extra: Option<Cell>) -> Walk {
+    pub(super) fn walk(&self, extra: Option<Cell>) -> Walk {
         let blocked = |cell: Cell| Some(cell) == extra || self.map.at(&cell) == Some(&'#');
         let mut seen = HashSet::new();
         let (mut at, mut facing) = (self.start, self.facing);

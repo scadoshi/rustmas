@@ -1,4 +1,4 @@
-pub mod password;
+mod password;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
@@ -6,7 +6,7 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2020::day_02::password::Password;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     passwords: Vec<Password>,
 }
 

@@ -1,4 +1,4 @@
-pub mod dimensions;
+mod dimensions;
 
 use anyhow::anyhow;
 
@@ -8,7 +8,7 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2015::day_02::dimensions::Dimensions;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     presents: Vec<Dimensions>,
 }
 

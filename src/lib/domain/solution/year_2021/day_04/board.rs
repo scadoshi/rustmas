@@ -8,7 +8,7 @@ use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectang
 use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
 #[derive(Debug, Error)]
-pub enum InvalidBoard {
+pub(super) enum InvalidBoard {
     #[error(transparent)]
     Shape(#[from] InvalidRectangle),
     #[error(transparent)]
@@ -20,7 +20,7 @@ pub enum InvalidBoard {
 /// Keeping `Option<u8>` rather than a parallel grid of flags means a row or
 /// column is complete exactly when it holds no numbers.
 #[derive(Debug, Clone)]
-pub struct Board(Rectangle<Option<u8>>);
+pub(super) struct Board(Rectangle<Option<u8>>);
 
 impl FromStr for Board {
     type Err = InvalidBoard;
@@ -42,7 +42,7 @@ impl FromStr for Board {
 
 impl Board {
     /// Crosses `number` off wherever it appears.
-    pub fn mark(&mut self, number: u8) {
+    pub(super) fn mark(&mut self, number: u8) {
         for slot in self.0.iter_rows_mut().flatten() {
             if *slot == Some(number) {
                 *slot = None;
@@ -51,7 +51,7 @@ impl Board {
     }
 
     /// Whether any row or column has been marked through.
-    pub fn has_bingo(&self) -> bool {
+    pub(super) fn has_bingo(&self) -> bool {
         let row_done = self
             .0
             .iter_rows()
@@ -63,7 +63,7 @@ impl Board {
     }
 
     /// The sum of everything not yet marked, or `None` past [`u32::MAX`].
-    pub fn unmarked_sum(&self) -> Option<u32> {
+    pub(super) fn unmarked_sum(&self) -> Option<u32> {
         self.0
             .iter_rows()
             .flatten()

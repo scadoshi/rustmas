@@ -8,7 +8,7 @@ use crate::domain::solution::common::direction::{Direction, InvalidDirection};
 use crate::domain::solution::common::point::Point;
 
 #[derive(Debug, Error)]
-pub enum InvalidWire {
+pub(super) enum InvalidWire {
     #[error("expected a direction letter followed by a distance")]
     EmptyStep,
     /// The wire runs off the [`i32`] grid.
@@ -28,7 +28,7 @@ pub enum InvalidWire {
 /// A wire can cross itself, and the puzzle counts the first visit, so a later
 /// pass over the same point never overwrites the step count.
 #[derive(Debug)]
-pub struct Wire(HashMap<Point, usize>);
+pub(super) struct Wire(HashMap<Point, usize>);
 
 impl FromStr for Wire {
     type Err = InvalidWire;
@@ -58,7 +58,7 @@ impl Wire {
     /// Where this wire meets `other`, with the steps each takes to get there.
     ///
     /// The origin is where both start, so it never counts as a crossing.
-    pub fn crossings<'a>(
+    pub(super) fn crossings<'a>(
         &'a self,
         other: &'a Self,
     ) -> impl Iterator<Item = (Point, usize, usize)> + 'a {

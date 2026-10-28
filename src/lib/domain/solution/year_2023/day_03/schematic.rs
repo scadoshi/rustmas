@@ -8,7 +8,7 @@ use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectang
 
 /// The engine schematic, one character per cell.
 #[derive(Debug, Clone)]
-pub struct Schematic(Rectangle<char>);
+pub(super) struct Schematic(Rectangle<char>);
 
 impl FromStr for Schematic {
     type Err = InvalidRectangle;
@@ -30,24 +30,24 @@ impl FromStr for Schematic {
 #[error(
     "expected every number to fit in a u32, the one reaching row {row} column {column} does not"
 )]
-pub struct NumberTooLarge {
+pub(super) struct NumberTooLarge {
     row: usize,
     column: usize,
 }
 
 /// A run of digits in the schematic, and where it sits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Number {
-    pub value: u32,
-    pub row: usize,
+pub(super) struct Number {
+    pub(super) value: u32,
+    row: usize,
     /// Columns of the first and last digit, inclusive.
-    pub first: usize,
-    pub last: usize,
+    first: usize,
+    last: usize,
 }
 
 impl Number {
     /// Whether `cell` touches this number, corners included.
-    pub fn touches(&self, cell: Cell) -> bool {
+    pub(super) fn touches(&self, cell: Cell) -> bool {
         let column = cell.column();
         let over = (self.first..=self.last).contains(&column);
         let beside = column.abs_diff(self.first) <= 1 || column.abs_diff(self.last) <= 1;
@@ -56,7 +56,7 @@ impl Number {
 }
 
 /// Anything in the schematic that is neither a digit nor empty space.
-pub fn is_symbol(c: char) -> bool {
+pub(super) fn is_symbol(c: char) -> bool {
     !c.is_ascii_digit() && c != '.'
 }
 
@@ -66,7 +66,7 @@ impl Schematic {
     /// # Errors
     ///
     /// [`NumberTooLarge`] if a run of digits passes [`u32`].
-    pub fn numbers(&self) -> Result<Vec<Number>, NumberTooLarge> {
+    pub(super) fn numbers(&self) -> Result<Vec<Number>, NumberTooLarge> {
         let mut numbers = Vec::new();
         for (row, cells) in self.0.iter_rows().enumerate() {
             let mut current: Option<Number> = None;
@@ -97,7 +97,7 @@ impl Schematic {
     }
 
     /// Every cell holding a character that satisfies `wanted`.
-    pub fn symbols(&self, wanted: impl Fn(char) -> bool) -> Vec<Cell> {
+    pub(super) fn symbols(&self, wanted: impl Fn(char) -> bool) -> Vec<Cell> {
         let mut cells = Vec::new();
         for (row, chars) in self.0.iter_rows().enumerate() {
             for (column, &c) in chars.iter().enumerate() {

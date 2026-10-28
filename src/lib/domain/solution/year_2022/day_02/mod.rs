@@ -1,4 +1,4 @@
-pub mod game;
+mod game;
 
 use anyhow::Context;
 
@@ -8,7 +8,7 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2022::day_02::game::RawGame;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     games: Vec<RawGame>,
 }
 

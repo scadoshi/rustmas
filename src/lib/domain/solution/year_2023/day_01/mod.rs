@@ -1,4 +1,4 @@
-pub mod calibration;
+mod calibration;
 
 use anyhow::Context;
 
@@ -7,7 +7,7 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_01::calibration::Calibration;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     /// One line per calibration document entry, trimmed of the trailing blank.
     lines: Vec<String>,
 }

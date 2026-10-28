@@ -6,7 +6,7 @@ use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::point::Point;
 
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     directions: Vec<Direction>,
 }
 

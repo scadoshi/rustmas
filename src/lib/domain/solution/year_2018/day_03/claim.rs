@@ -6,7 +6,7 @@ use thiserror::Error;
 use crate::domain::solution::common::cell::Cell;
 
 #[derive(Debug, Error)]
-pub enum InvalidClaim {
+pub(super) enum InvalidClaim {
     #[error("expected `#id @ left,top: widthxheight`")]
     Malformed,
     /// The claim reaches past the largest [`usize`] index.
@@ -19,8 +19,8 @@ pub enum InvalidClaim {
 /// A rectangle of fabric, whose right and bottom edges fit in a [`usize`],
 /// checked when parsed.
 #[derive(Debug, Clone, Copy)]
-pub struct Claim {
-    pub id: u32,
+pub(super) struct Claim {
+    pub(super) id: u32,
     left: usize,
     top: usize,
     width: usize,
@@ -58,7 +58,7 @@ impl FromStr for Claim {
 
 impl Claim {
     /// Every square inch this claim covers.
-    pub fn cells(self) -> impl Iterator<Item = Cell> {
+    pub(super) fn cells(self) -> impl Iterator<Item = Cell> {
         (self.top..).take(self.height).flat_map(move |row| {
             (self.left..)
                 .take(self.width)

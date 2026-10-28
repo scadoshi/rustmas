@@ -1,6 +1,6 @@
-pub mod almanac;
-pub mod range;
-pub mod seeds;
+mod almanac;
+mod range;
+mod seeds;
 
 use std::str::FromStr;
 
@@ -10,7 +10,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_05::almanac::Almanac;
 #[derive(Debug)]
-pub struct Puzzle {
+pub(crate) struct Puzzle {
     almanac: Almanac,
 }
 
