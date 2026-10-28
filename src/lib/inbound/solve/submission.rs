@@ -1,3 +1,6 @@
+//! Sending answers to adventofcode.com, and asking first when that means
+//! every day.
+
 use std::io::{self, Write};
 
 use crate::domain::address::Part;

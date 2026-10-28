@@ -1,3 +1,6 @@
+//! The `solve` subcommand: run each matching day, then optionally check and
+//! submit its answers.
+
 pub mod args;
 pub(crate) mod submission;
 

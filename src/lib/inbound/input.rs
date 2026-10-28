@@ -1,3 +1,6 @@
+//! A day's input and instructions, from the cache when it has them and the
+//! site when it does not.
+
 use std::path::Path;
 
 use crate::domain::address::Day;

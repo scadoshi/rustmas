@@ -1,3 +1,5 @@
+//! The argument parser, and the dispatch from subcommand to mode.
+
 use clap::{Parser, Subcommand};
 
 use crate::inbound::{fetch, solve};
@@ -26,12 +28,22 @@ impl Command {
 #[command(about = "Advent of Code tooling in Rust")]
 #[command(version)]
 pub struct Cli {
+    /// The mode to run.
     #[command(subcommand)]
     pub command: Command,
 }
 
 impl Cli {
     /// Runs whichever subcommand was given.
+    ///
+    /// # Errors
+    ///
+    /// A `--year` or `--day` outside the published days, a cache read or write
+    /// that fails, a malformed `COOKIE`, a missing one when something has to
+    /// be downloaded or submitted, a download or submission that fails, a
+    /// `CONTACT` or `REPO_URL` that cannot go in a header, and a confirmation
+    /// prompt that cannot read stdin. The first one ends the run. A day whose
+    /// solution fails is printed instead and the run goes on.
     pub fn run(&self) -> anyhow::Result<()> {
         self.command.run()
     }

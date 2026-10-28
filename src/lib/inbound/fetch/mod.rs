@@ -1,3 +1,5 @@
+//! The `fetch` subcommand: fill the cache without solving anything.
+
 pub mod args;
 
 use crate::domain::address::{Day, Filter};
