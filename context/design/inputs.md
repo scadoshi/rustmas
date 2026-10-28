@@ -19,6 +19,8 @@ Plain files give up one guarantee: the input and its hash are no longer written 
 
 The existence of `part_two.md` is what says part two is available, so no flag can disagree with the text beside it.
 
+Each file is written to a `.tmp` beside it and renamed into place, so a crash leaves the old file or the new one, never a truncated one. A file that already holds the same text isn't written at all, so a part-two chase writes `part_two.md` and leaves `input.txt` alone.
+
 ## Session fingerprinting
 
 `Input` carries a SHA-256 of the cookie that fetched it.

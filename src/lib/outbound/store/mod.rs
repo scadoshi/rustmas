@@ -17,6 +17,8 @@ const INPUT_FILE: &str = "input.txt";
 const SESSION_FILE: &str = "session";
 const PART_ONE_FILE: &str = "part_one.md";
 const PART_TWO_FILE: &str = "part_two.md";
+/// Added to a file's name for the copy written before it replaces the file.
+const TEMP_SUFFIX: &str = ".tmp";
 
 /// The repo root, from the env var cargo sets. Only present under `cargo run`.
 pub(crate) fn project_root() -> anyhow::Result<PathBuf> {
@@ -59,7 +61,8 @@ fn read_entry_in(root: &Path, day: &Day) -> anyhow::Result<Option<Entry>> {
     }))
 }
 
-/// Writes `day`'s cache, creating the directory if needed.
+/// Writes `day`'s cache, creating the directory if needed. Only files whose
+/// contents differ are written.
 pub(crate) fn write_entry(day: &Day, entry: &Entry) -> anyhow::Result<()> {
     write_entry_in(&project_root()?.join(CACHE_PATH), day, entry)
 }
@@ -89,8 +92,19 @@ fn read_opt(path: &Path) -> anyhow::Result<Option<String>> {
     Ok(Some(contents).filter(|contents| !contents.trim().is_empty()))
 }
 
+/// Writes `contents` to `path`, unless it already holds exactly that.
+///
+/// Goes through a temp file beside `path` and a rename, so a crash leaves the
+/// old file or the new one and never half of either.
 fn write_file(path: &Path, contents: &str) -> anyhow::Result<()> {
-    fs::write(path, contents).with_context(|| format!("failed to write {}", path.display()))
+    if fs::read_to_string(path).is_ok_and(|current| current == contents) {
+        return Ok(());
+    }
+    let mut temp = path.as_os_str().to_owned();
+    temp.push(TEMP_SUFFIX);
+    let temp = PathBuf::from(temp);
+    fs::write(&temp, contents).with_context(|| format!("failed to write {}", temp.display()))?;
+    fs::rename(&temp, path).with_context(|| format!("failed to write {}", path.display()))
 }
 
 /// Creates `path` and its parents, erroring rather than clobbering a file.
@@ -106,6 +120,8 @@ pub(crate) fn ensure_dir(path: &Path) -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::time::{Duration, SystemTime};
+
     use super::*;
     use crate::domain::address::Year;
 
@@ -207,5 +223,58 @@ mod tests {
         fs::write(&path, "").unwrap();
 
         assert!(ensure_dir(&path).is_err());
+    }
+
+    /// A part two arriving changes one file, so the input keeps its bytes and
+    /// its timestamp.
+    #[test]
+    fn rewriting_leaves_unchanged_files_alone() {
+        let temp = Temp::new("unchanged-files");
+        let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
+
+        let mut first = entry("cookie");
+        first.instructions.part_two = None;
+        write_entry_in(&temp.0, &day, &first).unwrap();
+
+        let input = day_path_in(&temp.0, &day).join(INPUT_FILE);
+        let marked = SystemTime::UNIX_EPOCH + Duration::from_secs(1);
+        fs::File::options()
+            .write(true)
+            .open(&input)
+            .unwrap()
+            .set_modified(marked)
+            .unwrap();
+
+        write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
+
+        assert_eq!(fs::metadata(&input).unwrap().modified().unwrap(), marked);
+        let read = read_entry_in(&temp.0, &day).unwrap().unwrap();
+        assert_eq!(read.instructions.part_two.as_deref(), Some("## two"));
+    }
+
+    /// A changed file is replaced whole by a rename, never truncated in place,
+    /// so anything holding the old file still sees it complete.
+    #[test]
+    fn a_changed_file_is_replaced_rather_than_truncated() {
+        let temp = Temp::new("replaced-file");
+        let day = Day::new(1, Year::new(2015).unwrap()).unwrap();
+        write_entry_in(&temp.0, &day, &entry("cookie")).unwrap();
+
+        let dir = day_path_in(&temp.0, &day);
+        let held = temp.0.join("held");
+        fs::hard_link(dir.join(INPUT_FILE), &held).unwrap();
+
+        let mut changed = entry("cookie");
+        changed.input = Input::new("cookie", "))((");
+        write_entry_in(&temp.0, &day, &changed).unwrap();
+
+        assert_eq!(fs::read_to_string(&held).unwrap(), "()()");
+        assert_eq!(fs::read_to_string(dir.join(INPUT_FILE)).unwrap(), "))((");
+        let leftovers: Vec<_> = fs::read_dir(&dir)
+            .unwrap()
+            .map(|file| file.unwrap().file_name())
+            .filter(|name| name.to_string_lossy().ends_with(TEMP_SUFFIX))
+            .collect();
+        assert_eq!(leftovers, Vec::<std::ffi::OsString>::new());
     }
 }
