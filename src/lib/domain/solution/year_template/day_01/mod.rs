@@ -3,7 +3,10 @@ use crate::domain::solution::answer::Answer;
 
 pub struct Puzzle {
     // Keep this only if the parts read the raw text; drop it if you parse.
-    #[allow(dead_code)]
+    #[expect(
+        dead_code,
+        reason = "a template: the unwritten parts read nothing until a day fills them in"
+    )]
     input: String,
 }
 
