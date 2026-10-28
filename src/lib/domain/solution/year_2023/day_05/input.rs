@@ -16,7 +16,7 @@ impl FromStr for Input {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (seeds, range_maps) = s
             .split_once("\n\n")
-            .ok_or(anyhow!("seed section not found"))?;
+            .ok_or_else(|| anyhow!("seed section not found"))?;
         let seeds = Seeds::from_str(seeds)?;
         let maps = RangeMaps::from_str(range_maps)?;
         Ok(Self { seeds, maps })

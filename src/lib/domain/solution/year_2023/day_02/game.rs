@@ -56,6 +56,7 @@ impl Handful {
     }
 
     /// The most of each color seen across `self` and `other`.
+    #[must_use]
     pub fn max(self, other: Self) -> Self {
         Self {
             red: self.red.max(other.red),

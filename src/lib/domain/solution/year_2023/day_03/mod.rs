@@ -1,5 +1,7 @@
 pub mod schematic;
 
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_03::schematic::{Schematic, is_symbol};
@@ -21,7 +23,7 @@ impl Solution for Puzzle {
         let symbols = self.schematic.symbols(is_symbol);
         Ok(Answer::solved(
             self.schematic
-                .numbers()
+                .numbers()?
                 .iter()
                 .filter(|number| symbols.iter().any(|&cell| number.touches(cell)))
                 .map(|number| number.value)
@@ -32,25 +34,22 @@ impl Solution for Puzzle {
 
     /// A `*` touching exactly two numbers is a gear; its ratio is their product.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let numbers = self.schematic.numbers();
-        Ok(Answer::solved(
-            self.schematic
-                .symbols(|c| c == '*')
-                .into_iter()
-                .filter_map(|star| {
-                    let touching: Vec<u64> = numbers
-                        .iter()
-                        .filter(|number| number.touches(star))
-                        .map(|number| u64::from(number.value))
-                        .collect();
-                    match touching.as_slice() {
-                        [a, b] => Some(a * b),
-                        _ => None,
-                    }
-                })
-                .sum::<u64>()
-                .to_string(),
-        ))
+        let numbers = self.schematic.numbers()?;
+        let mut total: u64 = 0;
+        for star in self.schematic.symbols(|c| c == '*') {
+            let touching: Vec<u64> = numbers
+                .iter()
+                .filter(|number| number.touches(star))
+                .map(|number| u64::from(number.value))
+                .collect();
+            if let [a, b] = touching.as_slice() {
+                total = a
+                    .checked_mul(*b)
+                    .and_then(|ratio| total.checked_add(ratio))
+                    .context("the sum of the gear ratios passes u64")?;
+            }
+        }
+        Ok(Answer::solved(total.to_string()))
     }
 }
 

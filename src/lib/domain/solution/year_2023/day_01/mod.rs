@@ -18,8 +18,8 @@ impl Puzzle {
         let total: u32 = self
             .input
             .iter()
-            .enumerate()
-            .map(|(i, s)| f(s).with_context(|| format!("line {} has no numbers: {s:?}", i + 1)))
+            .zip(1_usize..)
+            .map(|(s, line)| f(s).with_context(|| format!("line {line} has no numbers: {s:?}")))
             .sum::<anyhow::Result<u32>>()?;
         Ok(Answer::solved(total.to_string()))
     }

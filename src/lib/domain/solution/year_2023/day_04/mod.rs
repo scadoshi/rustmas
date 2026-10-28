@@ -54,6 +54,8 @@ impl Solution for Puzzle {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Write;
+
     use super::*;
 
     const EXAMPLE: &str = "\
@@ -70,9 +72,11 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
             .map(|n| n.to_string())
             .collect::<Vec<_>>()
             .join(" ");
-        (1..=count)
-            .map(|id| format!("Card {id}: {numbers} | {numbers}\n"))
-            .collect()
+        let mut cards = String::new();
+        for id in 1..=count {
+            writeln!(cards, "Card {id}: {numbers} | {numbers}").unwrap();
+        }
+        cards
     }
 
     #[test]

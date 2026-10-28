@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+use thiserror::Error;
+
 use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::grid::Grid;
 use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
@@ -23,6 +25,16 @@ impl FromStr for Schematic {
     }
 }
 
+/// A run of digits too long for a [`u32`], counted from 0 at the top-left.
+#[derive(Debug, Error)]
+#[error(
+    "expected every number to fit in a u32, the one reaching row {row} column {column} does not"
+)]
+pub struct NumberTooLarge {
+    row: usize,
+    column: usize,
+}
+
 /// A run of digits in the schematic, and where it sits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Number {
@@ -36,9 +48,10 @@ pub struct Number {
 impl Number {
     /// Whether `cell` touches this number, corners included.
     pub fn touches(&self, cell: Cell) -> bool {
-        cell.row().abs_diff(self.row) <= 1
-            && cell.column() + 1 >= self.first
-            && cell.column() <= self.last + 1
+        let column = cell.column();
+        let over = (self.first..=self.last).contains(&column);
+        let beside = column.abs_diff(self.first) <= 1 || column.abs_diff(self.last) <= 1;
+        cell.row().abs_diff(self.row) <= 1 && (over || beside)
     }
 }
 
@@ -49,30 +62,38 @@ pub fn is_symbol(c: char) -> bool {
 
 impl Schematic {
     /// Every number in the schematic, read left to right, top to bottom.
-    pub fn numbers(&self) -> Vec<Number> {
+    ///
+    /// # Errors
+    ///
+    /// [`NumberTooLarge`] if a run of digits passes [`u32`].
+    pub fn numbers(&self) -> Result<Vec<Number>, NumberTooLarge> {
         let mut numbers = Vec::new();
         for (row, cells) in self.0.iter_rows().enumerate() {
-            let mut column = 0;
-            while column < cells.len() {
-                if !cells[column].is_ascii_digit() {
-                    column += 1;
-                    continue;
+            let mut current: Option<Number> = None;
+            for (column, c) in cells.iter().enumerate() {
+                match (c.to_digit(10), current.as_mut()) {
+                    (Some(digit), Some(number)) => {
+                        number.value = number
+                            .value
+                            .checked_mul(10)
+                            .and_then(|value| value.checked_add(digit))
+                            .ok_or(NumberTooLarge { row, column })?;
+                        number.last = column;
+                    }
+                    (Some(digit), None) => {
+                        current = Some(Number {
+                            value: digit,
+                            row,
+                            first: column,
+                            last: column,
+                        });
+                    }
+                    (None, _) => numbers.extend(current.take()),
                 }
-                let first = column;
-                let mut value = 0;
-                while column < cells.len() && cells[column].is_ascii_digit() {
-                    value = value * 10 + cells[column].to_digit(10).unwrap_or(0);
-                    column += 1;
-                }
-                numbers.push(Number {
-                    value,
-                    row,
-                    first,
-                    last: column - 1,
-                });
             }
+            numbers.extend(current);
         }
-        numbers
+        Ok(numbers)
     }
 
     /// Every cell holding a character that satisfies `wanted`.
@@ -109,7 +130,7 @@ mod tests {
     #[test]
     fn numbers_are_read_with_their_columns() {
         let schematic: Schematic = EXAMPLE.parse().unwrap();
-        let numbers = schematic.numbers();
+        let numbers = schematic.numbers().unwrap();
         assert_eq!(numbers.len(), 10);
         assert_eq!(
             numbers[0],
@@ -144,5 +165,16 @@ mod tests {
         assert!(n.touches(Cell::new(2, 5)), "just left");
         assert!(!n.touches(Cell::new(1, 5)), "two left");
         assert!(!n.touches(Cell::new(3, 7)), "two rows down");
+        assert!(n.touches(Cell::new(5, 5)), "just right");
+        assert!(!n.touches(Cell::new(6, 5)), "two right");
+        assert!(n.touches(Cell::new(3, 6)), "under");
+    }
+
+    #[test]
+    fn a_number_past_u32_is_an_error() {
+        let schematic: Schematic = "*4294967296".parse().unwrap();
+        assert!(schematic.numbers().is_err());
+        let schematic: Schematic = "*4294967295".parse().unwrap();
+        assert_eq!(schematic.numbers().unwrap()[0].value, u32::MAX);
     }
 }

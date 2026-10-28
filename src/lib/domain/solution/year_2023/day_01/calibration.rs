@@ -33,12 +33,17 @@ fn number_at(s: &str) -> Option<u32> {
     })
 }
 
+/// `tens` and `ones` read as one two-digit number.
+fn two_digit(tens: u32, ones: u32) -> Option<u32> {
+    tens.checked_mul(10)?.checked_add(ones)
+}
+
 impl Calibration for str {
     /// One digit is both the first and the last.
     fn calibration_value(&self) -> Option<u32> {
         let mut digits = self.chars().filter_map(|c| c.to_digit(10));
         let first = digits.next()?;
-        Some(first * 10 + digits.next_back().unwrap_or(first))
+        two_digit(first, digits.next_back().unwrap_or(first))
     }
 
     /// Reads from every position rather than consuming a match, so overlapping
@@ -46,9 +51,9 @@ impl Calibration for str {
     fn calibration_value_with_words(&self) -> Option<u32> {
         let mut nums = self
             .char_indices()
-            .filter_map(|(i, _)| number_at(&self[i..]));
+            .filter_map(|(i, _)| self.get(i..).and_then(number_at));
         let first = nums.next()?;
-        Some(first * 10 + nums.next_back().unwrap_or(first))
+        two_digit(first, nums.next_back().unwrap_or(first))
     }
 }
 

@@ -20,7 +20,7 @@ impl FromStr for Seeds {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(
             s.strip_prefix("seeds: ")
-                .ok_or(anyhow!("missing prefix"))?
+                .ok_or_else(|| anyhow!("missing prefix"))?
                 .split_whitespace()
                 .map(FromStr::from_str)
                 .collect::<Result<Vec<_>, _>>()?,

@@ -26,6 +26,8 @@ pub(in super::super) struct RangeMapping {
     destination: u64,
     source: u64,
     length: u64,
+    /// `source + length`, kept so the source range needs no addition.
+    source_end: u64,
 }
 
 impl FromStr for RangeMapping {
@@ -39,20 +41,18 @@ impl FromStr for RangeMapping {
         if parts.next().is_some() {
             return Err(InvalidRangeMapping::TooManyParts);
         }
-        let mapping = Self {
-            destination: d.parse()?,
-            source: s.parse()?,
-            length: l.parse()?,
-        };
-        for start in [mapping.source, mapping.destination] {
-            if start.checked_add(mapping.length).is_none() {
-                return Err(InvalidRangeMapping::PastU64 {
-                    start,
-                    length: mapping.length,
-                });
-            }
-        }
-        Ok(mapping)
+        let (destination, source, length): (u64, u64, u64) = (d.parse()?, s.parse()?, l.parse()?);
+        let past_u64 = |start: u64| InvalidRangeMapping::PastU64 { start, length };
+        let source_end = source.checked_add(length).ok_or_else(|| past_u64(source))?;
+        destination
+            .checked_add(length)
+            .ok_or_else(|| past_u64(destination))?;
+        Ok(Self {
+            destination,
+            source,
+            length,
+            source_end,
+        })
     }
 }
 
@@ -63,29 +63,38 @@ impl RangeMapping {
             destination,
             source,
             length,
+            source_end: source.checked_add(length).unwrap(),
         }
     }
 
     pub(super) fn source_range(self) -> Range<u64> {
-        self.source..self.source + self.length
+        self.source..self.source_end
     }
 
+    /// Where `seed` lands, or `None` if this mapping does not cover it.
     pub(super) fn map(&self, seed: u64) -> Option<u64> {
-        self.source_range()
-            .contains(&seed)
-            .then(|| self.destination + (seed - self.source))
+        if self.source_range().contains(&seed) {
+            self.shifted(seed)
+        } else {
+            None
+        }
+    }
+
+    /// Where a point from the start to the end of the source range lands.
+    ///
+    /// The parse check keeps this `Some` for every such point.
+    fn shifted(&self, point: u64) -> Option<u64> {
+        self.destination
+            .checked_add(point.checked_sub(self.source)?)
     }
 
     pub(super) fn map_range(
         self,
         range: Range<u64>,
     ) -> Option<(Range<u64>, impl Iterator<Item = Range<u64>>)> {
-        range.clone().intersection(self.source_range()).map(|i| {
-            let start_offset = i.start - self.source;
-            let end_offset = i.end - self.source;
-            let mapped_range = self.destination + start_offset..self.destination + end_offset;
-            (mapped_range, range.difference(self.source_range()))
-        })
+        let overlap = range.clone().intersection(self.source_range())?;
+        let mapped = self.shifted(overlap.start)?..self.shifted(overlap.end)?;
+        Some((mapped, range.difference(self.source_range())))
     }
 }
 

@@ -30,7 +30,7 @@ impl Solution for Puzzle {
                 .iter()
                 .map(|s| self.input.maps().map(*s))
                 .min()
-                .ok_or(anyhow!("no min found"))?
+                .ok_or_else(|| anyhow!("no min found"))?
                 .to_string(),
         ))
     }
@@ -43,7 +43,7 @@ impl Solution for Puzzle {
                 .into_iter()
                 .flat_map(|r| self.input.maps().map_range(r).into_iter().map(|r| r.start))
                 .min()
-                .ok_or(anyhow!("no min found"))?
+                .ok_or_else(|| anyhow!("no min found"))?
                 .to_string(),
         ))
     }
