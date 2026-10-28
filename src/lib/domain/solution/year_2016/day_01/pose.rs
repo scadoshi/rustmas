@@ -14,6 +14,7 @@ pub struct Pose {
 
 impl Pose {
     /// Walks `distance` along the current heading, clamping at the [`i32`] edges.
+    #[must_use]
     pub fn saturating_moved(self, distance: i32) -> Self {
         Self {
             heading: self.heading,
@@ -22,6 +23,7 @@ impl Pose {
     }
 
     /// Turns without moving.
+    #[must_use]
     pub fn turned(self, turn: Turn) -> Self {
         Self {
             heading: self.heading.turned(turn),

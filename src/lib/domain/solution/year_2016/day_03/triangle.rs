@@ -30,12 +30,12 @@ impl FromStr for Triangle {
 impl Triangle {
     /// Whether the two shorter sides together beat the longest.
     ///
-    /// Adds in a [`u64`], where two [`u32`] sides always fit.
+    /// Two shorter sides whose sum passes [`u32`] beat any longest side.
     pub fn is_valid(&self) -> bool {
         let mut sides = self.0;
         sides.sort_unstable();
-        let [shortest, middle, longest] = sides.map(u64::from);
-        shortest + middle > longest
+        let [shortest, middle, longest] = sides;
+        shortest.checked_add(middle).is_none_or(|sum| sum > longest)
     }
 }
 

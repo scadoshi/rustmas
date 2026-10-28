@@ -16,6 +16,9 @@ pub enum InvalidRoom {
     ParseInt(#[from] ParseIntError),
 }
 
+/// The letters a room name may hold besides dashes, in order.
+const ALPHABET: &[u8; 26] = b"abcdefghijklmnopqrstuvwxyz";
+
 /// How many letters a checksum holds.
 const CHECKSUM_LEN: usize = 5;
 
@@ -52,25 +55,19 @@ impl FromStr for Room {
 impl Room {
     /// Whether the checksum is the five commonest letters, ties by letter.
     pub fn is_real(&self) -> bool {
-        let mut counts = [0usize; 26];
-        for b in self.encrypted_name.bytes() {
-            if let Some(count) = b
-                .checked_sub(b'a')
-                .and_then(|i| counts.get_mut(usize::from(i)))
-            {
-                *count += 1;
-            }
-        }
-        let mut letters: Vec<(usize, u8)> = counts
-            .into_iter()
-            .zip(b'a'..=b'z')
+        let mut letters: Vec<(usize, u8)> = ALPHABET
+            .iter()
+            .map(|letter| {
+                let count = self.encrypted_name.bytes().filter(|b| b == letter).count();
+                (count, *letter)
+            })
             .filter(|(count, _)| *count > 0)
             .collect();
         letters.sort_unstable_by(|(c1, l1), (c2, l2)| c2.cmp(c1).then(l1.cmp(l2)));
         letters
             .iter()
             .take(CHECKSUM_LEN)
-            .map(|(_, letter)| *letter as char)
+            .map(|(_, letter)| char::from(*letter))
             .eq(self.checksum.chars())
     }
 
@@ -78,15 +75,31 @@ impl Room {
     ///
     /// Dashes become spaces, as the puzzle describes.
     pub fn decrypted_name(&self) -> String {
-        let shift = (self.id % 26) as u8;
+        let shift = self.id % 26;
         self.encrypted_name
             .bytes()
             .map(|b| match b {
                 b'-' => ' ',
-                _ => ((b - b'a' + shift) % 26 + b'a') as char,
+                _ => char::from(rotated(b, shift)),
             })
             .collect()
     }
+}
+
+/// `letter` moved `shift` places on through the alphabet, wrapping past `z`.
+///
+/// Anything outside `a-z` comes back unchanged.
+fn rotated(letter: u8, shift: u32) -> u8 {
+    let Some(start) = ALPHABET.iter().position(|l| *l == letter) else {
+        return letter;
+    };
+    ALPHABET
+        .iter()
+        .cycle()
+        .skip(start)
+        .zip(0..=shift)
+        .last()
+        .map_or(letter, |(rotated, _)| *rotated)
 }
 
 #[cfg(test)]

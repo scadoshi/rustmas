@@ -2,7 +2,7 @@ pub mod hashing;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
-use crate::domain::solution::year_2016::day_05::hashing::{HEX, interesting_digests};
+use crate::domain::solution::year_2016::day_05::hashing::interesting_digests;
 
 #[derive(Debug)]
 pub struct Puzzle {
@@ -21,11 +21,11 @@ impl Solution for Puzzle {
 
     /// Each interesting digest gives the next character, in order.
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let password: Vec<u8> = interesting_digests(&self.door)
+        let password = interesting_digests(&self.door)
             .take(PASSWORD_LEN)
-            .map(|(sixth, _)| HEX[sixth as usize])
-            .collect();
-        Ok(Answer::solved(String::from_utf8(password)?))
+            .map(|(sixth, _)| hex_digit(sixth))
+            .collect::<anyhow::Result<String>>()?;
+        Ok(Answer::solved(password))
     }
 
     /// The sixth digit is now the position, the seventh the character, and only
@@ -33,15 +33,23 @@ impl Solution for Puzzle {
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut password = [None; PASSWORD_LEN];
         for (position, character) in interesting_digests(&self.door) {
-            let Some(slot) = password.get_mut(position as usize) else {
+            let Some(slot) = password.get_mut(usize::from(position)) else {
                 continue;
             };
-            slot.get_or_insert(HEX[character as usize]);
+            if slot.is_none() {
+                *slot = Some(hex_digit(character)?);
+            }
             if password.iter().all(Option::is_some) {
                 break;
             }
         }
-        let password: Vec<u8> = password.into_iter().flatten().collect();
-        Ok(Answer::solved(String::from_utf8(password)?))
+        let password: String = password.into_iter().flatten().collect();
+        Ok(Answer::solved(password))
     }
+}
+
+/// The lowercase hex digit spelling `nibble`.
+fn hex_digit(nibble: u8) -> anyhow::Result<char> {
+    char::from_digit(u32::from(nibble), 16)
+        .ok_or_else(|| anyhow::anyhow!("expected a nibble below 16, got {nibble}"))
 }
