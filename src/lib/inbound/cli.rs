@@ -12,7 +12,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub fn run(&self) -> anyhow::Result<()> {
+    pub(crate) fn run(&self) -> anyhow::Result<()> {
         match self {
             Self::Fetch(args) => fetch::run(args),
             Self::Solve(args) => solve::run(args),

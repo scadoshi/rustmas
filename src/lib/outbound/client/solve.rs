@@ -10,7 +10,7 @@ use crate::outbound::client::solver_client::SolverClient;
 /// Validation runs after both parts are measured, so no timing includes a
 /// network round trip. A failing part goes into its own [`Outcome`], so the
 /// other still runs; only [`Solution::new`] failing ends the day.
-pub fn solve<S: Solution>(
+pub(crate) fn solve<S: Solution>(
     client: &SolverClient,
     validate: bool,
     input: &str,

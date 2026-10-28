@@ -24,7 +24,7 @@ const UNCONFIGURED_USER_AGENT: &str = "rustmas (unconfigured; set CONTACT in .en
 
 /// The environment, read on demand. Holds nothing.
 #[derive(Debug)]
-pub struct Environment;
+pub(crate) struct Environment;
 
 impl Environment {
     /// One variable, `None` when it is unset or blank.
@@ -46,7 +46,7 @@ impl Environment {
     ///
     /// AOC asks automated clients to be reachable. Both are optional, so an
     /// unreadable one is treated as unset.
-    pub fn user_agent() -> String {
+    pub(crate) fn user_agent() -> String {
         let get = |key| Self::get(key).ok().flatten();
         match (get(REPO_URL_KEY), get(CONTACT_KEY)) {
             (Some(repo), Some(contact)) => format!("{repo} by {contact}"),
@@ -61,7 +61,7 @@ impl Environment {
     ///
     /// A value that is set but malformed is an error, not a `None`, so a
     /// mistyped cookie never reads as "not configured".
-    pub fn cookie_if_set() -> anyhow::Result<Option<SessionCookie>> {
+    pub(crate) fn cookie_if_set() -> anyhow::Result<Option<SessionCookie>> {
         Self::get(COOKIE_KEY)?
             .map(|value| SessionCookie::try_from(value.as_str()))
             .transpose()
@@ -69,7 +69,7 @@ impl Environment {
 
     /// The session cookie, required. Paired with [`Environment::cookie_if_set`]
     /// so the requirement is named here rather than at every call site.
-    pub fn cookie() -> anyhow::Result<SessionCookie> {
+    pub(crate) fn cookie() -> anyhow::Result<SessionCookie> {
         Self::cookie_if_set()?.with_context(|| format!("{COOKIE_KEY} is not set"))
     }
 }

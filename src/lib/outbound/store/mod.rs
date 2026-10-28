@@ -1,7 +1,7 @@
 //! Where downloaded things live on disk. One directory per day, every file
 //! readable on its own. `context/architecture.md` has the layout.
 
-pub mod cache;
+pub(crate) mod cache;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -11,7 +11,7 @@ use anyhow::{Context, bail};
 use crate::domain::address::Day;
 use crate::outbound::store::cache::{Entry, Input, Instructions};
 
-pub const CACHE_PATH: &str = "cache";
+pub(crate) const CACHE_PATH: &str = "cache";
 
 const INPUT_FILE: &str = "input.txt";
 const SESSION_FILE: &str = "session";
@@ -19,7 +19,7 @@ const PART_ONE_FILE: &str = "part_one.md";
 const PART_TWO_FILE: &str = "part_two.md";
 
 /// The repo root, from the env var cargo sets. Only present under `cargo run`.
-pub fn project_root() -> anyhow::Result<PathBuf> {
+pub(crate) fn project_root() -> anyhow::Result<PathBuf> {
     Ok(PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").context(
         "CARGO_MANIFEST_DIR is unset, so the project root is unknown",
     )?))
@@ -35,7 +35,7 @@ fn day_path_in(root: &Path, day: &Day) -> PathBuf {
 ///
 /// A missing session file reads as `None`, since an input nothing can vouch
 /// for is one to fetch again.
-pub fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
+pub(crate) fn read_entry(day: &Day) -> anyhow::Result<Option<Entry>> {
     read_entry_in(&project_root()?.join(CACHE_PATH), day)
 }
 
@@ -60,7 +60,7 @@ fn read_entry_in(root: &Path, day: &Day) -> anyhow::Result<Option<Entry>> {
 }
 
 /// Writes `day`'s cache, creating the directory if needed.
-pub fn write_entry(day: &Day, entry: &Entry) -> anyhow::Result<()> {
+pub(crate) fn write_entry(day: &Day, entry: &Entry) -> anyhow::Result<()> {
     write_entry_in(&project_root()?.join(CACHE_PATH), day, entry)
 }
 
@@ -94,7 +94,7 @@ fn write_file(path: &Path, contents: &str) -> anyhow::Result<()> {
 }
 
 /// Creates `path` and its parents, erroring rather than clobbering a file.
-pub fn ensure_dir(path: &Path) -> anyhow::Result<()> {
+pub(crate) fn ensure_dir(path: &Path) -> anyhow::Result<()> {
     if path.is_dir() {
         return Ok(());
     }

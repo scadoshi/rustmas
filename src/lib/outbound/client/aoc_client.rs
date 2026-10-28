@@ -26,7 +26,7 @@ const REQUEST_GAP: Duration = Duration::from_millis(1500);
 
 /// An authenticated handle to adventofcode.com, pooling one client.
 #[derive(Debug)]
-pub struct AocClient {
+pub(crate) struct AocClient {
     client: Client,
     /// When the last request went out, for [`REQUEST_GAP`].
     last_request: Cell<Option<Instant>>,
@@ -39,7 +39,7 @@ impl AocClient {
     /// headers go on the client, so nothing can send a request without them.
     /// Sends nothing, but a missing or malformed cookie fails here, before any
     /// work is done.
-    pub fn from_env() -> anyhow::Result<Self> {
+    pub(crate) fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         let cookie = Environment::cookie()?;
         headers.insert(
@@ -68,7 +68,7 @@ impl AocClient {
     /// Fetches `day`'s puzzle text, rendered from HTML.
     ///
     /// Part two comes back `None` until part one is solved.
-    pub fn get_instructions(&self, day: &Day) -> anyhow::Result<(String, Option<String>)> {
+    pub(crate) fn get_instructions(&self, day: &Day) -> anyhow::Result<(String, Option<String>)> {
         self.pace();
         let html = self
             .client
@@ -95,7 +95,7 @@ impl AocClient {
     /// Fetches the raw puzzle input for `day`, verbatim.
     ///
     /// A non-success status usually means a bad cookie or an unreleased day.
-    pub fn get_input(&self, day: &Day) -> anyhow::Result<String> {
+    pub(crate) fn get_input(&self, day: &Day) -> anyhow::Result<String> {
         self.pace();
         self.client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!(
@@ -126,7 +126,7 @@ impl AocClient {
     ///
     /// Everything is a 200, so the verdict comes entirely from the body. A
     /// part grades once, which is why a correct answer is worth caching.
-    pub fn submit_answer(
+    pub(crate) fn submit_answer(
         &self,
         day: &Day,
         part: Part,
@@ -208,18 +208,18 @@ fn wait_from(body: &str) -> String {
 /// Holding one does not mean a cookie exists: that is checked the first time
 /// [`LazyAocClient::connected`] runs, which for a fully cached run is never.
 #[derive(Debug, Default)]
-pub struct LazyAocClient(Option<AocClient>);
+pub(crate) struct LazyAocClient(Option<AocClient>);
 
 impl LazyAocClient {
     /// Builds the client here, so a missing or malformed cookie fails before
     /// any work is done.
-    pub fn from_env() -> anyhow::Result<Self> {
+    pub(crate) fn from_env() -> anyhow::Result<Self> {
         Ok(Self(Some(AocClient::from_env()?)))
     }
 
     /// The client, built on the first call. Idempotent, so calling it eagerly
     /// and again later costs one construction.
-    pub fn connected(&mut self) -> anyhow::Result<&AocClient> {
+    pub(crate) fn connected(&mut self) -> anyhow::Result<&AocClient> {
         if self.0.is_none() {
             *self = LazyAocClient::from_env()?;
         }

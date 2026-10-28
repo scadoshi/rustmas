@@ -14,13 +14,7 @@ const LENGTH: usize = 128;
 /// Parsed once at the edge so a mistyped value fails with its own message
 /// rather than as a `400` partway through a run.
 #[derive(Clone, PartialEq, Eq)]
-pub struct SessionCookie(String);
-
-impl SessionCookie {
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-}
+pub(crate) struct SessionCookie(String);
 
 impl TryFrom<&str> for SessionCookie {
     type Error = anyhow::Error;
@@ -77,7 +71,7 @@ mod tests {
     fn trims_surrounding_whitespace() {
         let padded = format!("  {}\n", valid());
         assert_eq!(
-            SessionCookie::try_from(padded.as_str()).unwrap().as_str(),
+            SessionCookie::try_from(padded.as_str()).unwrap().as_ref(),
             valid()
         );
     }

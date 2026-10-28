@@ -9,7 +9,7 @@ use crate::outbound::client::aoc_client::LazyAocClient;
 ///
 /// Filters omitted means all. Files on disk are left alone, and one failed
 /// download aborts the rest.
-pub fn run(args: &FetchArgs) -> anyhow::Result<()> {
+pub(crate) fn run(args: &FetchArgs) -> anyhow::Result<()> {
     // Built on first download, so a fully cached run needs no cookie.
     let mut aoc = LazyAocClient::default();
 

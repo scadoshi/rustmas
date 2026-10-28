@@ -10,7 +10,7 @@ use crate::outbound::store::cache::{Entry, Input, Instructions};
 /// Missing `part_two.md` means incomplete, so it is rechecked every run until
 /// part one is solved. Day 25 is the exception, its second star being awarded
 /// rather than puzzled. An input from another session is refetched.
-pub fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Entry> {
+pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Result<Entry> {
     // Absent when no cookie is configured, leaving a cached entry usable.
     let cookie = Environment::cookie_if_set()?;
 

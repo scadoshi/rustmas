@@ -22,7 +22,7 @@ const BASE_URLS: [&str; 3] = [
 /// No cookie, no stars, and no memory, which is what makes it repeatable
 /// enough to use as a regression check.
 #[derive(Debug)]
-pub struct SolverClient {
+pub(crate) struct SolverClient {
     client: Client,
 }
 
@@ -32,7 +32,7 @@ impl SolverClient {
     /// Nothing is required, since the solver needs no authentication. Fails
     /// only when the user agent cannot be a header value, which a stray
     /// newline in `.env` is enough to cause.
-    pub fn from_env() -> anyhow::Result<Self> {
+    pub(crate) fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         headers.insert(
             USER_AGENT,
@@ -47,7 +47,7 @@ impl SolverClient {
     /// Numeric answers compare as numbers and report a direction, anything
     /// else as text. Every failure is a 400 with the reason in the body. Only
     /// transport failures and 5xx try the next host.
-    pub fn validate_answer(
+    pub(crate) fn validate_answer(
         &self,
         day: &Day,
         input: impl Display,

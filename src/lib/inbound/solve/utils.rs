@@ -10,7 +10,12 @@ use crate::outbound::client::aoc_client::AocClient;
 /// A wrong answer costs an escalating cooldown, so the verdict gates the send.
 /// [`SolverVerdict::Unsupported`] goes through anyway, and rejected answers
 /// come back untouched.
-pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyhow::Result<Outcome> {
+pub(crate) fn submit(
+    aoc: &AocClient,
+    day: &Day,
+    part: Part,
+    outcome: Outcome,
+) -> anyhow::Result<Outcome> {
     let Some(value) = outcome.value() else {
         return Ok(outcome);
     };
@@ -28,7 +33,7 @@ pub fn submit(aoc: &AocClient, day: &Day, part: Part, outcome: Outcome) -> anyho
 /// Asks before an unfiltered submit run, which would post every solved day.
 ///
 /// Goes to stderr so redirecting output cannot swallow it. Closed stdin is no.
-pub fn confirm(count: usize) -> anyhow::Result<bool> {
+pub(crate) fn confirm(count: usize) -> anyhow::Result<bool> {
     eprintln!(
         "About to submit up to {count} answers to adventofcode.com, across every \
          year and day. Wrong answers are rate limited. Narrow it with --year or \

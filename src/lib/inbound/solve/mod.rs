@@ -1,5 +1,5 @@
 pub mod args;
-pub mod utils;
+pub(crate) mod utils;
 
 use crate::domain::address::{Day, Filter, PARTS_PER_DAY, Part};
 use crate::domain::solution::aoc_verdict::AocVerdict;
@@ -80,7 +80,7 @@ fn part_count(filter: Filter) -> usize {
         * PARTS_PER_DAY
 }
 
-pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
+pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
     // Submitting gates on a solver verdict, so it validates too.
     let validate = args.validate || args.submit;
     let solver = SolverClient::from_env()?;
