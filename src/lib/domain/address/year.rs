@@ -5,7 +5,7 @@ use thiserror::Error;
 pub const FIRST_YEAR: i32 = 2015;
 
 /// Returned when a year falls outside the published events.
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("year {given} is outside {FIRST_YEAR}..={latest}")]
 pub struct YearOutOfRange {
     pub given: i32,
@@ -13,7 +13,7 @@ pub struct YearOutOfRange {
 }
 
 /// A validated event year, from [`FIRST_YEAR`] through [`Year::latest`].
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Year(i32);
 
 impl Year {

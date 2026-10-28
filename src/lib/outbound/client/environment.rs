@@ -23,6 +23,7 @@ const COOKIE_KEY: &str = "COOKIE";
 const UNCONFIGURED_USER_AGENT: &str = "rustmas (unconfigured; set CONTACT in .env)";
 
 /// The environment, read on demand. Holds nothing.
+#[derive(Debug)]
 pub struct Environment;
 
 impl Environment {

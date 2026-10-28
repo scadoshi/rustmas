@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::grid::{Grid, VariableWidth};
 
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidJagged {
     #[error("expected at least one row")]
     HeightIsZero,
@@ -12,7 +12,7 @@ pub enum InvalidJagged {
 }
 
 /// A grid with at least one row, each row free to be its own width.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Jagged<T> {
     inner: Vec<Vec<T>>,
 }

@@ -8,7 +8,7 @@ use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::{FixedWidth, Grid, VariableWidth};
 
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("expected a cell on the grid")]
 pub struct CellOutOfBounds;
 

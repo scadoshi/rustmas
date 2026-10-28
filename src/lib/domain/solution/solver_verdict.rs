@@ -5,7 +5,7 @@ use std::fmt::Display;
 ///
 /// Repeatable, having no accounts and no memory, which is what makes it usable
 /// as a gate before submitting.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SolverVerdict {
     Correct,
     Incorrect,

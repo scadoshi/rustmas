@@ -5,7 +5,7 @@ use crate::domain::address::year::YearOutOfRange;
 use crate::domain::address::{Day, Year};
 
 /// The ways a filter can name something outside the published range.
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidFilter {
     #[error(transparent)]
     YearOutOfRange(#[from] YearOutOfRange),
@@ -17,7 +17,7 @@ pub enum InvalidFilter {
 ///
 /// Validated eagerly, so expanding cannot fail and an impossible filter errors
 /// up front rather than matching nothing in silence.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Filter {
     year: Option<Year>,
     /// An `i32` rather than a [`Day`], since day 13 with no year is not an

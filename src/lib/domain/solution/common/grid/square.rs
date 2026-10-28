@@ -6,7 +6,7 @@ use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
 use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidSquare {
     #[error("expected at least one row and one column")]
     DimensionIsZero,
@@ -26,7 +26,7 @@ impl From<InvalidRectangle> for InvalidSquare {
 }
 
 /// A [`Rectangle`] whose width and height are equal.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Square<T>(Rectangle<T>);
 
 impl<T> Deref for Square<T> {

@@ -21,6 +21,7 @@ const BASE_URLS: [&str; 3] = [
 ///
 /// No cookie, no stars, and no memory, which is what makes it repeatable
 /// enough to use as a regression check.
+#[derive(Debug)]
 pub struct SolverClient {
     client: Client,
 }

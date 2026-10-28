@@ -3,7 +3,7 @@ use std::fmt::Display;
 /// What one part of a puzzle produced. Nothing else.
 ///
 /// Verdicts and timings live in [`super::outcome::Outcome`].
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Answer {
     /// A submittable answer.
     Value(String),

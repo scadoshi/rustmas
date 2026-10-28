@@ -1,6 +1,6 @@
 use clap::Args;
 
-#[derive(Args)]
+#[derive(Debug, Clone, PartialEq, Eq, Args)]
 pub struct SolveArgs {
     /// Year to run (omit for all)
     #[arg(short, long)]

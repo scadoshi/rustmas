@@ -1,6 +1,7 @@
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+#[derive(Debug)]
 pub struct Puzzle {
     // Keep this only if the parts read the raw text; drop it if you parse.
     #[expect(

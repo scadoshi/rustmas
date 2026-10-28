@@ -5,7 +5,7 @@ use thiserror::Error;
 use crate::domain::solution::common::turn::Turn;
 
 /// Returned when text does not name a direction. Carries what was read.
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("expected a direction like `up`, `u` or `^`, read {0:?}")]
 pub struct InvalidDirection(String);
 

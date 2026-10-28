@@ -1,7 +1,7 @@
 use sha2::{Digest, Sha256};
 
 /// A day's cached input, and the session that fetched it.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Input {
     hash: String,
     data: String,
@@ -38,14 +38,14 @@ impl Input {
 }
 
 /// A day's puzzle text. Part two stays `None` until part one is solved.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Instructions {
     pub part_one: String,
     pub part_two: Option<String>,
 }
 
 /// Everything cached for one day.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Entry {
     pub input: Input,
     pub instructions: Instructions,

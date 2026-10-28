@@ -4,14 +4,14 @@ use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
 /// A grid with at least one cell, every row the same width.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Rectangle<T> {
     inner: Vec<Vec<T>>,
     width: usize,
     height: usize,
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum InvalidRectangle {
     #[error("expected at least one column")]
     WidthIsZero,

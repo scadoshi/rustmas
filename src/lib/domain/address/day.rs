@@ -8,7 +8,7 @@ pub(crate) const FINAL_DAY: i32 = 25;
 
 /// Returned when a day falls outside its bound, which is the year's own day
 /// count when a year is known and 25 otherwise.
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("day {given} is outside 1..={bound}")]
 pub struct DayOutOfRange {
     pub given: i32,
@@ -16,7 +16,7 @@ pub struct DayOutOfRange {
 }
 
 /// A validated day within a validated [`Year`], which it always carries.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Day {
     value: i32,
     year: Year,

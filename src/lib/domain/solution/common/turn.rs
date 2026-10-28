@@ -3,7 +3,7 @@ use std::str::FromStr;
 use thiserror::Error;
 
 /// Returned when text does not name a turn. Carries what was read.
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("expected `l`, `r`, `left` or `right`, read {0:?}")]
 pub struct InvalidTurn(String);
 
@@ -11,7 +11,7 @@ pub struct InvalidTurn(String);
 ///
 /// Separate from [`Direction`](super::direction::Direction) so that nothing has
 /// to accept `Up` and `Down` where they name no turn.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Turn {
     Left,
     Right,

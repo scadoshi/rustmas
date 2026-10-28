@@ -3,7 +3,7 @@
 use std::fmt::Display;
 
 /// Named so call sites read `Part::One` rather than a `1` that could be a day.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Part {
     One,
     Two,

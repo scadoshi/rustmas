@@ -4,7 +4,7 @@ use std::fmt::Display;
 ///
 /// Each part grades once, so a second correct answer comes back as
 /// [`AocVerdict::AlreadySolved`].
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AocVerdict {
     Correct,
     Incorrect,

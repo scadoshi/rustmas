@@ -10,7 +10,7 @@ use crate::domain::solution::Solved;
 ///
 /// Parsing counts once per day and solving once per part, so the two means
 /// have different denominators and the printed lines say which is which.
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Totals {
     parsed: Duration,
     days: u32,
@@ -20,7 +20,7 @@ pub struct Totals {
 }
 
 /// The part that took longest, and which one it was.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Slowest {
     day: Day,
     part: Part,

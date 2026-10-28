@@ -1,6 +1,6 @@
 use clap::Args;
 
-#[derive(Args)]
+#[derive(Debug, Clone, PartialEq, Eq, Args)]
 pub struct FetchArgs {
     /// Year to fetch inputs for (omit for all)
     #[arg(short, long)]

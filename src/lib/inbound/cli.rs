@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 use crate::inbound::{fetch, solve};
 
 /// What the user asked for.
-#[derive(Subcommand)]
+#[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
 pub enum Command {
     /// Download puzzle inputs
     Fetch(fetch::args::FetchArgs),
@@ -21,7 +21,7 @@ impl Command {
 }
 
 /// The command line. One binary, one subcommand per mode.
-#[derive(Parser)]
+#[derive(Debug, Clone, PartialEq, Eq, Parser)]
 #[command(name = "rustmas")]
 #[command(about = "Advent of Code tooling in Rust")]
 #[command(version)]
