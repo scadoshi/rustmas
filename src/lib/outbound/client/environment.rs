@@ -31,7 +31,7 @@ impl Environment {
     ///
     /// Errors only when a value exists and cannot be read, which keeps "not
     /// configured" separate from "configured wrongly".
-    fn get(key: &str) -> anyhow::Result<Option<String>> {
+    fn read_var(key: &str) -> anyhow::Result<Option<String>> {
         // `.env` wins over the real environment, so a stale export cannot mask
         // an edit to it.
         dotenvy::dotenv_override().ok();
@@ -47,8 +47,8 @@ impl Environment {
     /// AOC asks automated clients to be reachable. Both are optional, so an
     /// unreadable one is treated as unset.
     pub(crate) fn user_agent() -> String {
-        let get = |key| Self::get(key).ok().flatten();
-        match (get(REPO_URL_KEY), get(CONTACT_KEY)) {
+        let read = |key| Self::read_var(key).ok().flatten();
+        match (read(REPO_URL_KEY), read(CONTACT_KEY)) {
             (Some(repo), Some(contact)) => format!("{repo} by {contact}"),
             (Some(repo), None) => repo,
             (None, Some(contact)) => format!("rustmas by {contact}"),
@@ -62,7 +62,7 @@ impl Environment {
     /// A value that is set but malformed is an error, not a `None`, so a
     /// mistyped cookie never reads as "not configured".
     pub(crate) fn cookie_if_set() -> anyhow::Result<Option<SessionCookie>> {
-        Self::get(COOKIE_KEY)?
+        Self::read_var(COOKIE_KEY)?
             .map(|value| SessionCookie::try_from(value.as_str()))
             .transpose()
     }

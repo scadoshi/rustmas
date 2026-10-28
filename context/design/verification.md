@@ -4,7 +4,7 @@
 
 Two different things, kept apart on purpose. Since 2026-08-06 the separation is structural:
 
-- `AocClient` (`aoc_client.rs`) holds `get_input` and `submit_answer`.
+- `AocClient` (`aoc_client.rs`) holds `fetch_input` and `submit_answer`.
 - `SolverClient` (`solver_client.rs`) holds `validate_answer`.
 - They share only the `User-Agent`, which both build from `Environment::user_agent` in `environment.rs`.
 

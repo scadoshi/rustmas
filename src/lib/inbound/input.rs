@@ -15,8 +15,8 @@ pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Res
     let cookie = Environment::cookie_if_set()?;
 
     let Some(cached) = store::read_entry(day)? else {
-        let input = fetch_input(client, day, cookie.as_ref())?;
-        let (part_one, part_two) = client.connected()?.get_instructions(day)?;
+        let input = fetch_tagged_input(client, day, cookie.as_ref())?;
+        let (part_one, part_two) = client.connected()?.fetch_instructions(day)?;
         let entry = Entry {
             input,
             instructions: Instructions { part_one, part_two },
@@ -38,7 +38,7 @@ pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Res
     }
 
     let input = if stale_session {
-        let input = fetch_input(client, day, cookie.as_ref())?;
+        let input = fetch_tagged_input(client, day, cookie.as_ref())?;
         println!(
             "refetched input for year {} day {}",
             day.year(),
@@ -50,7 +50,7 @@ pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Res
     };
 
     let instructions = if chase_part_two {
-        let (part_one, part_two) = client.connected()?.get_instructions(day)?;
+        let (part_one, part_two) = client.connected()?.fetch_instructions(day)?;
         if part_two.is_some() {
             println!(
                 "part two unlocked for year {} day {}",
@@ -72,12 +72,12 @@ pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Res
 }
 
 /// Downloads `day`'s input and tags it with the session that got it.
-fn fetch_input(
+fn fetch_tagged_input(
     client: &mut LazyAocClient,
     day: &Day,
     cookie: Option<&SessionCookie>,
 ) -> anyhow::Result<Input> {
-    let data = client.connected()?.get_input(day)?;
+    let data = client.connected()?.fetch_input(day)?;
     let cookie = match cookie {
         Some(cookie) => cookie.clone(),
         None => Environment::cookie()?,

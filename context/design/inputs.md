@@ -70,13 +70,13 @@ A `build.rs` that *downloaded* missing inputs was rejected outright. Build scrip
 
 An existing input counts as a cached download and is never refetched, since AOC asks that inputs not be re-downloaded. `ensure_dir` errors rather than overwriting when the wrong kind of thing sits in the way.
 
-`get_input` passes the response through `accepted`, which calls `error_for_status()`. An error page can't get written to disk and cached as though it were real input.
+`fetch_input` passes the response through `accepted`, which calls `error_for_status()`. An error page can't get written to disk and cached as though it were real input.
 
 ## Instructions
 
 The day page holds one `<article class="day-desc">` per unlocked part. Two articles means part two is available; one means it's still behind the first star. Completeness is structural, not a flag that could disagree with the text beside it.
 
-`get_instructions` renders each article with `html2text` at width 80. The client does the split and the rendering, so the store never sees a tag and doesn't know where its data came from. `verdict_from` keeps AOC's reply parsing inside the client the same way.
+`fetch_instructions` renders each article with `html2text` at width 80. The client does the split and the rendering, so the store never sees a tag and doesn't know where its data came from. `verdict_from` keeps AOC's reply parsing inside the client the same way.
 
 ## Open
 

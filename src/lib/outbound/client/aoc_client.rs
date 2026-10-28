@@ -68,7 +68,7 @@ impl AocClient {
     /// Fetches `day`'s puzzle text, rendered from HTML.
     ///
     /// Part two comes back `None` until part one is solved.
-    pub(crate) fn get_instructions(&self, day: &Day) -> anyhow::Result<(String, Option<String>)> {
+    pub(crate) fn fetch_instructions(&self, day: &Day) -> anyhow::Result<(String, Option<String>)> {
         self.pace();
         let html = self
             .client
@@ -95,7 +95,7 @@ impl AocClient {
     /// Fetches the raw puzzle input for `day`, verbatim.
     ///
     /// A non-success status usually means a bad cookie or an unreleased day.
-    pub(crate) fn get_input(&self, day: &Day) -> anyhow::Result<String> {
+    pub(crate) fn fetch_input(&self, day: &Day) -> anyhow::Result<String> {
         self.pace();
         self.client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!(
