@@ -59,7 +59,7 @@ impl Solution for Puzzle {
             .input
             .iter()
             .scan(
-                CellOnGrid::new(Cell::new(1, 1), &grid)?,
+                CellOnGrid::new(Cell::new(0, 2), &grid)?,
                 |cursor, directions| {
                     *cursor = directions.iter().fold(*cursor, |cursor, direction| {
                         cursor
@@ -72,5 +72,24 @@ impl Solution for Puzzle {
             )
             .collect();
         Ok(Answer::solved(code))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "ULL\nRRDDD\nLURDL\nUUUUD\n";
+
+    #[test]
+    fn part_one_example() {
+        let puzzle = Puzzle::new(EXAMPLE).unwrap();
+        assert_eq!(puzzle.part_one().unwrap(), Answer::solved("1985"));
+    }
+
+    #[test]
+    fn part_two_example() {
+        let puzzle = Puzzle::new(EXAMPLE).unwrap();
+        assert_eq!(puzzle.part_two().unwrap(), Answer::solved("5DB3"));
     }
 }
