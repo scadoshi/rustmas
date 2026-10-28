@@ -6,22 +6,22 @@ use crate::domain::solution::common::grid::{FixedWidth, Grid, VariableWidth};
 
 /// A [`Cursor`] holding a cell and a borrow of the grid it sits on.
 #[derive(Debug)]
-pub struct CellOnGrid<'a, G: Grid> {
+pub struct CellOnGrid<'grid, G> {
     cell: Cell,
-    grid: &'a G,
+    grid: &'grid G,
 }
 
 // Written out rather than derived: `derive` would demand `G: Copy`, which a
 // `&G` field never needs, and no grid type is `Copy`.
-impl<G: Grid> Copy for CellOnGrid<'_, G> {}
-impl<G: Grid> Clone for CellOnGrid<'_, G> {
+impl<G> Copy for CellOnGrid<'_, G> {}
+impl<G> Clone for CellOnGrid<'_, G> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<'a, G: Grid> Cursor<'a, G> for CellOnGrid<'a, G> {
-    fn new(cell: Cell, grid: &'a G) -> Result<Self, CellOutOfBounds>
+impl<'grid, G: Grid> Cursor<'grid, G> for CellOnGrid<'grid, G> {
+    fn new(cell: Cell, grid: &'grid G) -> Result<Self, CellOutOfBounds>
     where
         Self: Sized,
     {
@@ -31,7 +31,7 @@ impl<'a, G: Grid> Cursor<'a, G> for CellOnGrid<'a, G> {
         Ok(Self { cell, grid })
     }
 
-    fn new_unchecked(cell: Cell, grid: &'a G) -> Self {
+    fn new_unchecked(cell: Cell, grid: &'grid G) -> Self {
         Self { cell, grid }
     }
 
@@ -39,14 +39,14 @@ impl<'a, G: Grid> Cursor<'a, G> for CellOnGrid<'a, G> {
         self.cell
     }
 
-    fn grid(&self) -> &'a G {
+    fn grid(&self) -> &'grid G {
         self.grid
     }
 }
 
-impl<'a, G: Grid + FixedWidth> FixedWidthGridCursor<'a, G> for CellOnGrid<'a, G> {}
+impl<'grid, G: Grid + FixedWidth> FixedWidthGridCursor<'grid, G> for CellOnGrid<'grid, G> {}
 
-impl<'a, G: Grid + VariableWidth> VariableWidthGridCursor<'a, G> for CellOnGrid<'a, G> {}
+impl<'grid, G: Grid + VariableWidth> VariableWidthGridCursor<'grid, G> for CellOnGrid<'grid, G> {}
 
 #[cfg(test)]
 mod tests {

@@ -13,15 +13,15 @@ use crate::domain::solution::common::grid::{FixedWidth, Grid, VariableWidth};
 pub struct CellOutOfBounds;
 
 /// A [`Cell`] paired with the grid it indexes, always in bounds.
-pub trait Cursor<'a, G: Grid + 'a> {
+pub trait Cursor<'grid, G: Grid + 'grid> {
     /// `Err` if `cell` is not on `grid`.
-    fn new(cell: Cell, grid: &'a G) -> Result<Self, CellOutOfBounds>
+    fn new(cell: Cell, grid: &'grid G) -> Result<Self, CellOutOfBounds>
     where
         Self: Sized;
     /// Skips the bounds check. The caller guarantees `cell` is on `grid`.
-    fn new_unchecked(cell: Cell, grid: &'a G) -> Self;
+    fn new_unchecked(cell: Cell, grid: &'grid G) -> Self;
     fn cell(&self) -> Cell;
-    fn grid(&self) -> &'a G;
+    fn grid(&self) -> &'grid G;
 
     /// Moves `distance` in `direction`, `None` if that would leave the grid.
     fn checked_moved(self, direction: Direction, distance: usize) -> Option<Self>
@@ -35,7 +35,7 @@ pub trait Cursor<'a, G: Grid + 'a> {
     }
 
     /// The item under the cursor.
-    fn value(&self) -> &'a G::Item {
+    fn value(&self) -> &'grid G::Item {
         self.grid()
             .get_at(&self.cell())
             .expect("a cursor is always in bounds")
@@ -43,7 +43,7 @@ pub trait Cursor<'a, G: Grid + 'a> {
 }
 
 /// Moving over a grid whose rows are all one width.
-pub trait FixedWidthGridCursor<'a, F: FixedWidth + Grid + 'a>: Cursor<'a, F> {
+pub trait FixedWidthGridCursor<'grid, F: FixedWidth + Grid + 'grid>: Cursor<'grid, F> {
     /// Moves `distance` in `direction`, clamping at the edges of the grid.
     fn saturating_moved(self, direction: Direction, distance: usize) -> Self
     where
@@ -62,7 +62,9 @@ pub trait FixedWidthGridCursor<'a, F: FixedWidth + Grid + 'a>: Cursor<'a, F> {
 }
 
 /// Moving over a grid whose rows are each their own width.
-pub trait VariableWidthGridCursor<'a, V: VariableWidth + Grid + 'a>: Cursor<'a, V> {
+pub trait VariableWidthGridCursor<'grid, V: VariableWidth + Grid + 'grid>:
+    Cursor<'grid, V>
+{
     /// Moves `distance` in `direction`, clamping at the edges of the grid.
     ///
     /// The row clamps first, since which row you land on decides how wide it is.
