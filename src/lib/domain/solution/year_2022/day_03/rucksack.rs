@@ -26,21 +26,24 @@ pub fn priority(item: char) -> Option<u32> {
 /// A set of item types as bits, bit `p - 1` standing for priority `p`.
 ///
 /// 52 item types fit a `u64`, and "in common" becomes `&`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Items(u64);
 
 impl FromStr for Items {
     type Err = InvalidRucksack;
     fn from_str(items: &str) -> Result<Self, Self::Err> {
-        items.chars().try_fold(Self(0), |set, item| {
-            priority(item)
-                .map(|p| Self(set.0 | 1 << (p - 1)))
-                .ok_or(InvalidRucksack::NotAnItem(item))
-        })
+        items.chars().try_fold(Self(0), Self::with)
     }
 }
 
 impl Items {
+    /// This set plus `item`.
+    fn with(self, item: char) -> Result<Self, InvalidRucksack> {
+        priority(item)
+            .map(|p| Self(self.0 | 1 << (p - 1)))
+            .ok_or(InvalidRucksack::NotAnItem(item))
+    }
+
     pub fn common(self, other: Self) -> Self {
         Self(self.0 & other.0)
     }
@@ -55,7 +58,7 @@ impl Items {
 }
 
 /// One elf's rucksack, split into its two equal compartments.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Rucksack {
     pub left: Items,
     pub right: Items,
@@ -68,11 +71,22 @@ impl FromStr for Rucksack {
         if !value.len().is_multiple_of(2) {
             return Err(InvalidRucksack::OddLength);
         }
-        let (left, right) = value.split_at(value.len() / 2);
-        Ok(Self {
-            left: left.parse()?,
-            right: right.parse()?,
-        })
+        let middle = value.len() / 2;
+        value
+            .char_indices()
+            .try_fold(Self::default(), |sack, (at, item)| {
+                Ok(if at < middle {
+                    Self {
+                        left: sack.left.with(item)?,
+                        ..sack
+                    }
+                } else {
+                    Self {
+                        right: sack.right.with(item)?,
+                        ..sack
+                    }
+                })
+            })
     }
 }
 
@@ -105,6 +119,15 @@ mod tests {
         assert!(matches!(
             "a1".parse::<Rucksack>(),
             Err(InvalidRucksack::NotAnItem('1'))
+        ));
+    }
+
+    /// A two-byte letter straddles the byte midpoint of `a\u{e9}b`.
+    #[test]
+    fn a_non_ascii_item_is_rejected_not_split() {
+        assert!(matches!(
+            "a\u{e9}b".parse::<Rucksack>(),
+            Err(InvalidRucksack::NotAnItem('\u{e9}'))
         ));
     }
 

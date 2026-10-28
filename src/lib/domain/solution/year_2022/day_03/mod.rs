@@ -56,3 +56,23 @@ impl Solution for Puzzle {
         Ok(Answer::solved(total.to_string()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+vJrwpWtwJgWrhcsFMMfFFhFp
+jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+PmmdzqPrVvPwwTWBwg
+wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+ttgJtRGJQctTZtZT
+CrZsJsPPZsGzwwsLwLmpwMDw";
+
+    #[test]
+    fn the_example() {
+        let puzzle = Puzzle::new(EXAMPLE).unwrap();
+        assert_eq!(puzzle.part_one().unwrap(), Answer::solved("157"));
+        assert_eq!(puzzle.part_two().unwrap(), Answer::solved("70"));
+    }
+}
