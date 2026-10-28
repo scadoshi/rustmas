@@ -1,3 +1,5 @@
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
@@ -20,27 +22,39 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.masses
-                .iter()
-                .map(|&mass| fuel_for(mass))
-                .sum::<u32>()
-                .to_string(),
-        ))
+        let total = self
+            .masses
+            .iter()
+            .try_fold(0_u32, |total, &mass| total.checked_add(fuel_for(mass)))
+            .context("the fuel adds up past u32")?;
+        Ok(Answer::solved(total.to_string()))
     }
 
     /// Fuel has mass too, so each load needs fuel of its own until a load
     /// rounds to nothing.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.masses
-                .iter()
-                .flat_map(|&mass| {
-                    std::iter::successors(Some(fuel_for(mass)), |&fuel| Some(fuel_for(fuel)))
-                        .take_while(|&fuel| fuel > 0)
-                })
-                .sum::<u32>()
-                .to_string(),
-        ))
+        let total = self
+            .masses
+            .iter()
+            .flat_map(|&mass| {
+                std::iter::successors(Some(fuel_for(mass)), |&fuel| Some(fuel_for(fuel)))
+                    .take_while(|&fuel| fuel > 0)
+            })
+            .try_fold(0_u32, u32::checked_add)
+            .context("the fuel adds up past u32")?;
+        Ok(Answer::solved(total.to_string()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fuel_past_u32_is_an_error() {
+        let max = u32::MAX.to_string();
+        let puzzle = Puzzle::new([max.as_str(); 4].join("\n")).unwrap();
+        assert!(puzzle.part_one().is_err());
+        assert!(puzzle.part_two().is_err());
     }
 }

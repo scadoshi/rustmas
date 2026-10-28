@@ -21,15 +21,14 @@ impl Solution for Puzzle {
     /// A number is a part number if any symbol touches it.
     fn part_one(&self) -> anyhow::Result<Answer> {
         let symbols = self.schematic.symbols(is_symbol);
-        Ok(Answer::solved(
-            self.schematic
-                .numbers()?
-                .iter()
-                .filter(|number| symbols.iter().any(|&cell| number.touches(cell)))
-                .map(|number| number.value)
-                .sum::<u32>()
-                .to_string(),
-        ))
+        let total = self
+            .schematic
+            .numbers()?
+            .iter()
+            .filter(|number| symbols.iter().any(|&cell| number.touches(cell)))
+            .try_fold(0_u32, |total, number| total.checked_add(number.value))
+            .context("the part numbers add up past u32")?;
+        Ok(Answer::solved(total.to_string()))
     }
 
     /// A `*` touching exactly two numbers is a gear; its ratio is their product.

@@ -27,7 +27,7 @@ impl Puzzle {
             for board in boards.extract_if(.., |board| board.has_bingo()) {
                 let score = board
                     .unmarked_sum()
-                    .checked_mul(u32::from(draw))
+                    .and_then(|sum| sum.checked_mul(u32::from(draw)))
                     .ok_or_else(|| anyhow!("a board's score passes u32"))?;
                 scores.push(score);
             }

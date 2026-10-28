@@ -24,11 +24,12 @@ impl Solution for Puzzle {
 
     /// The one item type each elf packed in both compartments.
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let total = self
-            .rucksacks
-            .iter()
-            .map(|sack| sack.left.common(sack.right).single_priority())
-            .sum::<Result<u32, _>>()?;
+        let total = self.rucksacks.iter().try_fold(0_u32, |total, sack| {
+            let priority = sack.left.common(sack.right).single_priority()?;
+            total
+                .checked_add(priority)
+                .ok_or_else(|| anyhow!("the priorities add up past u32"))
+        })?;
         Ok(Answer::solved(total.to_string()))
     }
 
@@ -39,21 +40,22 @@ impl Solution for Puzzle {
                 "expected the elves to divide into groups of {GROUP}"
             ));
         }
-        let total = self
-            .rucksacks
-            .as_chunks::<GROUP>()
-            .0
-            .iter()
-            .map(|group| {
-                group
-                    .iter()
-                    .map(|sack| sack.all())
-                    .reduce(Items::common)
-                    .ok_or_else(|| anyhow!("expected a group to have elves in it"))?
-                    .single_priority()
-                    .map_err(Into::into)
-            })
-            .sum::<anyhow::Result<u32>>()?;
+        let total =
+            self.rucksacks
+                .as_chunks::<GROUP>()
+                .0
+                .iter()
+                .try_fold(0_u32, |total, group| {
+                    let priority = group
+                        .iter()
+                        .map(|sack| sack.all())
+                        .reduce(Items::common)
+                        .ok_or_else(|| anyhow!("expected a group to have elves in it"))?
+                        .single_priority()?;
+                    total
+                        .checked_add(priority)
+                        .ok_or_else(|| anyhow!("the badge priorities add up past u32"))
+                })?;
         Ok(Answer::solved(total.to_string()))
     }
 }

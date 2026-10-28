@@ -1,5 +1,7 @@
 pub mod room;
 
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
@@ -18,14 +20,13 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.rooms
-                .iter()
-                .filter(|room| room.is_real())
-                .map(|room| room.id)
-                .sum::<u32>()
-                .to_string(),
-        ))
+        let total = self
+            .rooms
+            .iter()
+            .filter(|room| room.is_real())
+            .try_fold(0_u32, |total, room| total.checked_add(room.id))
+            .context("the real room ids add up past u32")?;
+        Ok(Answer::solved(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {

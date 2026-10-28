@@ -1,5 +1,7 @@
 pub mod word_search;
 
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2024::day_04::word_search::WordSearch;
@@ -17,13 +19,14 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.grid
-                .cells()
-                .map(|cell| self.grid.xmas_from(cell))
-                .sum::<usize>()
-                .to_string(),
-        ))
+        let total = self
+            .grid
+            .cells()
+            .try_fold(0_usize, |total, cell| {
+                total.checked_add(self.grid.xmas_from(cell))
+            })
+            .context("the XMAS count passes usize")?;
+        Ok(Answer::solved(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {

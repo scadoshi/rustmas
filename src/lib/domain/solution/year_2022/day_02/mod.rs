@@ -1,5 +1,7 @@
 pub mod game;
 
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
@@ -18,20 +20,20 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        let total: u32 = self
-            .games
-            .iter()
-            .map(|g| Ok(g.to_game_other_is_player()?.player_score()))
-            .sum::<anyhow::Result<u32>>()?;
+        let total: u32 = self.games.iter().try_fold(0_u32, |total, g| {
+            total
+                .checked_add(g.to_game_other_is_player()?.player_score())
+                .context("the scores add up past u32")
+        })?;
         Ok(Answer::solved(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let total: u32 = self
-            .games
-            .iter()
-            .map(|g| Ok(g.to_game_other_is_result()?.player_score()))
-            .sum::<anyhow::Result<u32>>()?;
+        let total: u32 = self.games.iter().try_fold(0_u32, |total, g| {
+            total
+                .checked_add(g.to_game_other_is_result()?.player_score())
+                .context("the scores add up past u32")
+        })?;
         Ok(Answer::solved(total.to_string()))
     }
 }

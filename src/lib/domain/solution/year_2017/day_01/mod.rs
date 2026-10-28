@@ -1,3 +1,5 @@
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
@@ -7,14 +9,16 @@ pub struct Puzzle {
 }
 
 impl Puzzle {
-    fn matching(&self, step: usize) -> u32 {
+    /// The sum of every digit that matches the one `step` places ahead,
+    /// wrapping around the end.
+    fn matching(&self, step: usize) -> anyhow::Result<u32> {
         let ahead = self.digits.iter().cycle().skip(step);
         self.digits
             .iter()
             .zip(ahead)
             .filter(|(digit, other)| digit == other)
-            .map(|(digit, _)| digit)
-            .sum()
+            .try_fold(0_u32, |total, (&digit, _)| total.checked_add(digit))
+            .context("the matching digits add up past u32")
     }
 }
 
@@ -29,12 +33,12 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(self.matching(1).to_string()))
+        Ok(Answer::solved(self.matching(1)?.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
         Ok(Answer::solved(
-            self.matching(self.digits.len() / 2).to_string(),
+            self.matching(self.digits.len() / 2)?.to_string(),
         ))
     }
 }

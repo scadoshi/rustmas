@@ -60,7 +60,7 @@ impl Solution for Puzzle {
         let slept = self.sleep_by_minute()?;
         let Some((guard, minutes)) = slept
             .iter()
-            .max_by_key(|(_, minutes)| minutes.iter().sum::<u32>())
+            .max_by_key(|(_, minutes)| minutes.iter().copied().map(u64::from).sum::<u64>())
         else {
             return Ok(Answer::None);
         };

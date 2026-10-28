@@ -33,14 +33,13 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.list_1
-                .iter()
-                .zip(&self.list_2)
-                .map(|(n1, n2)| n1.abs_diff(*n2))
-                .sum::<u32>()
-                .to_string(),
-        ))
+        let total = self
+            .list_1
+            .iter()
+            .zip(&self.list_2)
+            .try_fold(0_u32, |total, (n1, n2)| total.checked_add(n1.abs_diff(*n2)))
+            .ok_or_else(|| anyhow!("the distances add up past u32"))?;
+        Ok(Answer::solved(total.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
@@ -70,5 +69,11 @@ mod tests {
         let puzzle = Puzzle::new("3   4\n4   3\n2   5\n1   3\n3   9\n3   3").unwrap();
         assert_eq!(puzzle.part_one().unwrap(), Answer::solved("11"));
         assert_eq!(puzzle.part_two().unwrap(), Answer::solved("31"));
+    }
+
+    #[test]
+    fn distances_past_u32_are_an_error() {
+        let puzzle = Puzzle::new("-2147483648   2147483647\n-2147483648   2147483647").unwrap();
+        assert!(puzzle.part_one().is_err());
     }
 }

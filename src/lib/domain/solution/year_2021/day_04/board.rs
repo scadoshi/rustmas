@@ -62,14 +62,13 @@ impl Board {
         row_done || column_done
     }
 
-    /// The sum of everything not yet marked.
-    pub fn unmarked_sum(&self) -> u32 {
+    /// The sum of everything not yet marked, or `None` past [`u32::MAX`].
+    pub fn unmarked_sum(&self) -> Option<u32> {
         self.0
             .iter_rows()
             .flatten()
             .flatten()
-            .map(|&n| u32::from(n))
-            .sum()
+            .try_fold(0_u32, |total, &n| total.checked_add(u32::from(n)))
     }
 }
 
@@ -117,9 +116,9 @@ mod tests {
     #[test]
     fn unmarked_sum_drops_what_was_marked() {
         let mut b = board();
-        assert_eq!(b.unmarked_sum(), 45);
+        assert_eq!(b.unmarked_sum(), Some(45));
         b.mark(5);
         b.mark(9);
-        assert_eq!(b.unmarked_sum(), 31);
+        assert_eq!(b.unmarked_sum(), Some(31));
     }
 }

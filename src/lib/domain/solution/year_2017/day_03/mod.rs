@@ -35,9 +35,10 @@ impl Solution for Puzzle {
     fn part_two(&self) -> anyhow::Result<Answer> {
         let mut values: HashMap<Point, usize> = HashMap::from([(Point::default(), 1)]);
         for point in spiral().skip(1) {
-            let value: usize = neighbors(point)
+            let value = neighbors(point)
                 .filter_map(|neighbor| values.get(&neighbor))
-                .sum();
+                .try_fold(0_usize, |total, &value| total.checked_add(value))
+                .context("a square's neighbors add up past usize")?;
             if value > self.target {
                 return Ok(Answer::solved(value.to_string()));
             }

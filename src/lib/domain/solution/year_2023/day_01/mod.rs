@@ -19,8 +19,12 @@ impl Puzzle {
             .input
             .iter()
             .zip(1_usize..)
-            .map(|(s, line)| f(s).with_context(|| format!("line {line} has no numbers: {s:?}")))
-            .sum::<anyhow::Result<u32>>()?;
+            .try_fold(0_u32, |total, (s, line)| {
+                let value = f(s).with_context(|| format!("line {line} has no numbers: {s:?}"))?;
+                total
+                    .checked_add(value)
+                    .context("the calibration values add up past u32")
+            })?;
         Ok(Answer::solved(total.to_string()))
     }
 }
