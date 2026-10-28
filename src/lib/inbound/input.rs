@@ -22,7 +22,7 @@ pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Res
             instructions: Instructions { part_one, part_two },
         };
         store::write_entry(day, &entry)?;
-        println!("fetched year {} day {}", day.year(), day.value());
+        println!("fetched {day}");
         return Ok(entry);
     };
 
@@ -39,11 +39,7 @@ pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Res
 
     let input = if stale_session {
         let input = fetch_tagged_input(client, day, cookie.as_ref())?;
-        println!(
-            "refetched input for year {} day {}",
-            day.year(),
-            day.value()
-        );
+        println!("refetched input for {day}");
         input
     } else {
         cached.input
@@ -52,11 +48,7 @@ pub(crate) fn ensure_entry(client: &mut LazyAocClient, day: &Day) -> anyhow::Res
     let instructions = if chase_part_two {
         let (part_one, part_two) = client.connected()?.fetch_instructions(day)?;
         if part_two.is_some() {
-            println!(
-                "part two unlocked for year {} day {}",
-                day.year(),
-                day.value()
-            );
+            println!("part two unlocked for {day}");
         }
         Instructions { part_one, part_two }
     } else {

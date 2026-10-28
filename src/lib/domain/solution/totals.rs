@@ -80,11 +80,8 @@ impl Display for Totals {
         if let Some(s) = &self.slowest {
             writeln!(
                 f,
-                "slowest part: year {} day {} part {} [{:?}]",
-                s.day.year(),
-                s.day.value(),
-                s.part,
-                s.elapsed
+                "slowest part: {} part {} [{:?}]",
+                s.day, s.part, s.elapsed
             )?;
         }
         Ok(())

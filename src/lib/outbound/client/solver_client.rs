@@ -100,11 +100,7 @@ impl SolverClient {
             eprintln!("solver at {url} returned {status}: {body}; trying next url");
         }
 
-        bail!(
-            "failed to check answer for year: {} and day: {} via all urls",
-            day.year(),
-            day.value()
-        );
+        bail!("failed to check answer for {day} via all urls");
     }
 }
 

@@ -108,11 +108,7 @@ pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
         // Asked before fetching, so unsolvable days download nothing.
         let Some(solver_fn) = solver_for(day.year(), day.value()) else {
             if args.day.is_some() {
-                eprintln!(
-                    "year {} day {} has no solution yet",
-                    day.year(),
-                    day.value()
-                );
+                eprintln!("{day} has no solution yet");
             }
             continue;
         };
@@ -134,9 +130,7 @@ pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 }
 
                 println!(
-                    "year {} day {} in {:?} ({:?} parsing)",
-                    day.year(),
-                    day.value(),
+                    "{day} in {:?} ({:?} parsing)",
                     solved.total_elapsed(),
                     solved.parsed_in
                 );
@@ -145,7 +139,7 @@ pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
 
                 totals.add(&day, &solved);
             }
-            Err(e) => eprintln!("year {} day {} failed: {e:?}", day.year(), day.value()),
+            Err(e) => eprintln!("{day} failed: {e:?}"),
         }
     }
     // Below two days the summary would only restate the lines above it.

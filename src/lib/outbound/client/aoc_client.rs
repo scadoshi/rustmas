@@ -74,20 +74,20 @@ impl AocClient {
             .client
             .get(Url::parse(AOC_BASE_URL)?.join(&format!("{}/day/{}", day.year(), day.value()))?)
             .send()
-            .with_context(|| format!("failed to reach AOC for {day:?}"))
+            .with_context(|| format!("failed to reach AOC for {day}"))
             .and_then(|response| accepted(response, day))?
             .text()
-            .with_context(|| format!("failed to read page body for {day:?}"))?;
+            .with_context(|| format!("failed to read page body for {day}"))?;
 
         let mut parts = html.split(ARTICLE_OPEN_TAG).skip(1).map(|part| {
             let body = part.split("</article>").next().unwrap_or_default();
             html2text::from_read(body.as_bytes(), INSTRUCTIONS_WIDTH)
-                .with_context(|| format!("failed to render instructions for {day:?}"))
+                .with_context(|| format!("failed to render instructions for {day}"))
         });
 
         let one = parts
             .next()
-            .with_context(|| format!("no puzzle text found for {day:?}"))??;
+            .with_context(|| format!("no puzzle text found for {day}"))??;
         let two = parts.next().transpose()?;
         Ok((one, two))
     }
@@ -104,22 +104,10 @@ impl AocClient {
                 day.value()
             ))?)
             .send()
-            .with_context(|| {
-                format!(
-                    "failed to reach AOC for year: {} and day: {}",
-                    day.year(),
-                    day.value()
-                )
-            })
+            .with_context(|| format!("failed to reach AOC for {day}"))
             .and_then(|response| accepted(response, day))?
             .text()
-            .with_context(|| {
-                format!(
-                    "failed to read input body for year: {} and day: {}",
-                    day.year(),
-                    day.value()
-                )
-            })
+            .with_context(|| format!("failed to read input body for {day}"))
     }
 
     /// Submits `answer` to adventofcode.com and reads the graded reply.
@@ -142,10 +130,10 @@ impl AocClient {
             .post(url)
             .form(&form)
             .send()
-            .with_context(|| format!("failed to reach AOC for {day:?}"))
+            .with_context(|| format!("failed to reach AOC for {day}"))
             .and_then(|response| accepted(response, day))?
             .text()
-            .with_context(|| format!("failed to read submit body for {day:?}"))?;
+            .with_context(|| format!("failed to read submit body for {day}"))?;
 
         Ok(verdict_from(&body))
     }
@@ -158,10 +146,10 @@ fn accepted(response: Response, day: &Day) -> anyhow::Result<Response> {
     let status = response.status();
     response.error_for_status().with_context(|| match status {
         StatusCode::FORBIDDEN | StatusCode::METHOD_NOT_ALLOWED => format!(
-            "adventofcode.com refused {day:?} with HTTP {status}: it throttles bulk fetching. \
+            "adventofcode.com refused {day} with HTTP {status}: it throttles bulk fetching. \
              Wait a while, then fetch one year at a time (`fetch -y <year>`)"
         ),
-        _ => format!("bad response status for {day:?}"),
+        _ => format!("bad response status for {day}"),
     })
 }
 

@@ -1,3 +1,5 @@
+use std::fmt::{self, Display};
+
 use thiserror::Error;
 
 use crate::domain::address::filter::Filter;
@@ -66,6 +68,13 @@ impl Day {
             return Err(DayOutOfRange { given: day, bound });
         }
         Ok(Self { value: day, year })
+    }
+}
+
+impl Display for Day {
+    /// `year 2015 day 1`, as every message names a day.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "year {} day {}", self.year(), self.value)
     }
 }
 
@@ -142,5 +151,11 @@ mod tests {
         let days: Vec<_> = Day::matching(filter(None, Some(25))).collect();
         assert!(days.iter().all(|day| day.year() != 2025));
         assert_eq!(days.len(), (Year::latest() - FIRST_YEAR) as usize);
+    }
+
+    #[test]
+    fn displays_as_year_then_day() {
+        let day = Day::new(1, year(2015)).unwrap();
+        assert_eq!(day.to_string(), "year 2015 day 1");
     }
 }
