@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use thiserror::Error;
 
 use crate::domain::solution::common::cell::Cell;
@@ -28,13 +26,6 @@ impl From<InvalidRectangle> for InvalidSquare {
 /// A [`Rectangle`] whose width and height are equal.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Square<T>(Rectangle<T>);
-
-impl<T> Deref for Square<T> {
-    type Target = Rectangle<T>;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
 
 impl<T> Square<T> {
     /// Checks that `inner` is as wide as it is tall, then defers to
