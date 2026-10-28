@@ -16,14 +16,18 @@ pub enum InvalidInstruction {
     Distance(#[from] ParseIntError),
     #[error("expected a turn letter followed by a distance")]
     TooShort,
+    /// The distance is below zero; the walk only goes forward.
+    #[error("expected a distance of zero or more, read {0}")]
+    Negative(i32),
 }
 
-/// Which way to turn, then how far to walk. Parses from `R2` or `L3`.
+/// Which way to turn, then how far forward to walk. Parses from `R2` or `L3`.
 ///
 /// The letter is a [`Turn`] rather than a direction, so `U3` is rejected
 /// instead of quietly turning nowhere and walking three.
 pub(super) struct Instruction {
     pub turn: Turn,
+    /// Never negative, checked when parsed.
     pub distance: i32,
 }
 
@@ -38,6 +42,9 @@ impl FromStr for Instruction {
             .get(1..)
             .ok_or(InvalidInstruction::TooShort)?
             .parse()?;
+        if distance < 0 {
+            return Err(InvalidInstruction::Negative(distance));
+        }
         Ok(Self { turn, distance })
     }
 }
@@ -110,6 +117,15 @@ mod tests {
         assert!(matches!(
             "".parse::<Instruction>(),
             Err(InvalidInstruction::TooShort)
+        ));
+    }
+
+    /// The puzzle only walks forward, so `R-2` is not an instruction.
+    #[test]
+    fn rejects_a_negative_distance() {
+        assert!(matches!(
+            "R-2".parse::<Instruction>(),
+            Err(InvalidInstruction::Negative(-2))
         ));
     }
 
