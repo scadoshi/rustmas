@@ -1,5 +1,7 @@
 pub mod instructions;
 
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::turn::Turn;
@@ -13,18 +15,17 @@ pub struct Puzzle {
 const DIAL_SIZE: i64 = 100;
 const START: i32 = 50;
 
-fn wrapped(raw: i64) -> i32 {
-    let rem = raw % DIAL_SIZE;
-    (if rem < 0 { DIAL_SIZE + rem } else { rem }) as i32
-}
-
-fn moved(position: i32, turn: Turn, distance: i32) -> i32 {
+/// Where the dial points after `turn` by `distance` from `position`, always
+/// in `0..DIAL_SIZE`. `None` only if the arithmetic leaves [`i64`], which two
+/// widened [`i32`] values cannot.
+fn moved(position: i32, turn: Turn, distance: i32) -> Option<i32> {
     let distance = i64::from(distance);
     let position = i64::from(position);
-    wrapped(match turn {
-        Turn::Left => position - distance,
-        Turn::Right => position + distance,
-    })
+    let raw = match turn {
+        Turn::Left => position.checked_sub(distance)?,
+        Turn::Right => position.checked_add(distance)?,
+    };
+    i32::try_from(raw.rem_euclid(DIAL_SIZE)).ok()
 }
 
 /// How many times a turn goes over zero, counted rather than walked.
@@ -32,15 +33,18 @@ fn moved(position: i32, turn: Turn, distance: i32) -> i32 {
 /// The multiples of [`DIAL_SIZE`] in the swept interval. [`i64::div_euclid`]
 /// rather than `/`, since that interval runs negative and `-1 / 100` truncates
 /// to zero.
-fn zeros_crossed(position: i32, turn: Turn, distance: i32) -> i64 {
+fn zeros_crossed(position: i32, turn: Turn, distance: i32) -> Option<i64> {
     let distance = i64::from(distance);
     let position = i64::from(position);
-    match turn {
-        Turn::Right => (position + distance).div_euclid(DIAL_SIZE) - position.div_euclid(DIAL_SIZE),
+    let (high, low) = match turn {
+        Turn::Right => (position.checked_add(distance)?, position),
         Turn::Left => {
-            (position - 1).div_euclid(DIAL_SIZE) - (position - distance - 1).div_euclid(DIAL_SIZE)
+            let high = position.checked_sub(1)?;
+            (high, high.checked_sub(distance)?)
         }
-    }
+    };
+    high.div_euclid(DIAL_SIZE)
+        .checked_sub(low.div_euclid(DIAL_SIZE))
 }
 
 impl Solution for Puzzle {
@@ -51,35 +55,35 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.instructions
-                .iter()
-                .fold((START, 0), |(position, count), instruction| {
-                    let moved = moved(position, instruction.turn, instruction.distance);
-                    if moved == 0 {
-                        (moved, count + 1)
-                    } else {
-                        (moved, count)
-                    }
-                })
-                .1
-                .to_string(),
-        ))
+        let (_, count) = self
+            .instructions
+            .iter()
+            .try_fold((START, 0_usize), |(position, count), instruction| {
+                let moved = moved(position, instruction.turn, instruction.distance)?;
+                let count = if moved == 0 {
+                    count.checked_add(1)?
+                } else {
+                    count
+                };
+                Some((moved, count))
+            })
+            .context("the dial count passes its range")?;
+        Ok(Answer::solved(count.to_string()))
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            self.instructions
-                .iter()
-                .fold((START, 0_i64), |(position, count), instruction| {
-                    (
-                        moved(position, instruction.turn, instruction.distance),
-                        count + zeros_crossed(position, instruction.turn, instruction.distance),
-                    )
-                })
-                .1
-                .to_string(),
-        ))
+        let (_, count) = self
+            .instructions
+            .iter()
+            .try_fold((START, 0_i64), |(position, count), instruction| {
+                let crossed = zeros_crossed(position, instruction.turn, instruction.distance)?;
+                Some((
+                    moved(position, instruction.turn, instruction.distance)?,
+                    count.checked_add(crossed)?,
+                ))
+            })
+            .context("the zero count passes its range")?;
+        Ok(Answer::solved(count.to_string()))
     }
 }
 
@@ -100,14 +104,14 @@ mod tests {
     /// passes it once.
     #[test]
     fn zeros_crossed_counts_each_click_on_zero() {
-        assert_eq!(zeros_crossed(50, Turn::Right, 50), 1);
-        assert_eq!(zeros_crossed(50, Turn::Left, 50), 1);
-        assert_eq!(zeros_crossed(0, Turn::Left, 5), 0);
-        assert_eq!(zeros_crossed(0, Turn::Right, 5), 0);
-        assert_eq!(zeros_crossed(0, Turn::Left, 100), 1);
-        assert_eq!(zeros_crossed(50, Turn::Right, 1000), 10);
-        assert_eq!(zeros_crossed(50, Turn::Left, 150), 2);
-        assert_eq!(zeros_crossed(50, Turn::Left, 0), 0);
+        assert_eq!(zeros_crossed(50, Turn::Right, 50), Some(1));
+        assert_eq!(zeros_crossed(50, Turn::Left, 50), Some(1));
+        assert_eq!(zeros_crossed(0, Turn::Left, 5), Some(0));
+        assert_eq!(zeros_crossed(0, Turn::Right, 5), Some(0));
+        assert_eq!(zeros_crossed(0, Turn::Left, 100), Some(1));
+        assert_eq!(zeros_crossed(50, Turn::Right, 1000), Some(10));
+        assert_eq!(zeros_crossed(50, Turn::Left, 150), Some(2));
+        assert_eq!(zeros_crossed(50, Turn::Left, 0), Some(0));
     }
 
     /// A negative distance would turn the other way and count zeros backwards.

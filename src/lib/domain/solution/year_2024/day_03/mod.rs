@@ -1,5 +1,7 @@
 pub mod instruction;
 
+use anyhow::Context;
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2024::day_03::instruction::{Instruction, instructions};
@@ -17,26 +19,29 @@ impl Solution for Puzzle {
     }
 
     fn part_one(&self) -> anyhow::Result<Answer> {
-        Ok(Answer::solved(
-            instructions(&self.memory)
-                .filter_map(|i| match i {
-                    Instruction::Mul(a, b) => Some(a * b),
-                    _ => None,
-                })
-                .sum::<u64>()
-                .to_string(),
-        ))
+        let total = instructions(&self.memory)
+            .try_fold(0_u64, |total, i| match i {
+                Instruction::Mul(a, b) => total.checked_add(a.checked_mul(b)?),
+                _ => Some(total),
+            })
+            .context("the sum of the products passes u64")?;
+        Ok(Answer::solved(total.to_string()))
     }
 
     /// `don't()` switches the multiplications off until the next `do()`.
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let (total, _) =
-            instructions(&self.memory).fold((0, true), |(total, enabled), i| match i {
-                Instruction::Mul(a, b) if enabled => (total + a * b, enabled),
-                Instruction::Mul(..) => (total, enabled),
-                Instruction::Do => (total, true),
-                Instruction::Dont => (total, false),
-            });
+        let (total, _) = instructions(&self.memory)
+            .try_fold((0_u64, true), |(total, enabled), i| {
+                Some(match i {
+                    Instruction::Mul(a, b) if enabled => {
+                        (total.checked_add(a.checked_mul(b)?)?, enabled)
+                    }
+                    Instruction::Mul(..) => (total, enabled),
+                    Instruction::Do => (total, true),
+                    Instruction::Dont => (total, false),
+                })
+            })
+            .context("the sum of the products passes u64")?;
         Ok(Answer::solved(total.to_string()))
     }
 }

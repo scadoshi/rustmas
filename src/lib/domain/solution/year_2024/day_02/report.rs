@@ -24,8 +24,11 @@ fn is_safe(levels: &[i32]) -> bool {
     let mut steps = levels
         .iter()
         .zip(levels.iter().skip(1))
-        .map(|(&from, &to)| i64::from(to) - i64::from(from));
-    steps.clone().all(|s| (1..=3).contains(&s)) || steps.all(|s| (-3..=-1).contains(&s))
+        .map(|(&from, &to)| i64::from(to).checked_sub(i64::from(from)));
+    steps
+        .clone()
+        .all(|s| s.is_some_and(|s| (1..=3).contains(&s)))
+        || steps.all(|s| s.is_some_and(|s| (-3..=-1).contains(&s)))
 }
 
 impl Report {

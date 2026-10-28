@@ -21,7 +21,7 @@ impl Solution for Puzzle {
             .map(|l| {
                 let (s1, s2) = l
                     .split_once("   ")
-                    .ok_or(anyhow!("invalid input line: {l:?}"))?;
+                    .ok_or_else(|| anyhow!("invalid input line: {l:?}"))?;
                 Ok((s1.parse::<i32>()?, s2.parse::<i32>()?))
             })
             .collect::<Result<Vec<(i32, i32)>, anyhow::Error>>()?
@@ -44,19 +44,31 @@ impl Solution for Puzzle {
     }
 
     fn part_two(&self) -> anyhow::Result<Answer> {
-        let counts: HashMap<i32, i32> = self.list_2.iter().fold(HashMap::new(), |mut acc, n| {
-            *acc.entry(*n).or_default() += 1;
-            acc
-        });
-        let total: i32 = self
-            .list_1
-            .iter()
-            .map(|n| {
-                n.checked_mul(*counts.get(n).unwrap_or(&0)).ok_or(anyhow!(
-                    "list_1 num multiplied by its list_2 counts exceeded i32::MAX"
-                ))
-            })
-            .sum::<anyhow::Result<i32>>()?;
+        let mut counts: HashMap<i32, i32> = HashMap::new();
+        for n in &self.list_2 {
+            let count = counts.entry(*n).or_default();
+            *count = count
+                .checked_add(1)
+                .ok_or_else(|| anyhow!("a number appears in list_2 more than i32::MAX times"))?;
+        }
+        let total = self.list_1.iter().try_fold(0_i32, |total, n| {
+            n.checked_mul(*counts.get(n).unwrap_or(&0))
+                .and_then(|score| total.checked_add(score))
+                .ok_or_else(|| anyhow!("the similarity score passes the i32 range"))
+        })?;
         Ok(Answer::solved(total.to_string()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The puzzle's example for both parts.
+    #[test]
+    fn example() {
+        let puzzle = Puzzle::new("3   4\n4   3\n2   5\n1   3\n3   9\n3   3").unwrap();
+        assert_eq!(puzzle.part_one().unwrap(), Answer::solved("11"));
+        assert_eq!(puzzle.part_two().unwrap(), Answer::solved("31"));
     }
 }

@@ -39,8 +39,8 @@ impl WordSearch {
     /// The letter `steps` cells from `cell` along `(dc, dr)`, if on the grid.
     pub fn letter(&self, cell: Cell, (dc, dr): (isize, isize), steps: usize) -> Option<char> {
         let steps = isize::try_from(steps).ok()?;
-        let column = cell.column().checked_add_signed(dc * steps)?;
-        let row = cell.row().checked_add_signed(dr * steps)?;
+        let column = cell.column().checked_add_signed(dc.checked_mul(steps)?)?;
+        let row = cell.row().checked_add_signed(dr.checked_mul(steps)?)?;
         self.0.at(&Cell::new(column, row)).copied()
     }
 

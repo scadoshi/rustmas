@@ -41,7 +41,9 @@ pub fn instructions(memory: &str) -> impl Iterator<Item = Instruction> + '_ {
                 rest = after;
                 return Some(Instruction::Dont);
             }
-            rest = &rest[rest.chars().next().map_or(0, char::len_utf8)..];
+            let mut chars = rest.chars();
+            chars.next();
+            rest = chars.as_str();
         }
         None
     })
