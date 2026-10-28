@@ -37,7 +37,7 @@ pub trait Cursor<'grid, G: Grid + 'grid> {
     /// The item under the cursor.
     fn value(&self) -> &'grid G::Item {
         self.grid()
-            .get_at(&self.cell())
+            .at(&self.cell())
             .expect("a cursor is always in bounds")
     }
 }

@@ -50,12 +50,12 @@ impl<T> Square<T> {
 impl<T> Grid for Square<T> {
     type Item = T;
 
-    fn get_at(&self, cell: &Cell) -> Option<&Self::Item> {
-        self.0.get_at(cell)
+    fn at(&self, cell: &Cell) -> Option<&Self::Item> {
+        self.0.at(cell)
     }
 
-    fn get_mut_at(&mut self, cell: &Cell) -> Option<&mut Self::Item> {
-        self.0.get_mut_at(cell)
+    fn at_mut(&mut self, cell: &Cell) -> Option<&mut Self::Item> {
+        self.0.at_mut(cell)
     }
 
     fn contains_cell(&self, cell: &Cell) -> bool {
@@ -121,7 +121,7 @@ mod tests {
 
     #[test]
     fn square_reads_through_to_the_rectangle() {
-        assert_eq!(grid().get_at(&Cell::new(1, 0)), Some(&'b'));
-        assert!(grid().get_at(&Cell::new(2, 0)).is_none());
+        assert_eq!(grid().at(&Cell::new(1, 0)), Some(&'b'));
+        assert!(grid().at(&Cell::new(2, 0)).is_none());
     }
 }

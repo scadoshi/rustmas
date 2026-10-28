@@ -52,20 +52,20 @@ impl<T> FixedWidth for Rectangle<T> {
 impl<T> Grid for Rectangle<T> {
     type Item = T;
 
-    fn get_at(&self, cell: &Cell) -> Option<&Self::Item> {
+    fn at(&self, cell: &Cell) -> Option<&Self::Item> {
         self.inner
             .get(cell.row())
             .and_then(|r| r.get(cell.column()))
     }
 
-    fn get_mut_at(&mut self, cell: &Cell) -> Option<&mut Self::Item> {
+    fn at_mut(&mut self, cell: &Cell) -> Option<&mut Self::Item> {
         self.inner
             .get_mut(cell.row())
             .and_then(|r| r.get_mut(cell.column()))
     }
 
     fn contains_cell(&self, cell: &Cell) -> bool {
-        self.get_at(cell).is_some()
+        self.at(cell).is_some()
     }
 
     fn height(&self) -> usize {
@@ -120,23 +120,23 @@ mod tests {
     }
 
     #[test]
-    fn rectangle_get_at_reads_column_then_row() {
-        assert_eq!(grid().get_at(&Cell::new(2, 0)), Some(&'c'));
-        assert_eq!(grid().get_at(&Cell::new(0, 1)), Some(&'d'));
+    fn rectangle_at_reads_column_then_row() {
+        assert_eq!(grid().at(&Cell::new(2, 0)), Some(&'c'));
+        assert_eq!(grid().at(&Cell::new(0, 1)), Some(&'d'));
     }
 
     #[test]
-    fn rectangle_get_at_off_the_grid_is_none() {
-        assert!(grid().get_at(&Cell::new(3, 0)).is_none());
-        assert!(grid().get_at(&Cell::new(0, 2)).is_none());
+    fn rectangle_at_off_the_grid_is_none() {
+        assert!(grid().at(&Cell::new(3, 0)).is_none());
+        assert!(grid().at(&Cell::new(0, 2)).is_none());
         assert!(!grid().contains_cell(&Cell::new(3, 0)));
     }
 
     #[test]
-    fn rectangle_get_mut_at_writes_through() {
+    fn rectangle_at_mut_writes_through() {
         let mut grid = grid();
-        *grid.get_mut_at(&Cell::new(1, 1)).unwrap() = 'z';
-        assert_eq!(grid.get_at(&Cell::new(1, 1)), Some(&'z'));
+        *grid.at_mut(&Cell::new(1, 1)).unwrap() = 'z';
+        assert_eq!(grid.at(&Cell::new(1, 1)), Some(&'z'));
     }
 
     #[test]

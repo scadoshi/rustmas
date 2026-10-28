@@ -11,9 +11,9 @@ pub trait Grid {
     type Item;
 
     /// The item at `cell`, `None` if it is off the grid.
-    fn get_at(&self, cell: &Cell) -> Option<&Self::Item>;
-    /// As [`get_at`](Grid::get_at), mutably.
-    fn get_mut_at(&mut self, cell: &Cell) -> Option<&mut Self::Item>;
+    fn at(&self, cell: &Cell) -> Option<&Self::Item>;
+    /// As [`at`](Grid::at), mutably.
+    fn at_mut(&mut self, cell: &Cell) -> Option<&mut Self::Item>;
 
     /// Whether any cell holds `value`, scanning row by row.
     fn contains(&self, value: &Self::Item) -> bool

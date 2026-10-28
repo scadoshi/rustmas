@@ -33,20 +33,20 @@ impl<T> Jagged<T> {
 impl<T> Grid for Jagged<T> {
     type Item = T;
 
-    fn get_at(&self, cell: &Cell) -> Option<&Self::Item> {
+    fn at(&self, cell: &Cell) -> Option<&Self::Item> {
         self.inner
             .get(cell.row())
             .and_then(|r| r.get(cell.column()))
     }
 
-    fn get_mut_at(&mut self, cell: &Cell) -> Option<&mut Self::Item> {
+    fn at_mut(&mut self, cell: &Cell) -> Option<&mut Self::Item> {
         self.inner
             .get_mut(cell.row())
             .and_then(|r| r.get_mut(cell.column()))
     }
 
     fn contains_cell(&self, cell: &Cell) -> bool {
-        self.get_at(cell).is_some()
+        self.at(cell).is_some()
     }
 
     fn height(&self) -> usize {
@@ -106,9 +106,9 @@ mod tests {
     }
 
     #[test]
-    fn jagged_get_at_respects_each_row_width() {
-        assert_eq!(grid().get_at(&Cell::new(2, 0)), Some(&'c'));
-        assert!(grid().get_at(&Cell::new(2, 1)).is_none());
+    fn jagged_at_respects_each_row_width() {
+        assert_eq!(grid().at(&Cell::new(2, 0)), Some(&'c'));
+        assert!(grid().at(&Cell::new(2, 1)).is_none());
         assert!(!grid().contains_cell(&Cell::new(2, 1)));
     }
 }

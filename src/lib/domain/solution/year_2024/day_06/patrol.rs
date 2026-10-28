@@ -38,7 +38,7 @@ impl FromStr for Patrol {
         let guard = (0..map.height())
             .flat_map(|row| (0..map.width()).map(move |column| Cell::new(column, row)))
             .find_map(|cell| {
-                let facing = Direction::try_from(*map.get_at(&cell)?).ok()?;
+                let facing = Direction::try_from(*map.at(&cell)?).ok()?;
                 Some((cell, facing))
             });
         let (start, facing) = guard.ok_or(InvalidPatrol::MissingGuard)?;
@@ -63,7 +63,7 @@ impl Patrol {
     /// `extra` is one more obstacle, so part two can try a placement without
     /// copying the map.
     pub fn walk(&self, extra: Option<Cell>) -> Walk {
-        let blocked = |cell: Cell| Some(cell) == extra || self.map.get_at(&cell) == Some(&'#');
+        let blocked = |cell: Cell| Some(cell) == extra || self.map.at(&cell) == Some(&'#');
         let mut seen = HashSet::new();
         let (mut at, mut facing) = (self.start, self.facing);
         loop {

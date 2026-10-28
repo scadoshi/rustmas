@@ -40,7 +40,7 @@ impl WordSearch {
         let steps = isize::try_from(steps).ok()?;
         let column = cell.column().checked_add_signed(dc * steps)?;
         let row = cell.row().checked_add_signed(dr * steps)?;
-        self.0.get_at(&Cell::new(column, row)).copied()
+        self.0.at(&Cell::new(column, row)).copied()
     }
 
     pub fn cells(&self) -> impl Iterator<Item = Cell> + '_ {

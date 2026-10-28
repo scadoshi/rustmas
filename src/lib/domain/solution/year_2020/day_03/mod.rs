@@ -20,9 +20,7 @@ impl Puzzle {
         (0..self.map.height())
             .step_by(down)
             .enumerate()
-            .filter(|&(step, row)| {
-                self.map.get_at(&Cell::new(step * right % width, row)) == Some(&'#')
-            })
+            .filter(|&(step, row)| self.map.at(&Cell::new(step * right % width, row)) == Some(&'#'))
             .count()
     }
 }

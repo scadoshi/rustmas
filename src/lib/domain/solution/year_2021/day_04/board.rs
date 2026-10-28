@@ -57,7 +57,7 @@ impl Board {
             .iter_rows()
             .any(|row| row.iter().all(Option::is_none));
         let column_done = (0..self.0.width()).any(|column| {
-            (0..self.0.height()).all(|row| self.0.get_at(&Cell::new(column, row)) == Some(&None))
+            (0..self.0.height()).all(|row| self.0.at(&Cell::new(column, row)) == Some(&None))
         });
         row_done || column_done
     }
