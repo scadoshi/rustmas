@@ -1,5 +1,4 @@
 pub mod args;
-pub mod utils;
 
 use crate::domain::address::{Day, Filter};
 use crate::inbound::fetch::args::FetchArgs;

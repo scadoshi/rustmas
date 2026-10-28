@@ -10,7 +10,6 @@ use reqwest::{StatusCode, Url};
 use crate::domain::address::{Day, Part};
 use crate::domain::solution::aoc_verdict::AocVerdict;
 use crate::outbound::client::environment::Environment;
-use crate::outbound::client::session_cookie::SessionCookie;
 
 /// Marks a puzzle part on a day page. Two means part two is unlocked.
 const ARTICLE: &str = r#"<article class="day-desc">"#;
@@ -25,21 +24,12 @@ const REQUEST_GAP: Duration = Duration::from_millis(1500);
 /// An authenticated handle to adventofcode.com, pooling one client.
 #[derive(Debug)]
 pub struct AocClient {
-    cookie: SessionCookie,
     client: Client,
     /// When the last request went out, for [`REQUEST_GAP`].
     last_request: Cell<Option<Instant>>,
 }
 
 impl AocClient {
-    pub fn cookie(&self) -> &SessionCookie {
-        &self.cookie
-    }
-
-    pub fn client(&self) -> &Client {
-        &self.client
-    }
-
     /// Builds a client carrying the cookie and `User-Agent` on every request.
     ///
     /// Only `COOKIE` is required, so a fresh clone runs without the rest. Both
@@ -55,7 +45,6 @@ impl AocClient {
         headers.insert(COOKIE, HeaderValue::from_str(&format!("session={cookie}"))?);
         let client = Client::builder().default_headers(headers).build()?;
         Ok(Self {
-            cookie,
             client,
             last_request: Cell::new(None),
         })

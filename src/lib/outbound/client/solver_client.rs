@@ -41,10 +41,6 @@ impl SolverClient {
         Ok(Self { client })
     }
 
-    pub fn client(&self) -> &Client {
-        &self.client
-    }
-
     /// Checks `answer` against the solver.
     ///
     /// Numeric answers compare as numbers and report a direction, anything
