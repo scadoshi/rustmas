@@ -29,10 +29,13 @@ impl FromStr for Triangle {
 
 impl Triangle {
     /// Whether the two shorter sides together beat the longest.
+    ///
+    /// Adds in a [`u64`], where two [`u32`] sides always fit.
     pub fn is_valid(&self) -> bool {
         let mut sides = self.0;
         sides.sort_unstable();
-        sides[0] + sides[1] > sides[2]
+        let [shortest, middle, longest] = sides.map(u64::from);
+        shortest + middle > longest
     }
 }
 
@@ -68,5 +71,12 @@ mod tests {
         assert!(!Triangle([25, 10, 5]).is_valid());
         assert!(Triangle([3, 4, 5]).is_valid());
         assert!(!Triangle([1, 2, 3]).is_valid(), "equal is not greater");
+    }
+
+    /// Two sides past half of [`u32::MAX`] add up past it.
+    #[test]
+    fn is_valid_with_sides_too_long_to_add_in_a_u32() {
+        assert!(Triangle([u32::MAX, u32::MAX, 1]).is_valid());
+        assert!(!Triangle([u32::MAX, 1, 1]).is_valid());
     }
 }
