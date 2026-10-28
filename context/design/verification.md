@@ -31,7 +31,7 @@ The plan is to route on solved state: submit to AOC while a part is unsolved, an
 `src/lib/domain/solution/solver_verdict.rs` and `aoc_verdict.rs` hold two types, one per source.
 
 - `SolverVerdict` is `Correct`, `Incorrect`, `Low`, `High`, or `Unsupported`. It's built with `From<Ordering>` for numeric comparisons and `From<bool>` for text.
-- `AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(String)`, `AlreadySolved`, or `NotLoggedIn`.
+- `AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(Option<String>)`, `AlreadySolved`, or `NotLoggedIn`.
 
 Direction is worth keeping rather than flattening into a bool, and both sources produce it.
 

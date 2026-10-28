@@ -182,13 +182,10 @@ fn verdict_from(body: &str) -> AocVerdict {
 }
 
 /// Pulls the remaining wait out of a cooldown reply, e.g. `1m 0s`.
-fn wait_from(body: &str) -> String {
+fn wait_from(body: &str) -> Option<String> {
     body.split_once("You have ")
         .and_then(|(_, rest)| rest.split_once(" left to wait"))
-        .map_or_else(
-            || "unknown".to_string(),
-            |(wait, _)| wait.trim().to_string(),
-        )
+        .map(|(wait, _)| wait.trim().to_string())
 }
 
 /// An [`AocClient`] built on first use, so nothing offline pays for one.
@@ -258,7 +255,7 @@ mod tests {
 
     #[test]
     fn extracts_wait() {
-        assert_eq!(wait_from(COOLDOWN), "1m 0s");
-        assert_eq!(wait_from("nothing here"), "unknown");
+        assert_eq!(wait_from(COOLDOWN).as_deref(), Some("1m 0s"));
+        assert_eq!(wait_from("nothing here"), None);
     }
 }

@@ -158,7 +158,7 @@ mod tests {
     fn both_verdicts_show_when_aoc_did_not_grade() {
         let cooled = value()
             .with_solver_verdict(SolverVerdict::Correct)
-            .with_aoc_verdict(AocVerdict::Cooldown("1m 0s".to_string()));
+            .with_aoc_verdict(AocVerdict::Cooldown(Some("1m 0s".to_string())));
         assert_eq!(
             cooled.to_string(),
             "foo (correct, rate limited, 1m 0s left to wait) [0ns]"
