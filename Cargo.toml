@@ -23,22 +23,80 @@ reqwest = { version = "0.13.4", features = ["blocking", "form"] }
 sha2 = "0.11.0"
 thiserror = "2.0.19"
 
+# scadoshi-rust lints. Paste into Cargo.toml, or rename [lints.*] to
+# [workspace.lints.*] at a workspace root and add `[lints] workspace = true`
+# to each member. Thresholds live in clippy.toml next to Cargo.toml.
+#
+# CI makes warnings errors: cargo clippy --all-targets -- -D warnings
+# Silence a lint on one item, with a reason:
+#     #[expect(clippy::as_conversions, reason = "u8 to char is lossless here")]
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
 [lints.clippy]
+all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
-# `doc_comments.md` bans these headers, so the lints asking for them go too.
-missing_errors_doc = "allow"
-missing_panics_doc = "allow"
+
+# Pedantic lints that cost more than they catch.
+module_name_repetitions = "allow"
+# Library crates flip this to "warn": builders and pure functions get #[must_use].
 must_use_candidate = "allow"
-# Same noise one level down: every `moved`/`with_` on a day type returns `Self`.
-return_self_not_must_use = "allow"
-# A puzzle runner reads its own cached input, and a failing day is reported and
-# skipped rather than taking the run down.
-cast_possible_truncation = "allow"
-cast_sign_loss = "allow"
-cast_precision_loss = "allow"
+
 # `&Day` by reference reads the same everywhere and saves no measurable time.
 trivially_copy_pass_by_ref = "allow"
 # Fires on pairs like `solver` and `solver_fn`, which are meant to be a pair.
 similar_names = "allow"
 # `solver_for` has no arms on `main`, since the days live on a solutions branch.
 match_single_binding = "allow"
+
+# Docs: # Errors and # Panics sections everywhere.
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"
+
+# Never ship.
+todo = "deny"
+dbg_macro = "deny"
+unimplemented = "deny"
+
+# No panics outside tests (clippy.toml allows them inside tests).
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+unreachable = "deny"
+indexing_slicing = "deny"
+string_slice = "deny"
+panic_in_result_fn = "deny"
+exit = "deny"
+
+# Suppressions are #[expect] with a reason, so stale ones surface.
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+
+# Unsafe explains itself, one operation per block.
+undocumented_unsafe_blocks = "deny"
+multiple_unsafe_ops_per_block = "warn"
+
+# Casts and arithmetic that can silently lose information.
+as_conversions = "warn"
+arithmetic_side_effects = "warn"
+
+# API shape.
+fn_params_excessive_bools = "warn"
+struct_excessive_bools = "warn"
+clone_on_ref_ptr = "warn"
+too_many_arguments = "warn"
+large_enum_variant = "warn"
+redundant_clone = "warn"
+needless_collect = "warn"
+or_fun_call = "warn"
+unnecessary_wraps = "warn"
+unused_async = "warn"
+
+# Logging goes through tracing; a CLI's own output takes an #[expect].
+print_stdout = "warn"
+print_stderr = "warn"
