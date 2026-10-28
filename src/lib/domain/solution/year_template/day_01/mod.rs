@@ -1,8 +1,16 @@
-use crate::domain::solution::{Solution, answer::Answer};
+//! A day whose parts are both [`Answer::Unwritten`].
 
+use crate::domain::solution::Solution;
+use crate::domain::solution::answer::Answer;
+
+/// The parsed input. Replace `input` with the day's own types.
+#[derive(Debug)]
 pub struct Puzzle {
     // Keep this only if the parts read the raw text; drop it if you parse.
-    #[allow(dead_code)]
+    #[expect(
+        dead_code,
+        reason = "a template: the unwritten parts read nothing until a day fills them in"
+    )]
     input: String,
 }
 

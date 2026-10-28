@@ -1,16 +1,16 @@
 //! Where a whole run's time went, gathered one day at a time.
 
-use crate::domain::{
-    address::{Day, Part},
-    solution::Solved,
-};
-use std::{fmt::Display, time::Duration};
+use std::fmt::{self, Display};
+use std::time::Duration;
+
+use crate::domain::address::{Day, Part};
+use crate::domain::solution::Solved;
 
 /// A run's time, totalled across every day it solved.
 ///
 /// Parsing counts once per day and solving once per part, so the two means
 /// have different denominators and the printed lines say which is which.
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Totals {
     parsed: Duration,
     days: u32,
@@ -20,7 +20,7 @@ pub struct Totals {
 }
 
 /// The part that took longest, and which one it was.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Slowest {
     day: Day,
     part: Part,
@@ -31,15 +31,15 @@ impl Totals {
     /// Folds in one day's run. Only parts that produced an answer count
     /// towards solving; the day counts towards parsing either way.
     pub fn add(&mut self, day: &Day, solved: &Solved) {
-        self.parsed += solved.parsed_in;
-        self.days += 1;
+        self.parsed = self.parsed.saturating_add(solved.parsed_in);
+        self.days = self.days.saturating_add(1);
 
         for (part, outcome) in [(Part::One, &solved.part_one), (Part::Two, &solved.part_two)] {
             let Some(elapsed) = outcome.solve_time() else {
                 continue;
             };
-            self.solved += elapsed;
-            self.parts += 1;
+            self.solved = self.solved.saturating_add(elapsed);
+            self.parts = self.parts.saturating_add(1);
             if self.slowest.as_ref().is_none_or(|s| elapsed > s.elapsed) {
                 self.slowest = Some(Slowest {
                     day: *day,
@@ -50,25 +50,26 @@ impl Totals {
         }
     }
 
+    /// How many days have been folded in, solved or not.
     pub fn days(&self) -> u32 {
         self.days
     }
 
     /// `None` when no day ran, since there is nothing to divide by.
     pub fn parse_mean(&self) -> Option<Duration> {
-        (self.days > 0).then(|| self.parsed / self.days)
+        self.parsed.checked_div(self.days)
     }
 
     /// `None` when no part produced an answer, which a run of stubs manages.
     pub fn solve_mean(&self) -> Option<Duration> {
-        (self.parts > 0).then(|| self.solved / self.parts)
+        self.solved.checked_div(self.parts)
     }
 }
 
 impl Display for Totals {
     /// A block of whole lines, each one ended. Renders whatever it holds;
     /// when that is worth showing is the caller's to decide.
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "total time spent parsing: {:?}", self.parsed)?;
         if let Some(mean) = self.parse_mean() {
             writeln!(f, "average parse time per day: {mean:?}")?;
@@ -80,11 +81,8 @@ impl Display for Totals {
         if let Some(s) = &self.slowest {
             writeln!(
                 f,
-                "slowest part: year {} day {} part {} [{:?}]",
-                s.day.year(),
-                s.day.value(),
-                s.part,
-                s.elapsed
+                "slowest part: {} part {} [{:?}]",
+                s.day, s.part, s.elapsed
             )?;
         }
         Ok(())
@@ -94,10 +92,9 @@ impl Display for Totals {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::{
-        address::Year,
-        solution::{answer::Answer, outcome::Outcome},
-    };
+    use crate::domain::address::Year;
+    use crate::domain::solution::answer::Answer;
+    use crate::domain::solution::outcome::Outcome;
 
     fn day(year: i32, value: i32) -> Day {
         Day::new(value, Year::new(year).expect("test year")).expect("test day")

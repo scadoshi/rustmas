@@ -1,23 +1,26 @@
-pub mod args;
-pub mod utils;
+//! The `solve` subcommand: run each matching day, then optionally check and
+//! submit its answers.
 
-use crate::{
-    domain::{
-        address::{Day, Filter, Part},
-        solution::{Solved, aoc_verdict::AocVerdict, totals::Totals},
-    },
-    inbound::{
-        input::ensure_entry,
-        solve::{
-            args::SolveArgs,
-            utils::{confirm, submit},
-        },
-    },
-    outbound::client::{aoc_client::LazyAocClient, solver_client::SolverClient},
-};
+pub mod args;
+pub(crate) mod submission;
+
+use crate::domain::address::{Day, Filter, PARTS_PER_DAY};
+use crate::domain::solution::aoc_verdict::AocVerdict;
+use crate::domain::solution::totals::Totals;
+use crate::domain::solution::{Solved, year_template};
+use crate::inbound::input;
+use crate::inbound::solve::args::SolveArgs;
+use crate::outbound::client::aoc_client::LazyAocClient;
+use crate::outbound::client::solve;
+use crate::outbound::client::solve::Validation;
+use crate::outbound::client::solver_client::SolverClient;
 
 /// A day's solver, once its concrete type is known.
-type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;
+type Solver = fn(Validation<'_>, &str, &Day) -> anyhow::Result<Solved>;
+
+/// The template day as a [`Solver`]. With no arms below, nothing else reaches
+/// the runner, and this keeps it compiled and checked until the first day lands.
+const _: Solver = solve::run_day::<year_template::day_01::Puzzle>;
 
 /// The solver for a day, or `None` when nobody has written one.
 ///
@@ -26,10 +29,10 @@ type Solver = fn(&SolverClient, bool, &str, &Day) -> anyhow::Result<Solved>;
 /// list of what has been solved.
 fn solver_for(year: i32, day: i32) -> Option<Solver> {
     match (year, day) {
-        // One arm per day. Import the year module and `solve` at the top of this
-        // file, then:
+        // One arm per day. Import the year module and `outbound::client::solve`
+        // at the top of this file, then:
         //
-        //     (2015, 1) => Some(solve::<year_2015::day_01::Puzzle>),
+        //     (2015, 1) => Some(solve::run_day::<year_2015::day_01::Puzzle>),
         _ => None,
     }
 }
@@ -39,17 +42,26 @@ fn part_count(filter: Filter) -> usize {
     Day::matching(filter)
         .filter(|day| solver_for(day.year(), day.value()).is_some())
         .count()
-        * 2
+        .saturating_mul(PARTS_PER_DAY)
 }
 
-pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
-    // Submitting gates on a solver verdict, so it validates too.
-    let validate = args.validate || args.submit;
+#[expect(
+    clippy::print_stdout,
+    clippy::print_stderr,
+    reason = "a CLI: the report and skipped days are its output"
+)]
+pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
     let solver = SolverClient::from_env()?;
+    // Submitting gates on a solver verdict, so it validates too.
+    let validation = if args.validate || args.submit {
+        Validation::Against(&solver)
+    } else {
+        Validation::Off
+    };
     let filter = Filter::new(args.year, args.day)?;
 
     let count = part_count(filter);
-    if args.submitting_everything() && !args.yes && count > 0 && !confirm(count)? {
+    if args.submitting_everything() && !args.yes && count > 0 && !submission::confirm(count)? {
         eprintln!("Nothing submitted.");
         return Ok(());
     }
@@ -65,36 +77,31 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
         // Asked before fetching, so unsolvable days download nothing.
         let Some(solver_fn) = solver_for(day.year(), day.value()) else {
             if args.day.is_some() {
-                eprintln!(
-                    "year {} day {} has no solution yet",
-                    day.year(),
-                    day.value()
-                );
+                eprintln!("{day} has no solution yet");
             }
             continue;
         };
 
-        let entry = ensure_entry(&mut aoc, &day)?;
-        let input = entry.input.data();
-        match solver_fn(&solver, validate, input, &day) {
+        let entry = input::ensure_entry(&mut aoc, &day)?;
+        match solver_fn(validation, entry.input.data(), &day) {
             Ok(mut solved) => {
                 // Before printing, so each part reports both checkers on one
                 // line. Gated on the flag, not on the client existing.
                 if args.submit {
                     let client = aoc.connected()?;
-                    solved.part_one = submit(client, &day, Part::One, solved.part_one)?;
-                    solved.part_two = submit(client, &day, Part::Two, solved.part_two)?;
+                    solved = submission::submit_day(
+                        |part, value| client.submit_answer(&day, part, value),
+                        solved,
+                    )?;
                 }
 
-                // A new star on part one unlocks part two, locked until now.
+                // A new star on part one unlocks part two's text, so fetch it.
                 if matches!(solved.part_one.aoc_verdict(), Some(AocVerdict::Correct)) {
-                    ensure_entry(&mut aoc, &day)?;
+                    input::ensure_entry(&mut aoc, &day)?;
                 }
 
                 println!(
-                    "year {} day {} in {:?} ({:?} parsing)",
-                    day.year(),
-                    day.value(),
+                    "{day} in {:?} ({:?} parsing)",
                     solved.total_elapsed(),
                     solved.parsed_in
                 );
@@ -103,7 +110,7 @@ pub fn run(args: &SolveArgs) -> anyhow::Result<()> {
 
                 totals.add(&day, &solved);
             }
-            Err(e) => eprintln!("year {} day {} failed: {e:?}", day.year(), day.value()),
+            Err(e) => eprintln!("{day} failed: {e:?}"),
         }
     }
     // Below two days the summary would only restate the lines above it.

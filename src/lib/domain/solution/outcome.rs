@@ -1,10 +1,11 @@
-use crate::domain::solution::{
-    answer::Answer, aoc_verdict::AocVerdict, solver_verdict::SolverVerdict,
-};
-use std::{
-    fmt::{Display, Write},
-    time::Duration,
-};
+//! One part's result, carried from solving through checking and submitting.
+
+use std::fmt::{self, Display, Write};
+use std::time::Duration;
+
+use crate::domain::solution::answer::Answer;
+use crate::domain::solution::aoc_verdict::AocVerdict;
+use crate::domain::solution::solver_verdict::SolverVerdict;
 
 /// One part's answer and everything learned about it afterwards.
 ///
@@ -22,6 +23,7 @@ pub struct Outcome {
 }
 
 impl Outcome {
+    /// A fresh result with no verdicts. `elapsed` is the solving time alone.
     pub fn new(answer: anyhow::Result<Answer>, elapsed: Duration) -> Self {
         Self {
             answer,
@@ -49,6 +51,8 @@ impl Outcome {
         self
     }
 
+    /// Time spent solving this part, counted even when it failed or had
+    /// nothing to say. [`Outcome::solve_time`] leaves those out.
     pub fn elapsed(&self) -> Duration {
         self.elapsed
     }
@@ -58,18 +62,20 @@ impl Outcome {
         self.answer.as_ref().ok()?.value()
     }
 
+    /// What the third-party solver said, or `None` when nobody asked it.
     pub fn solver_verdict(&self) -> Option<&SolverVerdict> {
         self.solver_verdict.as_ref()
     }
 
+    /// What adventofcode.com said, or `None` when nothing was submitted.
     pub fn aoc_verdict(&self) -> Option<&AocVerdict> {
         self.aoc_verdict.as_ref()
     }
 
     /// How long this part took, if it produced an answer.
     ///
-    /// `None` for a stub, a failure, and day 25's second star, none of which
-    /// did work worth totalling.
+    /// `None` for a stub, a failure, and the final day's second star, none of
+    /// which did work worth totalling.
     pub fn solve_time(&self) -> Option<Duration> {
         match self.answer.as_ref().ok()? {
             Answer::Value(_) | Answer::Visual(_) => Some(self.elapsed),
@@ -81,7 +87,7 @@ impl Outcome {
 impl Display for Outcome {
     /// Answer, then what is known about it, then timing. One line, unless the
     /// answer is art, which brings its own.
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut line = match &self.answer {
             Ok(answer) => answer.to_string(),
             // `{:#}` puts the whole chain on the line.
@@ -159,7 +165,7 @@ mod tests {
     fn both_verdicts_show_when_aoc_did_not_grade() {
         let cooled = value()
             .with_solver_verdict(SolverVerdict::Correct)
-            .with_aoc_verdict(AocVerdict::Cooldown("1m 0s".to_string()));
+            .with_aoc_verdict(AocVerdict::Cooldown(Some("1m 0s".to_string())));
         assert_eq!(
             cooled.to_string(),
             "foo (correct, rate limited, 1m 0s left to wait) [0ns]"
@@ -173,7 +179,7 @@ mod tests {
         assert_eq!(outcome.to_string(), "foo [7µs]");
     }
 
-    /// The invariant that survived splitting `Answer` from `Outcome`.
+    /// Only a submittable answer takes a verdict.
     #[test]
     fn unsubmittable_answers_never_take_a_verdict() {
         for answer in [Answer::Visual("art".to_string()), Answer::None] {

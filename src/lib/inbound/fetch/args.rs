@@ -1,6 +1,10 @@
+//! Flags for `fetch`.
+
 use clap::Args;
 
-#[derive(Args)]
+/// Which days `fetch` downloads. Validated into a
+/// [`Filter`](crate::domain::address::Filter) when the command runs.
+#[derive(Debug, Clone, PartialEq, Eq, Args)]
 pub struct FetchArgs {
     /// Year to fetch inputs for (omit for all)
     #[arg(short, long)]

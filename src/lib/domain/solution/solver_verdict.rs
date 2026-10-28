@@ -1,17 +1,26 @@
-use std::{cmp::Ordering, fmt::Display};
+//! What the third-party solver made of an answer.
+
+use std::cmp::Ordering;
+use std::fmt::{self, Display};
 
 /// What the third-party solver made of an answer.
 ///
 /// Repeatable, having no accounts and no memory, which is what makes it usable
 /// as a gate before submitting.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SolverVerdict {
+    /// Matches the solver's answer.
     Correct,
+    /// Differs from the solver's answer, where the two are not both numbers.
     Incorrect,
+    /// A number below the solver's.
     Low,
+    /// A number above the solver's.
     High,
     /// No implementation for that puzzle.
     Unsupported,
+    /// The check itself failed, so nothing was graded. Holds why.
+    Unchecked(String),
 }
 
 impl From<Ordering> for SolverVerdict {
@@ -24,24 +33,15 @@ impl From<Ordering> for SolverVerdict {
     }
 }
 
-impl From<bool> for SolverVerdict {
-    fn from(value: bool) -> Self {
-        if value {
-            Self::Correct
-        } else {
-            Self::Incorrect
-        }
-    }
-}
-
 impl Display for SolverVerdict {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Correct => write!(f, "correct"),
             Self::Incorrect => write!(f, "incorrect"),
             Self::Low => write!(f, "low"),
             Self::High => write!(f, "high"),
             Self::Unsupported => write!(f, "unsupported"),
+            Self::Unchecked(reason) => write!(f, "unchecked: {reason}"),
         }
     }
 }
@@ -64,16 +64,6 @@ mod tests {
         assert!(matches!(
             SolverVerdict::from(Ordering::Equal),
             SolverVerdict::Correct
-        ));
-    }
-
-    /// Non-numeric answers can only match or not, with no direction to report.
-    #[test]
-    fn text_comparison_has_no_direction() {
-        assert!(matches!(SolverVerdict::from(true), SolverVerdict::Correct));
-        assert!(matches!(
-            SolverVerdict::from(false),
-            SolverVerdict::Incorrect
         ));
     }
 }

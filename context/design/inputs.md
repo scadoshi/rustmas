@@ -19,6 +19,8 @@ Plain files give up one guarantee: the input and its hash are no longer written 
 
 The existence of `part_two.md` is what says part two is available, so no flag can disagree with the text beside it.
 
+Each file is written to a `.tmp` beside it and renamed into place, so a crash leaves the old file or the new one, never a truncated one. A file that already holds the same text isn't written at all, so a part-two chase writes `part_two.md` and leaves `input.txt` alone.
+
 ## Session fingerprinting
 
 `Input` carries a SHA-256 of the cookie that fetched it.
@@ -40,6 +42,7 @@ With no cookie configured at all, a cached entry is used as-is. Being unable to 
 - `fetch` calls it and discards the result.
 - `solve` calls it and solves.
 - With nothing cached, it fetches both the input and the page, so a day always arrives complete.
+- The input is written the moment it arrives, before the page is asked for. A failed page leaves it on disk, and the next run downloads only the page, as long as the stored input belongs to the current session.
 
 `LazyAocClient` builds the `AocClient` on first download rather than up front. A run over cached inputs stays entirely offline and needs no cookie.
 
@@ -70,13 +73,13 @@ A `build.rs` that *downloaded* missing inputs was rejected outright. Build scrip
 
 An existing input counts as a cached download and is never refetched, since AOC asks that inputs not be re-downloaded. `ensure_dir` errors rather than overwriting when the wrong kind of thing sits in the way.
 
-`get_input` passes the response through `accepted`, which calls `error_for_status()`. An error page can't get written to disk and cached as though it were real input.
+`fetch_input` passes the response through `accepted`, which calls `error_for_status()`. An error page can't get written to disk and cached as though it were real input.
 
 ## Instructions
 
 The day page holds one `<article class="day-desc">` per unlocked part. Two articles means part two is available; one means it's still behind the first star. Completeness is structural, not a flag that could disagree with the text beside it.
 
-`get_instructions` renders each article with `html2text` at width 80. The client does the split and the rendering, so the store never sees a tag and doesn't know where its data came from. `verdict_from` keeps AOC's reply parsing inside the client the same way.
+`fetch_instructions` renders each article with `html2text` at width 80. The client does the split and the rendering, so the store never sees a tag and doesn't know where its data came from. `verdict_from` keeps AOC's reply parsing inside the client the same way.
 
 ## Open
 
@@ -88,5 +91,5 @@ Nothing displays the instructions. They are stored and never read.
 
 Part two's text used to be cached only if the day was fetched after part one was starred. Two things fill it in now:
 
-- `ensure_entry` refetches the page on every run with a cookie while `part_two.md` is missing, except on day 25.
+- `ensure_entry` refetches the page on every run with a cookie while `part_two.md` is missing, except on an event's final day (25, or 12 from 2025 on).
 - `solve` calls `ensure_entry` again when a submission earns part one a new star.

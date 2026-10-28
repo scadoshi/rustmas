@@ -1,17 +1,13 @@
-use crate::{
-    domain::{
-        address::{Day, Part},
-        solution::solver_verdict::SolverVerdict,
-    },
-    outbound::client::environment::Environment,
-};
+//! The client for the third-party solver, tried host by host.
+
 use anyhow::bail;
-use reqwest::{
-    Url,
-    blocking::Client,
-    header::{HeaderMap, HeaderValue, USER_AGENT},
-};
-use std::fmt::Display;
+use reqwest::Url;
+use reqwest::blocking::Client;
+use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+
+use crate::domain::address::{Day, Part};
+use crate::domain::solution::solver_verdict::SolverVerdict;
+use crate::outbound::client::environment::Environment;
 
 /// Three deployments of the same third-party solver, tried in order. See
 /// `context/references.md`.
@@ -25,7 +21,8 @@ const BASE_URLS: [&str; 3] = [
 ///
 /// No cookie, no stars, and no memory, which is what makes it repeatable
 /// enough to use as a regression check.
-pub struct SolverClient {
+#[derive(Debug)]
+pub(crate) struct SolverClient {
     client: Client,
 }
 
@@ -35,7 +32,7 @@ impl SolverClient {
     /// Nothing is required, since the solver needs no authentication. Fails
     /// only when the user agent cannot be a header value, which a stray
     /// newline in `.env` is enough to cause.
-    pub fn from_env() -> anyhow::Result<Self> {
+    pub(crate) fn from_env() -> anyhow::Result<Self> {
         let mut headers = HeaderMap::new();
         headers.insert(
             USER_AGENT,
@@ -45,23 +42,22 @@ impl SolverClient {
         Ok(Self { client })
     }
 
-    pub fn client(&self) -> &Client {
-        &self.client
-    }
-
     /// Checks `answer` against the solver.
     ///
     /// Numeric answers compare as numbers and report a direction, anything
     /// else as text. Every failure is a 400 with the reason in the body. Only
     /// transport failures and 5xx try the next host.
-    pub fn validate_answer(
+    #[expect(
+        clippy::print_stderr,
+        reason = "a CLI: a failed host is reported before the next is tried"
+    )]
+    pub(crate) fn validate_answer(
         &self,
         day: &Day,
-        input: impl Display,
+        input: &str,
         part: Part,
         answer: impl AsRef<str>,
     ) -> anyhow::Result<SolverVerdict> {
-        let input = input.to_string();
         let answer = answer.as_ref();
         let path = format!(
             "/solve/{}/{}/{}",
@@ -73,7 +69,7 @@ impl SolverClient {
         for base in BASE_URLS {
             let url = Url::parse(base)?.join(&path)?;
 
-            let response = match self.client.post(url.clone()).body(input.clone()).send() {
+            let response = match self.client.post(url.clone()).body(input.to_owned()).send() {
                 Ok(response) => response,
                 Err(e) => {
                     eprintln!("failed to reach solver at {url}: {e:?}; trying next url");
@@ -94,10 +90,7 @@ impl SolverClient {
             let body = body.trim();
 
             if status.is_success() {
-                return Ok(match (answer.parse::<i64>(), body.parse::<i64>()) {
-                    (Ok(answer), Ok(solved)) => answer.cmp(&solved).into(),
-                    _ => (answer == body).into(),
-                });
+                return Ok(compare(answer, body));
             }
 
             if status.is_client_error() {
@@ -110,10 +103,28 @@ impl SolverClient {
             eprintln!("solver at {url} returned {status}: {body}; trying next url");
         }
 
-        bail!(
-            "failed to check answer for year: {} and day: {} via all urls",
-            day.year(),
-            day.value()
-        );
+        bail!("failed to check answer for {day} via all urls");
+    }
+}
+
+/// Grades `answer` against the solver's `solved`: as numbers when both parse,
+/// so a mismatch has a direction, else as text.
+fn compare(answer: &str, solved: &str) -> SolverVerdict {
+    match (answer.parse::<i64>(), solved.parse::<i64>()) {
+        (Ok(answer), Ok(solved)) => answer.cmp(&solved).into(),
+        _ if answer == solved => SolverVerdict::Correct,
+        _ => SolverVerdict::Incorrect,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Non-numeric answers can only match or not, with no direction to report.
+    #[test]
+    fn text_comparison_has_no_direction() {
+        assert!(matches!(compare("abc", "abc"), SolverVerdict::Correct));
+        assert!(matches!(compare("abc", "abd"), SolverVerdict::Incorrect));
     }
 }

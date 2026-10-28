@@ -1,8 +1,9 @@
+//! The `rustmas` binary, a thin shell over [`rustmas::inbound::cli::Cli`].
+
 use clap::Parser;
 use rustmas::inbound::cli::Cli;
 
-fn main() {
-    if let Err(e) = Cli::parse().run() {
-        eprintln!("Error: {e:?}");
-    }
+/// Runs the command line. An error prints as `Error: {e:?}` and exits 1.
+fn main() -> anyhow::Result<()> {
+    Cli::parse().run()
 }

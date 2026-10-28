@@ -78,6 +78,7 @@ Verified live on 2026-08-06 against 2015 day 1, using a scratch account with no 
 | `You gave an answer too recently` | `Cooldown`, with `You have <wait> left to wait` |
 | `You don't seem to be solving the right level` | `AlreadySolved` |
 | `auth/login` | `NotLoggedIn` |
+| none of the above | `Unrecognized`, with the start of the message |
 
 The logged-out case was verified live on 2026-09-17.
 

@@ -45,10 +45,10 @@ context/                     # these notes
 
 ```
 cli               parses solve -y 2015 -d 1 --validate
-  solve/run       looks up the day in solver_for, gets solve::<Puzzle>
+  solve/run       looks up the day in solver_for, gets solve::run_day::<Puzzle>
     input         reads the cache, downloads whatever is missing
       store       one directory per day of plain files
-    solve         S::new(input), times each part, holds a failure per part
+    run_day       S::new(input), times each part, holds a failure per part
       Puzzle      the day's own logic
       solver_client  checks each submittable answer when validating
     Outcome       renders answer, verdicts, and timing on one line
@@ -73,6 +73,6 @@ cache/2015/01/part_two.md   puzzle text, absent until part one is solved
 Every file is readable on its own.
 
 - `session` catches a swapped account, since inputs are account specific.
-- A missing `part_two.md` means part two is still locked. Each run with a cookie rechecks it until it arrives, except on day 25, whose second star has no puzzle.
+- A missing `part_two.md` means part two is still locked. Each run with a cookie rechecks it until it arrives, except on an event's final day (25, or 12 from 2025 on), whose second star has no puzzle.
 
 Inputs are read at runtime, so a fresh clone compiles with `cache/` empty. `solve` downloads what it needs, which makes `fetch` a way to pull things ahead of time rather than a prerequisite.

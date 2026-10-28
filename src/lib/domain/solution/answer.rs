@@ -1,16 +1,18 @@
-use std::fmt::Display;
+//! What one part of a puzzle produced, before anyone checks it.
 
-/// What one part of a puzzle produced. Nothing else.
+use std::fmt::{self, Display};
+
+/// What one part of a puzzle produced.
 ///
 /// Verdicts and timings live in [`super::outcome::Outcome`].
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Answer {
     /// A submittable answer.
     Value(String),
     /// Art you read rather than submit. Returned, not printed, so solving
     /// does no IO.
     Visual(String),
-    /// There is no answer to give: day 25 part two, or an input with none.
+    /// There is no answer to give: the final day's part two, or an input with none.
     None,
     /// Nobody has written this part yet. Distinct from [`Answer::None`], so a
     /// stub cannot pass for a part that is finished and has nothing to say.
@@ -18,7 +20,7 @@ pub enum Answer {
 }
 
 impl Answer {
-    /// A submittable answer. What a day returns.
+    /// Shorthand for [`Answer::Value`].
     pub fn solved(value: impl Into<String>) -> Self {
         Self::Value(value.into())
     }
@@ -33,7 +35,7 @@ impl Answer {
 }
 
 impl Display for Answer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Value(value) => write!(f, "{value}"),
             Self::Visual(art) => write!(f, "\n{art}\n"),

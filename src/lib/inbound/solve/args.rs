@@ -1,6 +1,10 @@
+//! Flags for `solve`.
+
 use clap::Args;
 
-#[derive(Args)]
+/// Which days `solve` runs, and how far each answer goes: printed, checked,
+/// or submitted.
+#[derive(Debug, Clone, PartialEq, Eq, Args)]
 pub struct SolveArgs {
     /// Year to run (omit for all)
     #[arg(short, long)]

@@ -3,8 +3,9 @@
 //! Each client asks for what it needs, so a caller never spells a key itself
 //! and the set of things `.env` must hold is readable from one file.
 
-use crate::outbound::client::session_cookie::SessionCookie;
 use anyhow::Context;
+
+use crate::outbound::client::session_cookie::SessionCookie;
 
 /// Optional env var: an address AOC can reach you at, for the `User-Agent`.
 ///
@@ -22,16 +23,17 @@ const COOKIE_KEY: &str = "COOKIE";
 const UNCONFIGURED_USER_AGENT: &str = "rustmas (unconfigured; set CONTACT in .env)";
 
 /// The environment, read on demand. Holds nothing.
-pub struct Environment;
+#[derive(Debug)]
+pub(crate) struct Environment;
 
 impl Environment {
     /// One variable, `None` when it is unset or blank.
     ///
     /// Errors only when a value exists and cannot be read, which keeps "not
     /// configured" separate from "configured wrongly".
-    fn get(key: &str) -> anyhow::Result<Option<String>> {
-        // `.env` wins over the real environment, so editing it always takes
-        // effect. A stale export otherwise masks it silently.
+    fn read_var(key: &str) -> anyhow::Result<Option<String>> {
+        // `.env` wins over the real environment, so a stale export cannot mask
+        // an edit to it.
         dotenvy::dotenv_override().ok();
         match std::env::var(key) {
             Ok(value) => Ok(Some(value.trim().to_string()).filter(|s| !s.is_empty())),
@@ -44,9 +46,9 @@ impl Environment {
     ///
     /// AOC asks automated clients to be reachable. Both are optional, so an
     /// unreadable one is treated as unset.
-    pub fn user_agent() -> String {
-        let get = |key| Self::get(key).ok().flatten();
-        match (get(REPO_URL_KEY), get(CONTACT_KEY)) {
+    pub(crate) fn user_agent() -> String {
+        let read = |key| Self::read_var(key).ok().flatten();
+        match (read(REPO_URL_KEY), read(CONTACT_KEY)) {
             (Some(repo), Some(contact)) => format!("{repo} by {contact}"),
             (Some(repo), None) => repo,
             (None, Some(contact)) => format!("rustmas by {contact}"),
@@ -59,15 +61,15 @@ impl Environment {
     ///
     /// A value that is set but malformed is an error, not a `None`, so a
     /// mistyped cookie never reads as "not configured".
-    pub fn cookie_if_set() -> anyhow::Result<Option<SessionCookie>> {
-        Self::get(COOKIE_KEY)?
+    pub(crate) fn cookie_if_set() -> anyhow::Result<Option<SessionCookie>> {
+        Ok(Self::read_var(COOKIE_KEY)?
             .map(|value| SessionCookie::try_from(value.as_str()))
-            .transpose()
+            .transpose()?)
     }
 
     /// The session cookie, required. Paired with [`Environment::cookie_if_set`]
     /// so the requirement is named here rather than at every call site.
-    pub fn cookie() -> anyhow::Result<SessionCookie> {
+    pub(crate) fn cookie() -> anyhow::Result<SessionCookie> {
         Self::cookie_if_set()?.with_context(|| format!("{COOKIE_KEY} is not set"))
     }
 }

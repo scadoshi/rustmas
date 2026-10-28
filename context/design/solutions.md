@@ -69,9 +69,8 @@ A separate `is_visual(part)` method on the trait was the alternative. It was rej
 ## Running a solution
 
 ```rust
-pub fn solve<S: Solution>(
-    client: &SolverClient,
-    validate: bool,
+pub(crate) fn run_day<S: Solution>(
+    validation: Validation<'_>,
     input: &str,
     day: &Day,
 ) -> anyhow::Result<Solved>
@@ -87,7 +86,9 @@ Whether `outbound/client/` is the right home is still open.
 
 It's a free function rather than a method on a client. It briefly lived on the HTTP client, which put application logic inside an adapter that never needed its own cookie to run a solution.
 
-Intent is an explicit flag. An earlier version passed `Option<&SolverClient>` and read `None` as "do not validate". That removed a parameter but hid the decision in a type.
+Intent is an explicit enum, `Validation::Off` or `Validation::Against(&solver)`. A bare `bool` beside the client says nothing at the call site, and `Option<&SolverClient>` would read `None` as "do not validate", hiding the decision in a type. The enum names the decision and carries the client only when it is used.
+
+The module is `solve` and the function `run_day`, so the registry reads `solve::run_day::<Puzzle>` rather than `solve::solve`.
 
 The client is always built now. `SolverClient::from_env()` needs no cookie and fails only when the `User-Agent` can't be a header value, so there's no invalid combination to guard against and the call site says what it is doing.
 
@@ -98,8 +99,8 @@ The client is always built now. `SolverClient::from_env()` needs no cookie and f
 ```rust
 fn solver_for(year: i32, day: i32) -> Option<Solver> {
     match (year, day) {
-        (2015, 1) => Some(solve::<year_2015::day_01::Puzzle>),
-        (2016, 1) => Some(solve::<year_2016::day_01::Puzzle>),
+        (2015, 1) => Some(solve::run_day::<year_2015::day_01::Puzzle>),
+        (2016, 1) => Some(solve::run_day::<year_2016::day_01::Puzzle>),
         _ => None,
     }
 }
@@ -135,9 +136,9 @@ A missing `mod` also fails silently, as a day that quietly doesn't exist. A miss
 
 ## Walking the days
 
-`Day::matching(filter)` yields every published day that a `Filter` allows. Both subcommands use it, so the year and day loops exist once instead of twice with slightly different guards. `None` on either side of the filter means all of them.
+`Day::matching(filter)` yields every unlocked day that a `Filter` allows. Both subcommands use it, so the year and day loops exist once instead of twice with slightly different guards. `None` on either side of the filter means all of them.
 
-It sits on `Day` because a `Day` already carries its `Year`, so enumerating days is enumerating the pairs. `Day::all` iterates validated `Year`s rather than raw integers, which is why `days_in` can stay a method rather than a loose function taking an unchecked number.
+It sits on `Day` because a `Day` already carries its `Year`, so enumerating days is enumerating the pairs. `Day::all` iterates validated `Year`s rather than raw integers, which is why `days_in` can stay a method rather than a loose function taking an unchecked number. Each year and day is built straight from the range that bounds it, so the walk has no constructor to fail and nothing to `expect`.
 
 ## Timing
 

@@ -4,7 +4,7 @@
 
 Two different things, kept apart on purpose. Since 2026-08-06 the separation is structural:
 
-- `AocClient` (`aoc_client.rs`) holds `get_input` and `submit_answer`.
+- `AocClient` (`aoc_client.rs`) holds `fetch_input` and `submit_answer`.
 - `SolverClient` (`solver_client.rs`) holds `validate_answer`.
 - They share only the `User-Agent`, which both build from `Environment::user_agent` in `environment.rs`.
 
@@ -30,8 +30,8 @@ The plan is to route on solved state: submit to AOC while a part is unsolved, an
 
 `src/lib/domain/solution/solver_verdict.rs` and `aoc_verdict.rs` hold two types, one per source.
 
-- `SolverVerdict` is `Correct`, `Incorrect`, `Low`, `High`, or `Unsupported`. It's built with `From<Ordering>` for numeric comparisons and `From<bool>` for text.
-- `AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(String)`, `AlreadySolved`, or `NotLoggedIn`.
+- `SolverVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Unsupported`, or `Unchecked(String)`. Numeric comparisons build it with `From<Ordering>`; text answers either match or are `Incorrect`.
+- `AocVerdict` is `Correct`, `Incorrect`, `Low`, `High`, `Cooldown(Option<String>)`, `AlreadySolved`, `NotLoggedIn`, or `Unrecognized(String)`.
 
 Direction is worth keeping rather than flattening into a bool, and both sources produce it.
 
@@ -61,7 +61,9 @@ The clients map their replies onto them.
 
 Classification has to read the body, not the status. [`../references.md`](../references.md) has the contract and how it was verified. `error_for_status()` isn't used here because it consumes the body that carries the meaning.
 
-Only transport failures and 5xx fall through to the next host. Every 4xx is deterministic and all three hosts run the same solver, so retrying a rejected request wastes round trips. A 5xx comes from the hosting platform, not the solver.
+Only transport failures and 5xx fall through to the next host.
+
+When every host fails, or one rejects the request, the error lands on that part as `Unchecked` with the reason, and it prints as `(unchecked: <reason>)`. The answers still print and the day still counts. An outage on someone else's server says nothing about whether the answers are right. Every 4xx is deterministic and all three hosts run the same solver, so retrying a rejected request wastes round trips. A 5xx comes from the hosting platform, not the solver.
 
 `Unsupported` is currently unreachable, because the solver's coverage ends exactly where `Year::days_in` does. It becomes reachable during a live event, when a day is published and solved locally before the solver catches up.
 
@@ -80,7 +82,7 @@ Every run pays for what it validates, since nothing is cached. That's the point:
 
 `submit_answer` form-encodes `level` and `answer` to `/<year>/day/<day>/answer`. AOC returns 200 for everything, wrong answers included, so the verdict comes entirely from the body.
 
-The strings and match order are in [`../references.md`](../references.md). Fixtures are unit tests at the bottom of `src/lib/outbound/client/aoc_client.rs`.
+The strings and match order are in [`../references.md`](../references.md). A reply that matches none of them is `Unrecognized`, holding the first 60 characters of its message, and prints as `(unrecognized reply: <text>)`. Calling it `Incorrect` would claim a grade nobody saw, and it doesn't let part two through. Fixtures are unit tests at the bottom of `src/lib/outbound/client/aoc_client.rs`.
 
 ## What counts as solved
 
@@ -121,10 +123,19 @@ One detail is worth keeping if the cache ever comes back: an entry has to store 
 - Solver says `Correct`: submit.
 - Solver says `Incorrect`, `High`, or `Low`: skip, and report the direction.
 - Solver says `Unsupported`: submit anyway, noting it went unchecked.
+- Solver couldn't be reached, `Unchecked`: skip. Nothing vouched for the answer, and a wrong one costs a cooldown.
 
 That last case matters. `Unsupported` means the solver has no implementation.
 
 That happens during a live event, when a day is solved before the solver catches up, which is exactly when submitting is worth doing. Gating on it would block the one case the feature exists for.
+
+Part two goes only after part one comes back `Correct` or `AlreadySolved` in the same run. AOC answers a part two sent before part one's star with "You don't seem to be solving the right level", the same reply as a solved part, so it would print as `starred` with no star behind it.
+
+- A part one the solver rejected, or one that failed, isn't sent, so part two isn't either. It prints the solver's verdict alone.
+- An already starred part one still goes out and comes back `AlreadySolved`, which is the signal that lets part two through.
+- A cached `part_two.md` would also prove the star, but the cache can outlive a cookie swap, so it isn't trusted for this.
+
+`submission::submit_day` takes the send as a closure, so tests drive it with a fake AOC.
 
 An unfiltered `--submit` walks every year and day, so it prompts first with the count. `--yes` skips the prompt.
 
@@ -132,11 +143,11 @@ An unfiltered `--submit` walks every year and day, so it prompts first with the 
 - The prompt writes to stderr, so redirecting output doesn't swallow the question.
 - Closed stdin counts as no, so a script doesn't hang or accidentally proceed.
 
-The two clients are built independently. Validating alone never needs a cookie, since only `AocClient` has one.
+The two clients are built independently. Validating alone never needs a cookie, since only `AocClient` has one. Its `Cookie` header is marked sensitive, so a `{:?}` on anything that prints the client's headers shows `Sensitive` instead of the session.
 
 Intent travels as flags, not as the presence of a client.
 
-- `solve` takes `validate: bool` alongside a `&SolverClient` that's always built. That client needs no cookie and fails to build only when the `User-Agent` can't be a header value.
+- `solve::run_day` takes a `Validation`, which is `Off` or `Against` a `&SolverClient` that's always built. That client needs no cookie and fails to build only when the `User-Agent` can't be a header value.
 - `AocClient` sits behind a `LazyAocClient`, because it genuinely can be absent. Nothing reads intent from it.
 - Submission is gated on `--submit`.
 - `ensure_entry` connects the `LazyAocClient` only when a download is needed, so a connected client doesn't imply anything was asked for.

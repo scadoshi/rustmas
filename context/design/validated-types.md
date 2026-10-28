@@ -11,10 +11,10 @@
 That makes several states unrepresentable:
 
 - a year outside the published events
-- a day outside the range its year actually published
+- a day outside the range its year actually published, or one that hasn't unlocked yet
 - a day with no year attached
 
-`Year::days_in()` is the single source of truth for how long an event ran. 2025 was a 12-day event; everything else is 25. `Day::new` and `Day::all` both read it, so they can't drift apart.
+`Year::days_in()` is the single source of truth for how long an event runs: 25 days through 2024, 12 from 2025 on. During the running event, `Day::new` and `Day::all` cap it further at the days unlocked so far, so they can't drift apart and an unfiltered run in December never asks for a page that doesn't exist yet.
 
 `Filter` narrows the published days for a run, with `None` meaning all of them. It validates eagerly, so an impossible filter errors up front instead of matching nothing in silence. Its day is an `i32` rather than a `Day`, since day 13 with no year isn't an address: valid for 2015, not for 2025.
 
@@ -30,6 +30,10 @@ Everything a year knows sits in `year.rs`: `FIRST_YEAR`, `Year::latest()`, and `
 ## Year::latest
 
 `Year::latest()` is the latest *published* event, not the current calendar year. AOC drops a new one each December, so before December the current year has nothing in it.
+
+Puzzles unlock at midnight UTC-5, which is 05:00 UTC. `Year::latest()` flips to the new year when day 1 unlocks, not at midnight UTC on December 1, and each later day counts as unlocked from its own 05:00 UTC.
+
+The clock is a parameter underneath. `Year::latest_at`, `Year::new_at`, `Day::new_at`, `Day::all_at` and `Filter`'s `new_at` take `now`, and the public versions pass `Utc::now()`, so tests pin a moment in December instead of depending on when they run.
 
 `Year::new` bounds on that rather than on `Utc::now().year()`. The old bound let a 2026 day validate against an event that didn't exist.
 
