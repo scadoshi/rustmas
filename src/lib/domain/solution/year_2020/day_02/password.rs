@@ -15,6 +15,8 @@ pub enum InvalidPolicy {
     TooFewParts,
     #[error("expected a range like `1-3`")]
     MalformedRange,
+    #[error("expected the range to run upward")]
+    Backwards,
     #[error("expected a single letter")]
     MalformedLetter,
 }
@@ -29,11 +31,12 @@ impl FromStr for Policy {
         let Some((a, b)) = rng.split_once('-') else {
             return Err(InvalidPolicy::MalformedRange);
         };
-        let (Ok(a), Ok(b)) = (a.parse::<usize>(), b.parse::<usize>()) else {
+        let (Ok(lo), Ok(hi)) = (a.parse::<usize>(), b.parse::<usize>()) else {
             return Err(InvalidPolicy::MalformedRange);
         };
-        let lo = a.min(b);
-        let hi = a.max(b);
+        if lo > hi {
+            return Err(InvalidPolicy::Backwards);
+        }
         if ltr.len() > 1 {
             return Err(InvalidPolicy::MalformedLetter);
         }
@@ -119,6 +122,16 @@ mod tests {
         assert!(matches!(
             "1-3 abc".parse::<Policy>(),
             Err(InvalidPolicy::MalformedLetter)
+        ));
+    }
+
+    /// A policy's range runs low to high, so `3-1` is a typo rather than a
+    /// range to flip.
+    #[test]
+    fn a_backwards_range_is_rejected() {
+        assert!(matches!(
+            "3-1 a".parse::<Policy>(),
+            Err(InvalidPolicy::Backwards)
         ));
     }
 
