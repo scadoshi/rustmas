@@ -62,9 +62,9 @@ impl Environment {
     /// A value that is set but malformed is an error, not a `None`, so a
     /// mistyped cookie never reads as "not configured".
     pub(crate) fn cookie_if_set() -> anyhow::Result<Option<SessionCookie>> {
-        Self::read_var(COOKIE_KEY)?
+        Ok(Self::read_var(COOKIE_KEY)?
             .map(|value| SessionCookie::try_from(value.as_str()))
-            .transpose()
+            .transpose()?)
     }
 
     /// The session cookie, required. Paired with [`Environment::cookie_if_set`]

@@ -61,7 +61,7 @@ impl TryFrom<char> for Direction {
             'r' | '>' => Ok(Self::Right),
             'd' | 'v' => Ok(Self::Down),
             'l' | '<' => Ok(Self::Left),
-            other => Err(InvalidDirection(other.to_string())),
+            _ => Err(InvalidDirection(value.to_string())),
         }
     }
 }
@@ -74,7 +74,7 @@ impl FromStr for Direction {
             "right" | "r" | ">" => Ok(Self::Right),
             "down" | "d" | "v" => Ok(Self::Down),
             "left" | "l" | "<" => Ok(Self::Left),
-            other => Err(InvalidDirection(other.to_owned())),
+            _ => Err(InvalidDirection(value.to_owned())),
         }
     }
 }
@@ -150,5 +150,22 @@ mod tests {
     fn the_error_says_what_it_read() {
         let error = "north".parse::<Direction>().unwrap_err();
         assert!(error.to_string().contains("north"));
+    }
+
+    #[test]
+    fn the_error_keeps_the_original_case() {
+        assert!(
+            "North"
+                .parse::<Direction>()
+                .unwrap_err()
+                .to_string()
+                .contains("North")
+        );
+        assert!(
+            Direction::try_from('X')
+                .unwrap_err()
+                .to_string()
+                .contains('X')
+        );
     }
 }

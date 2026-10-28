@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug, Display};
 
-use anyhow::bail;
+use thiserror::Error;
 
 /// How many hex characters adventofcode.com's session cookie carries.
 ///
@@ -16,20 +16,30 @@ const LENGTH: usize = 128;
 #[derive(Clone, PartialEq, Eq)]
 pub(crate) struct SessionCookie(String);
 
-impl TryFrom<&str> for SessionCookie {
-    type Error = anyhow::Error;
+/// Why a value cannot be a [`SessionCookie`]. Never carries the value, since
+/// it is a secret.
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub(crate) enum InvalidSessionCookie {
+    #[error(
+        "COOKIE must be {LENGTH} hex characters, got {length}. Copy the whole `session` cookie value from your browser."
+    )]
+    WrongLength { length: usize },
+    #[error("COOKIE must be hex characters only, and this one is not")]
+    NotHex,
+}
 
-    fn try_from(value: &str) -> anyhow::Result<Self> {
+impl TryFrom<&str> for SessionCookie {
+    type Error = InvalidSessionCookie;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         let value = value.trim();
         if value.len() != LENGTH {
-            bail!(
-                "COOKIE must be {LENGTH} hex characters, got {}. Copy the whole \
-                 `session` cookie value from your browser.",
-                value.len()
-            );
+            return Err(InvalidSessionCookie::WrongLength {
+                length: value.len(),
+            });
         }
         if !value.chars().all(|c| c.is_ascii_hexdigit()) {
-            bail!("COOKIE must be hex characters only, and this one is not");
+            return Err(InvalidSessionCookie::NotHex);
         }
         Ok(Self(value.to_string()))
     }
@@ -89,6 +99,21 @@ mod tests {
     fn rejects_a_value_the_site_would_have_accepted() {
         let long = format!("{}deadbeef", valid());
         assert!(SessionCookie::try_from(long.as_str()).is_err());
+    }
+
+    /// The messages tell the user what to fix in `.env`, so they are pinned.
+    #[test]
+    fn messages_name_the_fix() {
+        assert_eq!(
+            SessionCookie::try_from("abc").unwrap_err().to_string(),
+            "COOKIE must be 128 hex characters, got 3. Copy the whole `session` cookie value from your browser."
+        );
+        assert_eq!(
+            SessionCookie::try_from("z".repeat(LENGTH).as_str())
+                .unwrap_err()
+                .to_string(),
+            "COOKIE must be hex characters only, and this one is not"
+        );
     }
 
     #[test]

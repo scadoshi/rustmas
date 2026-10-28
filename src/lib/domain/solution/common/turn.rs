@@ -23,7 +23,7 @@ impl TryFrom<char> for Turn {
         match value.to_ascii_lowercase() {
             'l' => Ok(Self::Left),
             'r' => Ok(Self::Right),
-            other => Err(InvalidTurn(other.to_string())),
+            _ => Err(InvalidTurn(value.to_string())),
         }
     }
 }
@@ -34,7 +34,7 @@ impl FromStr for Turn {
         match value.to_lowercase().as_str() {
             "left" | "l" => Ok(Self::Left),
             "right" | "r" => Ok(Self::Right),
-            other => Err(InvalidTurn(other.to_owned())),
+            _ => Err(InvalidTurn(value.to_owned())),
         }
     }
 }
@@ -67,5 +67,17 @@ mod tests {
     fn the_error_says_what_it_read() {
         let error = "sideways".parse::<Turn>().unwrap_err();
         assert!(error.to_string().contains("sideways"));
+    }
+
+    #[test]
+    fn the_error_keeps_the_original_case() {
+        assert!(
+            "Sideways"
+                .parse::<Turn>()
+                .unwrap_err()
+                .to_string()
+                .contains("Sideways")
+        );
+        assert!(Turn::try_from('X').unwrap_err().to_string().contains('X'));
     }
 }
