@@ -12,7 +12,7 @@ use crate::domain::solution::aoc_verdict::AocVerdict;
 use crate::outbound::client::environment::Environment;
 
 /// Marks a puzzle part on a day page. Two means part two is unlocked.
-const ARTICLE: &str = r#"<article class="day-desc">"#;
+const ARTICLE_OPEN_TAG: &str = r#"<article class="day-desc">"#;
 
 /// Column the rendered puzzle text wraps at, a terminal's default width.
 const INSTRUCTIONS_WIDTH: usize = 80;
@@ -79,7 +79,7 @@ impl AocClient {
             .text()
             .with_context(|| format!("failed to read page body for {day:?}"))?;
 
-        let mut parts = html.split(ARTICLE).skip(1).map(|part| {
+        let mut parts = html.split(ARTICLE_OPEN_TAG).skip(1).map(|part| {
             let body = part.split("</article>").next().unwrap_or_default();
             html2text::from_read(body.as_bytes(), INSTRUCTIONS_WIDTH)
                 .with_context(|| format!("failed to render instructions for {day:?}"))

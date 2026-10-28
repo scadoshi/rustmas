@@ -1,5 +1,5 @@
 pub mod args;
-pub(crate) mod utils;
+pub(crate) mod submission;
 
 use crate::domain::address::{Day, Filter, PARTS_PER_DAY, Part};
 use crate::domain::solution::aoc_verdict::AocVerdict;
@@ -87,7 +87,7 @@ pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
     let filter = Filter::new(args.year, args.day)?;
 
     let count = part_count(filter);
-    if args.submitting_everything() && !args.yes && count > 0 && !utils::confirm(count)? {
+    if args.submitting_everything() && !args.yes && count > 0 && !submission::confirm(count)? {
         eprintln!("Nothing submitted.");
         return Ok(());
     }
@@ -119,8 +119,8 @@ pub(crate) fn run(args: &SolveArgs) -> anyhow::Result<()> {
                 // line. Gated on the flag, not on the client existing.
                 if args.submit {
                     let client = aoc.connected()?;
-                    solved.part_one = utils::submit(client, &day, Part::One, solved.part_one)?;
-                    solved.part_two = utils::submit(client, &day, Part::Two, solved.part_two)?;
+                    solved.part_one = submission::submit(client, &day, Part::One, solved.part_one)?;
+                    solved.part_two = submission::submit(client, &day, Part::Two, solved.part_two)?;
                 }
 
                 // A new star on part one unlocks part two's text, so fetch it.
