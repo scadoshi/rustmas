@@ -1,9 +1,12 @@
+//! A passphrase, and the test for duplicate words that both parts share.
+
 use std::collections::HashSet;
 use std::hash::Hash;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// A character in a passphrase that is neither `a-z` nor whitespace. Carries the character.
 #[derive(Debug, Error)]
 #[error("expected lowercase words separated by spaces, read {0:?}")]
 pub(super) struct InvalidPassphrase(char);

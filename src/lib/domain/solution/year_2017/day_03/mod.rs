@@ -1,3 +1,5 @@
+//! Day 3, Spiral Memory: squares are numbered outward in a spiral from 1 at the center. Part one finds the Manhattan distance from a square back to the center; part two fills the spiral with running sums of neighbors and reports the first value past the input.
+
 mod spiral;
 
 use std::collections::HashMap;
@@ -8,8 +10,10 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::point::Point;
 
+/// The puzzle input, a single number.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// A square's number in part one, a value to exceed in part two.
     target: usize,
 }
 

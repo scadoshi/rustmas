@@ -1,3 +1,5 @@
+//! Day 4, High-Entropy Passphrases: counts the passphrases with no repeated word. Part two also rejects anagrams by comparing each word's sorted letters instead of the word.
+
 mod passphrase;
 
 use crate::domain::solution::Solution;
@@ -5,8 +7,10 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2017::day_04::passphrase::Passphrase;
 
+/// The list of passphrases.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per non-blank line.
     passphrases: Vec<Passphrase>,
 }
 

@@ -1,10 +1,14 @@
+//! Day 1, Inverse Captcha: sums the digits of a circular list that match the digit some fixed step ahead. Part one looks one ahead, part two halfway around; both share [`Puzzle::matching`].
+
 use anyhow::Context;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// The captcha.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Each `0` to `9`, in order. The last is followed by the first.
     digits: Vec<u32>,
 }
 

@@ -1,3 +1,5 @@
+//! The spiral's path and the squares around a point on it.
+
 use std::iter;
 
 use crate::domain::solution::common::direction::Direction;

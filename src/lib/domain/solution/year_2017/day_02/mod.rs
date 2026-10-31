@@ -1,10 +1,14 @@
+//! Day 2, Corruption Checksum: reduces each row of a spreadsheet to one number and sums them. Part one takes each row's largest minus smallest; part two finds the one pair in a row where one number divides the other and takes the quotient.
+
 use anyhow::{Context, anyhow};
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// The spreadsheet.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per line, numbers in the order the line lists them. A blank line inside the input is an empty row, which adds nothing.
     rows: Vec<Vec<u32>>,
 }
 
