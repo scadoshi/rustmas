@@ -1,3 +1,5 @@
+//! Day 1: Historian Hysteria. Both lists are sorted when parsed. Part one pairs them smallest with smallest and adds up the gaps; part two counts each number in the right list and scores the left list against those counts.
+
 use std::collections::HashMap;
 
 use anyhow::anyhow;
@@ -5,9 +7,12 @@ use anyhow::anyhow;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// The two lists of location ids, side by side in the input.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// The left column, sorted ascending.
     left: Vec<i32>,
+    /// The right column, sorted ascending.
     right: Vec<i32>,
 }
 

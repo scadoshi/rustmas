@@ -1,3 +1,5 @@
+//! One update: the pages to print, in the order given.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -17,10 +19,12 @@ impl FromStr for Update {
 }
 
 impl Update {
+    /// An update that prints `pages` in the order given.
     pub(super) fn new(pages: Vec<u32>) -> Self {
         Self(pages)
     }
 
+    /// In print order, which may break the rules.
     pub(super) fn pages(&self) -> &[u32] {
         &self.0
     }

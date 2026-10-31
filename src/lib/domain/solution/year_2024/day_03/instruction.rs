@@ -1,10 +1,15 @@
+//! The instructions hidden in corrupted memory, and the scanner that finds them.
+
 use std::iter;
 
 /// The instructions that survive the corruption.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum Instruction {
+    /// `mul(a,b)`, each operand one to three digits.
     Mul(u64, u64),
+    /// `do()`, which switches multiplication back on.
     Do,
+    /// `don't()`, which switches multiplication off until the next `do()`.
     Dont,
 }
 

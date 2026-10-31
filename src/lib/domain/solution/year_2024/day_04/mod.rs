@@ -1,3 +1,5 @@
+//! Day 4: Ceres Search. Part one counts XMAS in all eight directions from every cell. Part two counts each A at the center of two crossing MAS.
+
 mod word_search;
 
 use anyhow::Context;
@@ -6,8 +8,10 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2024::day_04::word_search::WordSearch;
 
+/// The elf's word search.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One letter per cell, the input's lines as rows.
     grid: WordSearch,
 }
 

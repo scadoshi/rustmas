@@ -1,3 +1,5 @@
+//! The guard's patrol: the lab map, where she starts, and the walk she takes from there.
+
 use std::collections::HashSet;
 use std::str::FromStr;
 
@@ -8,10 +10,13 @@ use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
 use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
+/// Why the input does not read as a lab map with a guard on it.
 #[derive(Debug, Error)]
 pub(super) enum InvalidPatrol {
+    /// The map is empty or its rows differ in width.
     #[error(transparent)]
     Shape(#[from] InvalidRectangle),
+    /// No `^`, `>`, `v` or `<` anywhere on the map.
     #[error("expected a guard, one of `^>v<`")]
     MissingGuard,
 }
@@ -19,8 +24,11 @@ pub(super) enum InvalidPatrol {
 /// The lab map and where the guard begins her patrol.
 #[derive(Debug)]
 pub(super) struct Patrol {
+    /// The lab as drawn, `#` for an obstacle. The guard's marker stays on her start cell.
     map: Rectangle<char>,
+    /// The cell the guard starts on.
     start: Cell,
+    /// The way she faces at the start.
     facing: Direction,
 }
 
@@ -50,11 +58,14 @@ impl FromStr for Patrol {
 /// Where a walk went and whether it ever came back round on itself.
 #[derive(Debug)]
 pub(super) struct Walk {
+    /// Every cell she stood on, the start included.
     pub(super) visited: HashSet<Cell>,
+    /// True when she came back to a cell facing the same way, false when she walked off the map.
     pub(super) looped: bool,
 }
 
 impl Patrol {
+    /// The cell the guard starts on, where the puzzle forbids an obstacle.
     pub(super) fn start(&self) -> Cell {
         self.start
     }

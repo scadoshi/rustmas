@@ -1,3 +1,5 @@
+//! Day 3: Mull It Over. A scanner walks the corrupted memory and picks out `mul(a,b)`, `do()` and `don't()`. Part one adds up every product; part two only those switched on.
+
 mod instruction;
 
 use anyhow::Context;
@@ -6,8 +8,10 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2024::day_03::instruction::Instruction;
 
+/// The computer's corrupted memory.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// The input untouched. No instruction contains a newline, so the lines need no splitting.
     memory: String,
 }
 

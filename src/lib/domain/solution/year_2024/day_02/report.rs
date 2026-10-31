@@ -1,3 +1,5 @@
+//! A reactor report and the safety rule both parts check it against.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -32,6 +34,7 @@ fn is_safe(levels: &[i32]) -> bool {
 }
 
 impl Report {
+    /// Whether every step is 1 to 3 in the same direction, with no level removed.
     pub(super) fn is_safe(&self) -> bool {
         is_safe(&self.0)
     }

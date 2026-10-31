@@ -1,11 +1,15 @@
+//! Day 6: Guard Gallivant. The guard walks until she leaves the map or repeats a cell and heading. Part two puts one obstacle on each cell of her path in turn and counts the placements that trap her in a loop.
+
 mod patrol;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2024::day_06::patrol::Patrol;
 
+/// The lab the guard patrols.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// The map, her starting cell and the way she faces.
     patrol: Patrol,
 }
 

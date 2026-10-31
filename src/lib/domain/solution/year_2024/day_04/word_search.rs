@@ -1,3 +1,5 @@
+//! The word search grid and the two patterns read out of it.
+
 use std::str::FromStr;
 
 use crate::domain::solution::common::cell::Cell;
@@ -44,6 +46,7 @@ impl WordSearch {
         self.0.at(&Cell::new(column, row)).copied()
     }
 
+    /// Every cell on the grid, row by row from the top-left.
     pub(super) fn cells(&self) -> impl Iterator<Item = Cell> + '_ {
         (0..self.0.height())
             .flat_map(move |row| (0..self.0.width()).map(move |column| Cell::new(column, row)))

@@ -1,3 +1,5 @@
+//! Page ordering rules, and checking or fixing an update against them.
+
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::num::ParseIntError;
@@ -7,10 +9,13 @@ use thiserror::Error;
 
 use crate::domain::solution::year_2024::day_05::update::Update;
 
+/// Why a line does not read as a rule.
 #[derive(Debug, Error)]
 pub(super) enum InvalidRule {
+    /// No `|` between the two pages.
     #[error("expected two pages separated by `|`, like `47|53`")]
     MissingBar,
+    /// A page that is not a whole number.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
@@ -29,7 +34,9 @@ pub(super) enum UnorderableUpdate {
 /// `before` must be printed somewhere ahead of `after`, if both appear.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub(super) struct Rule {
+    /// The page left of the `|`, which prints first.
     before: u32,
+    /// The page right of the `|`, which prints later.
     after: u32,
 }
 

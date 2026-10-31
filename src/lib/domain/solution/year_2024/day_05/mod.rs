@@ -1,3 +1,5 @@
+//! Day 5: Print Queue. The ordering rules are kept as a set of page pairs. Part one keeps the updates no rule contradicts; part two sorts the others by how many of their own pages must come before each page.
+
 mod rules;
 mod update;
 
@@ -9,9 +11,12 @@ use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2024::day_05::rules::{Rule, Rules};
 use crate::domain::solution::year_2024::day_05::update::Update;
 
+/// The page ordering rules and the updates to check against them.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Every `before|after` rule from the top section.
     rules: Rules,
+    /// The updates from the bottom section, in input order.
     updates: Vec<Update>,
 }
 
