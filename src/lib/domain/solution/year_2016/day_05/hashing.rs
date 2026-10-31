@@ -1,3 +1,5 @@
+//! The MD5 search for hashes starting with five zero hex digits.
+
 use std::fmt::Write;
 
 /// The sixth and seventh hex digits of every digest starting with five zeros.

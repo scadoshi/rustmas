@@ -1,3 +1,5 @@
+//! Day 3, Squares With Three Sides: counts the side triples that can form a triangle. Part one reads each row as a triangle; part two reads down the columns, three rows at a time.
+
 mod triangle;
 
 use crate::domain::solution::Solution;
@@ -5,8 +7,10 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2016::day_03::triangle::Triangle;
 
+/// The listed side lengths.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per row, sides in the order the row lists them.
     triangles: Vec<Triangle>,
 }
 

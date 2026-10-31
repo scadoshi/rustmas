@@ -1,3 +1,5 @@
+//! Day 2, Bathroom Security: each line of moves walks a finger around a keypad, and the button it ends on is the next character of the code. Part one uses the 3x3 keypad, which clamps at its edges; part two uses the diamond keypad, where a move onto a blank is ignored. Each line starts where the last one stopped.
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::cell::Cell;
@@ -5,6 +7,7 @@ use crate::domain::solution::common::cursor::cell_on_grid::CellOnGrid;
 use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::grid::rectangle::Rectangle;
 
+/// The bathroom code instructions.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
     /// The moves toward each button of the code, one list per button.

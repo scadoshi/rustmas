@@ -1,16 +1,22 @@
+//! Three side lengths, and whether they make a triangle.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Returned when a row is not three whole numbers.
 #[derive(Debug, Error)]
 pub(super) enum InvalidTriangle {
+    /// Fewer or more than three numbers on the row.
     #[error("expected three sides")]
     SideCount,
+    /// A side that is not a whole number that fits a `u32`.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
+/// Three side lengths, unsorted and not yet checked to form a triangle; [`Triangle::is_valid`] does that.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct Triangle(pub(super) [u32; 3]);
 

@@ -1,3 +1,5 @@
+//! Day 4, Security Through Obscurity: each line is an encrypted room name, a sector id and a checksum. Part one sums the ids of rooms whose checksum is right; part two decrypts the names with a shift cipher and finds the one about the North Pole.
+
 mod room;
 
 use anyhow::Context;
@@ -7,8 +9,10 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2016::day_04::room::Room;
 
+/// The kiosk's list of rooms.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per non-blank line, decoys included.
     rooms: Vec<Room>,
 }
 

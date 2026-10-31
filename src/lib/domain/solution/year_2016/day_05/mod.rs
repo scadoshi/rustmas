@@ -1,10 +1,14 @@
+//! Day 5, How About a Nice Game of Chess?: builds a door's eight-character password from MD5 hashes of the door id plus a counter, keeping only hashes whose hex starts with five zeros. The hashing lives in [`hashing`].
+
 mod hashing;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// The door to crack.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// The door id, trimmed, used as the prefix of every hash.
     door: String,
 }
 

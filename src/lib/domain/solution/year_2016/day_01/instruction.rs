@@ -1,3 +1,5 @@
+//! Parsing the comma-separated `R2, L3` instructions.
+
 use std::num::ParseIntError;
 use std::ops::Deref;
 use std::str::FromStr;
@@ -10,10 +12,13 @@ use crate::domain::solution::common::turn::{InvalidTurn, Turn};
 /// The ways a single instruction can fail to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidInstruction {
+    /// The first character is not `L` or `R`.
     #[error(transparent)]
     Turn(#[from] InvalidTurn),
+    /// What follows the letter is not a whole number.
     #[error(transparent)]
     Distance(#[from] ParseIntError),
+    /// The instruction is empty, or its first character is more than one byte.
     #[error("expected a turn letter followed by a distance")]
     TooShort,
     /// The distance is below zero; the walk only goes forward.
@@ -27,8 +32,9 @@ pub(super) enum InvalidInstruction {
 /// instead of quietly turning nowhere and walking three.
 #[derive(Debug)]
 pub(super) struct Instruction {
+    /// Relative to the heading the previous instruction left.
     pub(super) turn: Turn,
-    /// Never negative, checked when parsed.
+    /// In blocks. Never negative, checked when parsed.
     pub(super) distance: i32,
 }
 

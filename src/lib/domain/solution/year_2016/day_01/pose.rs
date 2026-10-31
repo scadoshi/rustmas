@@ -1,3 +1,5 @@
+//! Where the walker stands and which way it faces.
+
 use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::point::Point;
 use crate::domain::solution::common::turn::Turn;
@@ -8,7 +10,9 @@ use crate::domain::solution::common::turn::Turn;
 /// last instruction left you pointing.
 #[derive(Debug, Clone, Copy, Default)]
 pub(super) struct Pose {
+    /// The way the next walk goes.
     heading: Direction,
+    /// Blocks from the start, `y` growing north.
     pub(super) position: Point,
 }
 

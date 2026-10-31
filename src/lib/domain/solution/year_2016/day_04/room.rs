@@ -1,17 +1,23 @@
+//! A room listing, its checksum test and its decryption.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Returned when a line does not read as `name-id[checksum]`.
 #[derive(Debug, Error)]
 pub(super) enum InvalidRoom {
+    /// The line does not end in `[...]`.
     #[error("expected a checksum in brackets")]
     MissingChecksum,
+    /// No dash separates the name from the id.
     #[error("expected a sector id after the name")]
     MissingId,
     /// The name holds something other than `a-z` and dashes.
     #[error("expected only lowercase letters and dashes in the name, read {0:?}")]
     NotALetter(char),
+    /// The sector id is not a whole number that fits a `u32`.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
@@ -22,11 +28,16 @@ const ALPHABET: &[u8; 26] = b"abcdefghijklmnopqrstuvwxyz";
 /// How many letters a checksum holds.
 const CHECKSUM_LEN: usize = 5;
 
+/// One line of the list: a name, its sector id and the checksum claimed for it.
+///
+/// A decoy parses like any other room; [`Room::is_real`] tells them apart.
 #[derive(Debug, Clone)]
 pub(super) struct Room {
     /// Only `a-z` and dashes, checked when parsed.
     encrypted_name: String,
+    /// The sector id, also the cipher's shift.
     pub(super) id: u32,
+    /// The text between the brackets, unchecked, so it may be any length.
     checksum: String,
 }
 

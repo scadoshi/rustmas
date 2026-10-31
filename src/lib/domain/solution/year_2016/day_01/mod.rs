@@ -1,3 +1,5 @@
+//! Day 1, No Time for a Taxicab: follows turn-and-walk instructions on a city grid and reports the Manhattan distance from the start. Part one walks whole legs at once; part two steps one block at a time to find the first block visited twice.
+
 mod instruction;
 mod pose;
 
@@ -9,6 +11,7 @@ use crate::domain::solution::common::point::Point;
 use crate::domain::solution::year_2016::day_01::instruction::Instructions;
 use crate::domain::solution::year_2016::day_01::pose::Pose;
 
+/// The instructions from the recruiting document.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
     /// Parsed here so a bad input fails before either part runs.
