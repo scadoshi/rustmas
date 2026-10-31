@@ -2,8 +2,6 @@ use std::str::FromStr;
 
 use thiserror::Error;
 
-use crate::domain::solution::common::direction::Direction as PointDirection;
-
 #[derive(Debug, Error)]
 #[error("expected forward, down or up")]
 pub(super) struct InvalidDirection;
@@ -24,16 +22,6 @@ impl FromStr for Direction {
             "up" => Self::Up,
             _ => return Err(InvalidDirection),
         })
-    }
-}
-
-impl From<Direction> for PointDirection {
-    fn from(value: Direction) -> Self {
-        match value {
-            Direction::Forward => PointDirection::Right,
-            Direction::Down => PointDirection::Down,
-            Direction::Up => PointDirection::Up,
-        }
     }
 }
 
