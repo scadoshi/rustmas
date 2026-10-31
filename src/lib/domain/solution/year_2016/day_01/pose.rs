@@ -36,7 +36,6 @@ impl Pose {
 mod tests {
     use super::*;
 
-    /// [`Direction`] has no `PartialEq`, and the tests should not dictate that.
     fn heading_is(pose: &Pose, expected: Direction) -> bool {
         use Direction::*;
         matches!(

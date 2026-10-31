@@ -95,7 +95,7 @@ mod tests {
         assert_eq!(instruction.distance, 347);
     }
 
-    /// Back when the letter was a direction, this parsed and walked three.
+    /// The letter is a turn, so a heading like `U` is rejected rather than walked.
     #[test]
     fn a_heading_is_not_a_valid_instruction() {
         for input in ["U3", "D3", "up3"] {
