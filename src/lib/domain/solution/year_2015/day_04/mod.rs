@@ -1,3 +1,5 @@
+//! Day 4, The Ideal Stocking Stuffer: mines coins by finding the lowest number that, appended to the secret key, gives an MD5 hash whose hex starts with five zeros, then six. It counts up from zero; there is no shortcut.
+
 mod hashing;
 
 use anyhow::anyhow;
@@ -11,6 +13,7 @@ fn lowest(secret: &str, zeros: usize) -> anyhow::Result<usize> {
         .ok_or_else(|| anyhow!("no suffix up to {} gives {zeros} zeros", usize::MAX))
 }
 
+/// The secret key the hashes start from.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
     /// The secret key, checked when parsed to be one non-empty run of ASCII

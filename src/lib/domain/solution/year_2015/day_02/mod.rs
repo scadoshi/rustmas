@@ -1,3 +1,5 @@
+//! Day 2, I Was Told There Would Be No Math: totals the wrapping paper and ribbon for a list of box-shaped presents, one present per line. All arithmetic is checked, so a total too large for a `u32` is an error.
+
 mod dimensions;
 
 use anyhow::anyhow;
@@ -7,8 +9,10 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2015::day_02::dimensions::Dimensions;
 
+/// The list of presents, parsed.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// In input order, one per non-blank line.
     presents: Vec<Dimensions>,
 }
 

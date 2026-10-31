@@ -1,3 +1,5 @@
+//! The MD5 search behind both parts.
+
 use std::fmt::Write;
 
 /// How many leading hex digits of `digest` are zero.

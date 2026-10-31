@@ -1,9 +1,12 @@
+//! Day 1, Not Quite Lisp: Santa climbs and descends floors by parentheses. Each character becomes a [`Step`] worth plus or minus one floor, summed for part one and walked until the basement for part two.
+
 use anyhow::Context;
 use thiserror::Error;
 
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// A character in the directions that is neither parenthesis. Carries the character.
 #[derive(Debug, Error)]
 #[error("expected `(` or `)`, read {0:?}")]
 struct InvalidStep(char);
@@ -39,8 +42,10 @@ impl Step {
     }
 }
 
+/// Santa's directions, parsed.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per character, in the order Santa follows them.
     steps: Vec<Step>,
 }
 

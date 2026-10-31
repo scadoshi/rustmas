@@ -1,3 +1,5 @@
+//! Day 5, Doesn't He Have Intern-Elves For This?: counts which strings are nice under two different rule sets, one string per line. The rules live in [`nice`].
+
 mod nice;
 
 use anyhow::anyhow;
@@ -5,6 +7,7 @@ use anyhow::anyhow;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// Santa's list of strings.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
     /// The non-blank lines, each checked when parsed to hold only `a-z`.

@@ -1,3 +1,5 @@
+//! Day 3, Perfectly Spherical Houses in a Vacuum: counts the distinct houses Santa visits on an infinite grid, one house per arrow. Part two splits the arrows between Santa and Robo-Santa, alternating, and counts the houses either one reaches; the starting house always counts.
+
 use std::collections::HashSet;
 
 use crate::domain::solution::Solution;
@@ -5,8 +7,10 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::direction::Direction;
 use crate::domain::solution::common::point::Point;
 
+/// The elf's arrows, parsed.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One move of one house per arrow, in order.
     directions: Vec<Direction>,
 }
 

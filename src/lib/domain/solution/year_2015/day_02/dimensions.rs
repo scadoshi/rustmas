@@ -1,24 +1,36 @@
+//! A present's size, and the paper and ribbon it takes.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Returned when a line is not three sizes joined by `x`.
 #[derive(Debug, Error)]
 pub(super) enum InvalidDimensions {
+    /// Fewer or more than three sizes.
     #[error("expected three sizes separated by `x`, like `2x3x4`")]
     WrongCount,
+    /// A size that is not a whole number that fits a `u32`.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
+/// A present's three sides in feet, in the order the input lists them.
+///
+/// Nothing depends on which side is which: every calculation either uses all three or sorts them first.
 #[derive(Debug)]
 pub(super) struct Dimensions {
+    /// The first size on the line.
     length: u32,
+    /// The second size on the line.
     width: u32,
+    /// The third size on the line.
     height: u32,
 }
 
 impl Dimensions {
+    /// A present measuring `length` by `width` by `height` feet.
     fn new(length: u32, width: u32, height: u32) -> Self {
         Self {
             length,

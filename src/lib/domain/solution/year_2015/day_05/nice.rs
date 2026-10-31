@@ -1,3 +1,5 @@
+//! The two rule sets that decide whether a string is nice, working on bytes since every string is ASCII lowercase.
+
 /// Pairs that disqualify a line under the first rules.
 const NAUGHTY: [&[u8]; 4] = [b"ab", b"cd", b"pq", b"xy"];
 
