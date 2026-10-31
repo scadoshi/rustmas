@@ -29,7 +29,7 @@ pub(super) fn rate(readings: &[u32], width: u32, keep: Keep) -> u32 {
 
 /// Narrows the readings one bit at a time, top down, until one is left.
 ///
-/// `None` when the filter doesn't end on exactly one reading. That happens with duplicates that survive every bit, and with [`Keep::LeastCommon`] whenever two or more remaining readings share a bit: the rarer value then has a count of 0, so keeping it empties the list.
+/// A bit every remaining reading shares can't narrow them, so it is skipped rather than keeping the empty side. Readings that survive every bit are identical, so the first one is the rating. `None` only for no readings.
 pub(super) fn rating_by_filter(readings: &[u32], width: u32, keep: Keep) -> Option<u32> {
     let mut left = readings.to_vec();
     for bit in (0..width).rev() {
@@ -37,12 +37,12 @@ pub(super) fn rating_by_filter(readings: &[u32], width: u32, keep: Keep) -> Opti
             break;
         }
         let wanted = bit_to_keep(&left, bit, keep);
+        if left.iter().all(|r| r >> bit & 1 != wanted) {
+            continue;
+        }
         left.retain(|r| r >> bit & 1 == wanted);
     }
-    match left.as_slice() {
-        [only] => Some(*only),
-        _ => None,
-    }
+    left.first().copied()
 }
 
 #[cfg(test)]
@@ -61,6 +61,26 @@ mod tests {
         assert_eq!(rate(&EXAMPLE, 5, Keep::LeastCommon), 9);
         assert_eq!(rating_by_filter(&EXAMPLE, 5, Keep::MostCommon), Some(23));
         assert_eq!(rating_by_filter(&EXAMPLE, 5, Keep::LeastCommon), Some(10));
+    }
+
+    #[test]
+    fn a_bit_every_reading_shares_is_skipped() {
+        let readings = [0b10, 0b11];
+        assert_eq!(rating_by_filter(&readings, 2, Keep::MostCommon), Some(0b11));
+        assert_eq!(
+            rating_by_filter(&readings, 2, Keep::LeastCommon),
+            Some(0b10)
+        );
+    }
+
+    #[test]
+    fn duplicates_that_survive_every_bit_rate_as_one() {
+        let readings = [0b10, 0b10];
+        assert_eq!(rating_by_filter(&readings, 2, Keep::MostCommon), Some(0b10));
+        assert_eq!(
+            rating_by_filter(&readings, 2, Keep::LeastCommon),
+            Some(0b10)
+        );
     }
 
     #[test]
