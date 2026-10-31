@@ -1,15 +1,22 @@
+//! Rock paper scissors rounds, scored the way the strategy guide says.
+
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// A letter outside `A` to `C` and `X` to `Z`, in either case.
 #[derive(Debug, Error)]
 #[error("expected a play, `a` to `c` or `x` to `z`")]
 pub(super) struct InvalidPlay;
 
+/// A shape thrown in one round. `A` or `X` is rock, `B` or `Y` paper, `C` or `Z` scissors.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(super) enum Play {
+    /// Beats scissors.
     Rock,
+    /// Beats rock.
     Paper,
+    /// Beats paper.
     Scissors,
 }
 
@@ -30,6 +37,7 @@ impl Play {
     #[cfg(test)]
     const ALL: [Self; 3] = [Self::Rock, Self::Paper, Self::Scissors];
 
+    /// Points for throwing this shape: 1, 2 or 3, whatever the outcome.
     fn value(self) -> u32 {
         match self {
             Self::Rock => 1,
@@ -54,14 +62,19 @@ impl Play {
     }
 }
 
+/// A second column letter other than `X`, `Y` or `Z` when read as a result.
 #[derive(Debug, Error)]
 #[error("expected a result, `x`, `y` or `z`")]
 pub(super) struct InvalidGameResult;
 
+/// How a round ends for the player. `X` is a loss, `Y` a draw, `Z` a win.
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum GameResult {
+    /// Worth 0.
     Loss,
+    /// Worth 3.
     Draw,
+    /// Worth 6.
     Win,
 }
 
@@ -78,6 +91,7 @@ impl TryFrom<char> for GameResult {
 }
 
 impl GameResult {
+    /// Points the outcome adds on top of the shape's.
     fn value(self) -> u32 {
         match self {
             Self::Loss => 0,
@@ -100,14 +114,19 @@ impl GameResult {
     }
 }
 
+/// Why a strategy guide line failed to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidGame {
+    /// No whitespace splits the line into columns.
     #[error("expected two columns separated by whitespace")]
     MissingSeparator,
+    /// The first column is empty or longer than one character.
     #[error("expected one character in the first column")]
     MalformedOpponent,
+    /// The second column is empty or longer than one character.
     #[error("expected one character in the second column")]
     MalformedOther,
+    /// The first column is one character but not a play.
     #[error(transparent)]
     Opponent(#[from] InvalidPlay),
 }
@@ -118,7 +137,9 @@ pub(super) enum InvalidGame {
 /// meaning changes between the parts, so it stays a `char` until asked for.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct RawGame {
+    /// The first column.
     opponent: Play,
+    /// The second column as written, case kept. Only checked when a part reads it.
     other: char,
 }
 
@@ -171,13 +192,17 @@ impl RawGame {
     }
 }
 
+/// A round with both the player's shape and its outcome known, so it can be scored.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct Game {
+    /// The shape the player throws.
     player: Play,
+    /// How the round ends for the player.
     result: GameResult,
 }
 
 impl Game {
+    /// The shape's points plus the outcome's, from 1 to 9.
     pub(super) fn player_score(self) -> u32 {
         self.player.value().saturating_add(self.result.value())
     }

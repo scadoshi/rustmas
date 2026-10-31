@@ -1,3 +1,5 @@
+//! Calorie Counting: total each elf's snacks, then take the largest total and the sum of the top three.
+
 use std::cmp::Reverse;
 
 use anyhow::Context;
@@ -5,8 +7,10 @@ use anyhow::Context;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// What every elf is carrying.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One group per elf, in input order, holding the calories of each item. Blank lines separate the groups.
     groups: Vec<Vec<i32>>,
 }
 

@@ -1,3 +1,5 @@
+//! Rock Paper Scissors: total the score from a strategy guide whose second column is read first as the shape to throw and then as the result to aim for.
+
 mod game;
 
 use anyhow::Context;
@@ -7,8 +9,10 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2022::day_02::game::RawGame;
 
+/// The encrypted strategy guide.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One round per line, the second column left unread until a part decides what it means.
     games: Vec<RawGame>,
 }
 

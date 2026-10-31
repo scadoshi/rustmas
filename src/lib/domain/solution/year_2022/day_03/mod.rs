@@ -1,3 +1,5 @@
+//! Rucksack Reorganization: sum the priorities of the item shared by each rucksack's halves, then of the badge shared by each group of three.
+
 mod rucksack;
 
 use anyhow::anyhow;
@@ -10,8 +12,10 @@ use crate::domain::solution::year_2022::day_03::rucksack::{Items, Rucksack};
 /// How many elves carry one badge between them.
 const GROUP: usize = 3;
 
+/// Every elf's rucksack.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per line, in input order, so consecutive runs of three make a group.
     rucksacks: Vec<Rucksack>,
 }
 

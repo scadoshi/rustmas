@@ -1,15 +1,21 @@
+//! Rucksack contents as bit sets of item types.
+
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Why a rucksack line failed to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidRucksack {
+    /// A character outside `a` to `z` and `A` to `Z`. Carries the character.
     #[error("expected only letters, read {0:?}")]
     NotAnItem(char),
+    /// The line has an odd number of bytes, so it can't split into two equal compartments.
     #[error("expected an even number of items, so the compartments match")]
     OddLength,
 }
 
+/// A set that should hold one shared item holds none or several.
 #[derive(Debug, Error)]
 #[error("expected exactly one item in common")]
 pub(super) struct NoSingleCommonItem;
@@ -69,7 +75,9 @@ impl Items {
 /// One elf's rucksack, split into its two equal compartments.
 #[derive(Debug, Clone, Copy, Default)]
 pub(super) struct Rucksack {
+    /// The first half of the line.
     pub(super) left: Items,
+    /// The second half of the line.
     pub(super) right: Items,
 }
 

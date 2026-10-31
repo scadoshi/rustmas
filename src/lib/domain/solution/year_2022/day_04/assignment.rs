@@ -1,16 +1,23 @@
+//! Section assignments and the pairs of elves they come in.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Why a pair line or one of its ranges failed to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidAssignment {
+    /// A range has no `-`.
     #[error("expected a range like `2-4`")]
     MissingDash,
+    /// A range starts after it ends, like `4-2`.
     #[error("expected the range to run upward")]
     Backwards,
+    /// The line has no `,` between the two ranges.
     #[error("expected two ranges separated by a comma")]
     MissingComma,
+    /// A section ID isn't an unsigned number.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
@@ -18,7 +25,9 @@ pub(super) enum InvalidAssignment {
 /// The sections one elf is assigned, both ends included.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct Assignment {
+    /// The first section ID. Never above `end`.
     start: u32,
+    /// The last section ID.
     end: u32,
 }
 
@@ -74,6 +83,7 @@ impl Pair {
         self.0.contains(self.1) || self.1.contains(self.0)
     }
 
+    /// Whether the two assignments share at least one section, a single shared end included.
     pub(super) fn overlap(self) -> bool {
         self.0.overlaps(self.1)
     }
