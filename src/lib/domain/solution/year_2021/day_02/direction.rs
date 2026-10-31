@@ -1,15 +1,24 @@
+//! The three commands the submarine accepts.
+
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// A command word other than `forward`, `down` or `up`.
 #[derive(Debug, Error)]
 #[error("expected forward, down or up")]
 pub(super) struct InvalidDirection;
 
+/// A command word, parsed without regard to case.
+///
+/// Down and up mean depth in part one and aim in part two.
 #[derive(Debug, Clone, Copy)]
 pub(super) enum Direction {
+    /// Moves horizontally, and in part two also dives by the aim.
     Forward,
+    /// Increases depth or aim.
     Down,
+    /// Decreases depth or aim.
     Up,
 }
 

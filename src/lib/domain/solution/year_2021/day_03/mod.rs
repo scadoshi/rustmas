@@ -1,3 +1,5 @@
+//! Binary Diagnostic: build rates from the commonest and rarest bit in each column, then filter the readings column by column down to one.
+
 mod rating;
 
 use anyhow::anyhow;
@@ -6,8 +8,10 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2021::day_03::rating::Keep;
 
+/// The diagnostic report.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One binary number per line, in input order. Leading zeros live only in `width`.
     readings: Vec<u32>,
     /// How many bits each reading has, taken from the input rather than
     /// assumed, and never more than a `u32` holds, so every shift fits.

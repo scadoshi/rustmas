@@ -1,3 +1,5 @@
+//! Where the submarine is, and how each reading of the course moves it.
+
 pub(super) mod aimed;
 
 use crate::domain::solution::year_2021::day_02::direction::Direction;
@@ -8,7 +10,9 @@ use crate::domain::solution::year_2021::day_02::instruction::Instruction;
 /// Kept in [`i64`] so a product of two [`i32`]-sized moves still fits.
 #[derive(Debug, Clone, Copy, Default)]
 pub(super) struct Position {
+    /// Distance forward from the start.
     horizontal: i64,
+    /// Distance below the surface, so up makes it smaller. Nothing stops it going negative.
     depth: i64,
 }
 

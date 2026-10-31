@@ -1,3 +1,5 @@
+//! Picking a bit by how common it is, and the two ways the day builds a number from those picks.
+
 /// Which bit value to keep when the readings are split on one position.
 #[derive(Debug, Clone, Copy)]
 pub(super) enum Keep {
@@ -26,6 +28,8 @@ pub(super) fn rate(readings: &[u32], width: u32, keep: Keep) -> u32 {
 }
 
 /// Narrows the readings one bit at a time, top down, until one is left.
+///
+/// `None` when the filter doesn't end on exactly one reading. That happens with duplicates that survive every bit, and with [`Keep::LeastCommon`] whenever two or more remaining readings share a bit: the rarer value then has a count of 0, so keeping it empties the list.
 pub(super) fn rating_by_filter(readings: &[u32], width: u32, keep: Keep) -> Option<u32> {
     let mut left = readings.to_vec();
     for bit in (0..width).rev() {

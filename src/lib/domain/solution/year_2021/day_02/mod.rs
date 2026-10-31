@@ -1,3 +1,5 @@
+//! Dive: follow the course and multiply horizontal position by depth, reading up and down first as depth changes and then as aim.
+
 mod direction;
 mod instruction;
 mod position;
@@ -11,8 +13,10 @@ use crate::domain::solution::year_2021::day_02::instruction::Instruction;
 use crate::domain::solution::year_2021::day_02::position::Position;
 use crate::domain::solution::year_2021::day_02::position::aimed::Aimed;
 
+/// The planned course.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per line, followed in order from the surface.
     instructions: Vec<Instruction>,
 }
 

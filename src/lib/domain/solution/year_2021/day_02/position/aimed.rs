@@ -1,3 +1,5 @@
+//! Part two's reading of the course, where up and down steer the aim.
+
 use crate::domain::solution::year_2021::day_02::direction::Direction;
 use crate::domain::solution::year_2021::day_02::instruction::Instruction;
 use crate::domain::solution::year_2021::day_02::position::Position;
@@ -5,7 +7,9 @@ use crate::domain::solution::year_2021::day_02::position::Position;
 /// A position plus the aim that steers how deep each forward move goes.
 #[derive(Debug, Clone, Copy, Default)]
 pub(in super::super) struct Aimed {
+    /// Depth gained per unit forward. Starts at 0 and goes negative if the course turns up enough.
     pub(in super::super) aim: i64,
+    /// Where the submarine is. Only forward moves change it.
     pub(in super::super) position: Position,
 }
 

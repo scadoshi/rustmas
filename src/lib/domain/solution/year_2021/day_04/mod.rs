@@ -1,3 +1,5 @@
+//! Giant Squid: play bingo against every board at once and score the first and the last board to win.
+
 mod board;
 
 use anyhow::anyhow;
@@ -6,9 +8,12 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2021::day_04::board::Board;
 
+/// The draw order and the boards it is called against.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Numbers in the order they are called.
     draws: Vec<u8>,
+    /// Every board, unmarked. Each part plays on a copy.
     boards: Vec<Board>,
 }
 

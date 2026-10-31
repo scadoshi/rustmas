@@ -1,3 +1,5 @@
+//! One bingo board and the marking and scoring on it.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -7,10 +9,13 @@ use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::grid::rectangle::{InvalidRectangle, Rectangle};
 use crate::domain::solution::common::grid::{FixedWidth, Grid};
 
+/// Why a board block failed to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidBoard {
+    /// The rows aren't all the same length, or there are none.
     #[error(transparent)]
     Shape(#[from] InvalidRectangle),
+    /// A cell isn't a number from 0 to 255.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }

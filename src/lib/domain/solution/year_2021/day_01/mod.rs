@@ -1,9 +1,15 @@
+//! Sonar Sweep: count depth increases, singly and then over three-reading windows.
+//!
+//! Two windows of three share their middle two readings, so part two compares readings three apart instead of summing.
+
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 
+/// The sonar sweep report.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Sea floor depths, one per line, in the order measured.
     nums: Vec<i32>,
 }
 

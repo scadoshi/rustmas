@@ -1,3 +1,5 @@
+//! One line of the planned course, like `forward 5`.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -5,21 +7,29 @@ use thiserror::Error;
 
 use crate::domain::solution::year_2021::day_02::direction::{Direction, InvalidDirection};
 
+/// Why a course line failed to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidInstruction {
+    /// The line has fewer than two words.
     #[error("expected a direction and a distance separated by whitespace")]
     TooFewParts,
+    /// The line has a third word.
     #[error("expected nothing after the distance")]
     TooManyParts,
+    /// The first word isn't a command.
     #[error(transparent)]
     Direction(#[from] InvalidDirection),
+    /// The second word isn't an [`i32`].
     #[error(transparent)]
     Distance(#[from] ParseIntError),
 }
 
+/// A command and how far to carry it out.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct Instruction {
+    /// What the command does.
     pub(super) direction: Direction,
+    /// Units to move, or to change the aim by. Parsing accepts a negative value, which runs the command backward.
     pub(super) distance: i32,
 }
 
