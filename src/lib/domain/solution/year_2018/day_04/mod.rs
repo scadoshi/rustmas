@@ -1,3 +1,5 @@
+//! Day 4, Repose Record: a shuffled log of guards starting shifts, falling asleep and waking up. The log is sorted by timestamp, tallied into how often each guard sleeps through each minute after midnight, and both parts read their answer off that tally.
+
 mod record;
 
 use std::collections::HashMap;
@@ -12,8 +14,10 @@ use crate::domain::solution::year_2018::day_04::record::{Event, Record};
 /// Minutes in the midnight hour, the only hour any guard sleeps through.
 const MINUTES: usize = 60;
 
+/// The guards' log.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Sorted by timestamp when parsed, so each sleep follows its guard's shift.
     records: Vec<Record>,
 }
 

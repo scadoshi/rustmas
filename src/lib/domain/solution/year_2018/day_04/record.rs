@@ -1,24 +1,35 @@
+//! One line of the guard log and what it records.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Returned when a line does not read as a log record.
 #[derive(Debug, Error)]
 pub(super) enum InvalidRecord {
+    /// The line does not start with `[...] `.
     #[error("expected a timestamp in brackets")]
     MissingTimestamp,
+    /// The timestamp has no `:` before the minute.
     #[error("expected a minute in the timestamp")]
     MissingMinute,
+    /// The text after the timestamp is none of the three events.
     #[error("expected a shift, a sleep or a wake")]
     UnknownEvent,
+    /// The minute or the guard id is not a whole number in range.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
+/// What a log line says happened.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum Event {
+    /// The guard with this id comes on duty. Every sleep after it, until the next shift, is theirs.
     BeginsShift(u32),
+    /// The guard on duty is asleep from this minute.
     FallsAsleep,
+    /// The guard on duty is awake from this minute, so the last minute asleep is the one before.
     WakesUp,
 }
 
@@ -28,8 +39,11 @@ pub(super) enum Event {
 /// puts the fields largest first, so ordering the strings orders the events.
 #[derive(Debug, Clone)]
 pub(super) struct Record {
+    /// The text between the brackets, like `1518-11-01 00:05`.
     pub(super) timestamp: String,
+    /// The timestamp's minute past the hour. Not range-checked.
     pub(super) minute: usize,
+    /// What happened at that time.
     pub(super) event: Event,
 }
 

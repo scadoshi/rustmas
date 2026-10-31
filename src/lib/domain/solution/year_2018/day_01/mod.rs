@@ -1,3 +1,5 @@
+//! Day 1, Chronal Calibration: sums a list of frequency changes, then loops over them to find the first frequency reached twice. Before looping, [`Puzzle::ever_repeats`] checks whether a repeat exists at all, so an input with none answers instead of spinning forever.
+
 use std::collections::HashSet;
 
 use anyhow::anyhow;
@@ -6,8 +8,10 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 
+/// The device's frequency changes.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Signed changes in input order, starting from a frequency of 0.
     nums: Vec<i32>,
 }
 

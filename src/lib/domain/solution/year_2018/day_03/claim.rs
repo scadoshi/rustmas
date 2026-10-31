@@ -1,3 +1,5 @@
+//! One elf's claim on the fabric, and the square inches it covers.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -5,13 +7,16 @@ use thiserror::Error;
 
 use crate::domain::solution::common::cell::Cell;
 
+/// Returned when a line does not read as a claim.
 #[derive(Debug, Error)]
 pub(super) enum InvalidClaim {
+    /// A separator is missing: `#`, ` @ `, `,`, `: ` or `x`.
     #[error("expected `#id @ left,top: widthxheight`")]
     Malformed,
     /// The claim reaches past the largest [`usize`] index.
     #[error("expected the claim to end within usize")]
     TooFar,
+    /// A field between the separators is not a whole number in range.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
@@ -20,10 +25,15 @@ pub(super) enum InvalidClaim {
 /// checked when parsed.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct Claim {
+    /// The number after `#`, which part two reports.
     pub(super) id: u32,
+    /// Inches from the fabric's left edge to the claim's.
     left: usize,
+    /// Inches from the fabric's top edge to the claim's.
     top: usize,
+    /// In inches. Zero gives a claim that covers nothing.
     width: usize,
+    /// In inches. Zero gives a claim that covers nothing.
     height: usize,
 }
 

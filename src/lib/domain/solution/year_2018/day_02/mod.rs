@@ -1,3 +1,5 @@
+//! Day 2, Inventory Management System: part one multiplies the count of box ids with a letter exactly twice by the count with a letter exactly three times. Part two drops one position at a time from every id and looks for two ids that then match.
+
 use std::collections::HashSet;
 
 use anyhow::anyhow;
@@ -5,6 +7,7 @@ use anyhow::anyhow;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 
+/// The scanned box ids.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
     /// Each only `a-z` and all the same length, checked when parsed.

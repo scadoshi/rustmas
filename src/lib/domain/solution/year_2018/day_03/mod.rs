@@ -1,3 +1,5 @@
+//! Day 3, No Matter How You Slice It: elves claim rectangles of one sheet of fabric. Counting how many claims cover each square inch answers both parts: the inches claimed more than once, and the one claim nothing overlaps.
+
 mod claim;
 
 use std::collections::HashMap;
@@ -10,8 +12,10 @@ use crate::domain::solution::common::cell::Cell;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2018::day_03::claim::Claim;
 
+/// The elves' claims.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One per non-blank line.
     claims: Vec<Claim>,
 }
 
