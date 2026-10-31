@@ -1,3 +1,5 @@
+//! Day 1, The Tyranny of the Rocket Equation: totals the fuel each module needs by mass. Part two adds fuel for the fuel, repeating [`fuel_for`] until it gives zero.
+
 use std::iter;
 
 use anyhow::Context;
@@ -6,8 +8,10 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 
+/// The spacecraft's modules.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Each module's mass, one per non-blank line.
     masses: Vec<u32>,
 }
 

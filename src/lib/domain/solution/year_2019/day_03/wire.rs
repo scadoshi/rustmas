@@ -1,3 +1,5 @@
+//! A wire's path, walked once into the points it touches.
+
 use std::collections::HashMap;
 use std::num::ParseIntError;
 use std::str::FromStr;
@@ -7,8 +9,10 @@ use thiserror::Error;
 use crate::domain::solution::common::direction::{Direction, InvalidDirection};
 use crate::domain::solution::common::point::Point;
 
+/// Returned when a line does not read as a wire's path.
 #[derive(Debug, Error)]
 pub(super) enum InvalidWire {
+    /// A segment between commas is empty.
     #[error("expected a direction letter followed by a distance")]
     EmptyStep,
     /// The wire runs off the [`i32`] grid.
@@ -17,8 +21,10 @@ pub(super) enum InvalidWire {
     /// The wire is longer than [`usize`] steps.
     #[error("expected the wire to be at most usize steps long")]
     TooLong,
+    /// A segment starts with something other than a direction letter.
     #[error(transparent)]
     Direction(#[from] InvalidDirection),
+    /// What follows the letter is not a whole number.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }

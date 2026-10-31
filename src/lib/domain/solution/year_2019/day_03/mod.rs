@@ -1,3 +1,5 @@
+//! Day 3, Crossed Wires: two wires run across a grid from a shared origin. Each wire is walked into a map of every point it touches, and the points both maps hold are the crossings both parts choose from.
+
 mod wire;
 
 use anyhow::{Context, anyhow};
@@ -6,9 +8,12 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2019::day_03::wire::Wire;
 
+/// The two wires on the panel.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// The first line of the input.
     first: Wire,
+    /// The second line. Any lines after it are ignored.
     second: Wire,
 }
 
