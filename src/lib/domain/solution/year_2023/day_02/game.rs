@@ -1,18 +1,26 @@
+//! Games of cubes drawn from a bag, and the handfuls each one showed.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Why a line does not read as a game.
 #[derive(Debug, Error)]
 pub(super) enum InvalidGame {
+    /// No `:` between the game id and its handfuls.
     #[error("expected `Game <id>: <handfuls>`")]
     MissingColon,
+    /// The text before the colon does not start with `Game `.
     #[error("expected `Game` followed by an id")]
     MissingId,
+    /// A count with no color after it.
     #[error("expected a count followed by a color, like `3 blue`")]
     MissingColor,
+    /// A color other than red, green or blue. Carries the word read.
     #[error("expected red, green or blue, read {0:?}")]
     UnknownColor(String),
+    /// A game id or cube count that is not a whole number.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
@@ -20,8 +28,11 @@ pub(super) enum InvalidGame {
 /// One handful drawn from the bag: how many cubes of each color showed.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub(super) struct Handful {
+    /// Red cubes shown, zero when the handful named none.
     pub(super) red: u32,
+    /// Green cubes shown, zero when the handful named none.
     pub(super) green: u32,
+    /// Blue cubes shown, zero when the handful named none.
     pub(super) blue: u32,
 }
 
@@ -72,9 +83,12 @@ impl Handful {
     }
 }
 
+/// One line of the record: a game's id and every handful drawn in it.
 #[derive(Debug)]
 pub(super) struct Game {
+    /// The number after `Game`, which part one adds up.
     pub(super) id: u32,
+    /// In the order drawn, split on `;`.
     pub(super) handfuls: Vec<Handful>,
 }
 

@@ -1,3 +1,5 @@
+//! One mapping line: a source range and the destination it shifts to.
+
 use std::num::ParseIntError;
 use std::ops::Range;
 use std::str::FromStr;
@@ -6,25 +8,37 @@ use thiserror::Error;
 
 use crate::domain::solution::common::range::ext::RangeExt;
 
+/// Why a mapping line does not read as a destination, a source and a length.
 #[derive(Debug, Error)]
 pub(in super::super) enum InvalidRangeMapping {
+    /// Fewer than three numbers on the line.
     #[error("too few parts")]
     TooFewParts,
+    /// More than three numbers on the line.
     #[error("too many parts")]
     TooManyParts,
+    /// A number that is not whole or does not fit a [`u64`].
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
     /// The source or destination range ends past [`u64::MAX`].
     #[error("a range of {length} from {start} ends past {}", u64::MAX)]
-    PastU64 { start: u64, length: u64 },
+    PastU64 {
+        /// Start of the range that overflows, source or destination.
+        start: u64,
+        /// The mapping's length.
+        length: u64,
+    },
 }
 
 /// Both ranges end at or before [`u64::MAX`], checked when parsed, so every
 /// offset inside them adds without overflow.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(in super::super) struct RangeMapping {
+    /// Where the first source number lands.
     destination: u64,
+    /// The first number the mapping covers.
     source: u64,
+    /// How many numbers the mapping covers, the same for both ranges.
     length: u64,
     /// `source + length`, kept so the source range needs no addition.
     source_end: u64,
@@ -70,6 +84,7 @@ impl RangeMapping {
         }
     }
 
+    /// The numbers this mapping covers, end exclusive.
     pub(super) fn source_range(self) -> Range<u64> {
         self.source..self.source_end
     }
@@ -91,6 +106,7 @@ impl RangeMapping {
             .checked_add(point.checked_sub(self.source)?)
     }
 
+    /// The part of `range` this mapping covers, shifted to the destination, and the pieces of `range` outside it. `None` when they do not overlap.
     pub(super) fn map_range(
         self,
         range: Range<u64>,

@@ -1,3 +1,5 @@
+//! The chain of maps a seed passes through on its way to a location.
+
 use std::ops::{Deref, Range};
 use std::str::FromStr;
 
@@ -5,6 +7,7 @@ use crate::domain::solution::common::range::ext::RangeExt;
 use crate::domain::solution::year_2023::day_05::range::map::RangeMap;
 use crate::domain::solution::year_2023::day_05::range::mapping::InvalidRangeMapping;
 
+/// Every map in the almanac, in the order they apply.
 #[derive(Debug, Clone, PartialEq)]
 pub(in super::super) struct RangeMaps(Vec<RangeMap>);
 
@@ -29,10 +32,12 @@ impl FromStr for RangeMaps {
 }
 
 impl RangeMaps {
+    /// The location `seed` reaches after every map in turn.
     pub(in super::super) fn map(&self, seed: u64) -> u64 {
         self.iter().fold(seed, |seed, r| r.map(seed))
     }
 
+    /// The locations every seed in `range` reaches, as ranges. The pieces are merged after each map so they stay few.
     pub(in super::super) fn map_range(&self, range: Range<u64>) -> Vec<Range<u64>> {
         self.iter().fold(vec![range], |ranges, map| {
             merged(ranges.into_iter().flat_map(|r| map.map_range(r)).collect())

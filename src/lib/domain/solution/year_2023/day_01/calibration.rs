@@ -1,3 +1,5 @@
+//! Reading a calibration value out of one line, with or without spelled-out digits.
+
 use std::collections::HashMap;
 use std::sync::LazyLock;
 

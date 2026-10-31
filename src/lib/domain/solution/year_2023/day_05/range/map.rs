@@ -1,3 +1,5 @@
+//! One map in the almanac, such as seed-to-soil, as its list of mappings.
+
 use std::ops::{Deref, Range};
 use std::str::FromStr;
 
@@ -31,10 +33,12 @@ impl FromStr for RangeMap {
 }
 
 impl RangeMap {
+    /// Where `seed` lands under the first mapping that covers it. A number no mapping covers keeps its value.
     pub(in super::super) fn map(&self, seed: u64) -> u64 {
         self.iter().find_map(|r| r.map(seed)).unwrap_or(seed)
     }
 
+    /// Where every number in `range` lands, as pieces split at mapping boundaries. Pieces no mapping covers keep their values, and the pieces come back in no particular order.
     pub(in super::super) fn map_range(
         &self,
         range: Range<u64>,

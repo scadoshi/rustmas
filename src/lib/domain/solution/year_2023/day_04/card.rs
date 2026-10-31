@@ -1,23 +1,33 @@
+//! A scratchcard's winning numbers and the numbers you have, and what the card scores.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Why a line does not read as a scratchcard.
 #[derive(Debug, Error)]
 pub(super) enum InvalidCard {
+    /// No `:` after the card id.
     #[error("expected `Card <id>: <winning numbers> | <numbers you have>`")]
     MissingColon,
+    /// The text before the colon does not start with `Card `.
     #[error("expected `Card` followed by an id")]
     MissingId,
+    /// No `|` between the winning numbers and yours.
     #[error("expected a `|` between the winning numbers and yours")]
     MissingBar,
+    /// The card id or one of the numbers is not a whole number.
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
+/// One scratchcard. The id is not kept, since cards are numbered in the order they appear.
 #[derive(Debug)]
 pub(super) struct Card {
+    /// The numbers left of the `|`.
     winning: Vec<u32>,
+    /// The numbers right of the `|`, checked against `winning`.
     have: Vec<u32>,
 }
 

@@ -1,3 +1,5 @@
+//! The engine schematic grid, and the numbers and symbols read out of it.
+
 use std::str::FromStr;
 
 use thiserror::Error;
@@ -31,17 +33,22 @@ impl FromStr for Schematic {
     "expected every number to fit in a u32, the one reaching row {row} column {column} does not"
 )]
 pub(super) struct NumberTooLarge {
+    /// Row of the digit that overflowed.
     row: usize,
+    /// Column of the digit that overflowed.
     column: usize,
 }
 
 /// A run of digits in the schematic, and where it sits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct Number {
+    /// The digits read as one decimal number.
     pub(super) value: u32,
+    /// Counted from 0 at the top.
     row: usize,
-    /// Columns of the first and last digit, inclusive.
+    /// Column of the leftmost digit.
     first: usize,
+    /// Column of the rightmost digit, so the number covers `first..=last`.
     last: usize,
 }
 

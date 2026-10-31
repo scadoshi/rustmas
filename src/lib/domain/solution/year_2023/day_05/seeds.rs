@@ -1,27 +1,42 @@
+//! The almanac's `seeds:` line, read as single seeds or as ranges of them.
+
 use std::num::ParseIntError;
 use std::ops::{Deref, Range};
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// Why the first line does not read as seeds.
 #[derive(Debug, Error)]
 pub(super) enum InvalidSeeds {
+    /// The line does not start with `seeds: `.
     #[error("expected the almanac to open with `seeds: `")]
     MissingPrefix,
+    /// `seeds:` with no numbers after it.
     #[error("expected at least one seed")]
     Empty,
+    /// A seed that is not whole or does not fit a [`u64`].
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
 }
 
+/// Why the seeds do not pair up into ranges for part two.
 #[derive(Debug, Error)]
 pub(super) enum InvalidSeedRanges {
+    /// The last start has no length after it.
     #[error("expected seeds in start and length pairs, read an odd count")]
     OddCount,
+    /// A range ends past [`u64::MAX`].
     #[error("a seed range of {len} from {start} ends past {}", u64::MAX)]
-    PastU64 { start: u64, len: u64 },
+    PastU64 {
+        /// The range's first seed.
+        start: u64,
+        /// How many seeds the range holds.
+        len: u64,
+    },
 }
 
+/// The numbers on the `seeds:` line, in order. Never empty.
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct Seeds(Vec<u64>);
 
@@ -52,6 +67,10 @@ impl FromStr for Seeds {
 
 impl Seeds {
     /// The seeds read as `start length` pairs, for part two.
+    ///
+    /// # Errors
+    ///
+    /// [`InvalidSeedRanges::OddCount`] when the seeds do not pair up, and [`InvalidSeedRanges::PastU64`] when a range ends past [`u64::MAX`].
     pub(super) fn to_ranges(&self) -> Result<Vec<Range<u64>>, InvalidSeedRanges> {
         self.chunks(2).try_fold(Vec::new(), |mut ranges, chunk| {
             let &[start, len] = chunk else {

@@ -1,3 +1,5 @@
+//! Day 3: Gear Ratios. A number touching any symbol, diagonals included, is a part number. A `*` touching exactly two numbers is a gear. Both parts check each number against the symbol cells.
+
 mod schematic;
 
 use anyhow::Context;
@@ -6,8 +8,10 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_03::schematic::Schematic;
 
+/// The engine schematic, searched for part numbers and gears.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One character per cell, as the input draws it.
     schematic: Schematic,
 }
 

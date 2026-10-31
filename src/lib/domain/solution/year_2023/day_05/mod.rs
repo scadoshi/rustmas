@@ -1,3 +1,5 @@
+//! Day 5: If You Give A Seed A Fertilizer. Seeds pass through a chain of maps to reach a location. Part one maps each seed. Part two maps whole seed ranges, splitting them where mappings begin and end instead of walking every seed.
+
 mod almanac;
 mod range;
 mod seeds;
@@ -9,8 +11,11 @@ use anyhow::anyhow;
 use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_05::almanac::Almanac;
+
+/// The almanac, searched for the lowest location any seed reaches.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// The seeds and every map from seed to location.
     almanac: Almanac,
 }
 

@@ -1,3 +1,5 @@
+//! Day 1: Trebuchet?! Each line's calibration value is its first and last digit as a two-digit number. Part two also reads spelled-out digits, scanning from every position so overlapping words like `eightwo` both count.
+
 mod calibration;
 
 use anyhow::Context;
@@ -6,6 +8,7 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::year_2023::day_01::calibration::Calibration;
 
+/// The calibration document, summed once per part with a different reading of each line.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
     /// One line per calibration document entry, trimmed of the trailing blank.

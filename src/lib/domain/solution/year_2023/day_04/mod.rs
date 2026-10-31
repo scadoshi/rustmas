@@ -1,3 +1,5 @@
+//! Day 4: Scratchcards. Part one scores each card on how many of its numbers win. Part two has each card win copies of the cards after it and counts every copy in one forward pass.
+
 mod card;
 
 use anyhow::anyhow;
@@ -7,8 +9,10 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 use crate::domain::solution::year_2023::day_04::card::Card;
 
+/// The pile of scratchcards.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Card 1 first. Part two relies on the order, since a card wins copies of the ones after it.
     cards: Vec<Card>,
 }
 

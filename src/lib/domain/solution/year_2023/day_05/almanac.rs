@@ -1,3 +1,5 @@
+//! The whole almanac: the seeds line and the maps after it.
+
 use std::str::FromStr;
 
 use thiserror::Error;
@@ -6,19 +8,26 @@ use crate::domain::solution::year_2023::day_05::range::mapping::InvalidRangeMapp
 use crate::domain::solution::year_2023::day_05::range::maps::RangeMaps;
 use crate::domain::solution::year_2023::day_05::seeds::{InvalidSeeds, Seeds};
 
+/// Why the input does not read as an almanac.
 #[derive(Debug, Error)]
 pub(super) enum InvalidAlmanac {
+    /// No blank line after the seeds line.
     #[error("expected a blank line between the seeds and the maps")]
     MissingMaps,
+    /// The seeds line does not parse.
     #[error(transparent)]
     Seeds(#[from] InvalidSeeds),
+    /// A mapping line does not parse.
     #[error(transparent)]
     Maps(#[from] InvalidRangeMapping),
 }
 
+/// The seeds and the maps they go through, split at the first blank line.
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct Almanac {
+    /// Single seeds in part one, `start length` pairs in part two.
     seeds: Seeds,
+    /// Applied in input order, seed-to-soil first and humidity-to-location last.
     maps: RangeMaps,
 }
 
@@ -34,9 +43,11 @@ impl FromStr for Almanac {
 }
 
 impl Almanac {
+    /// The numbers on the `seeds:` line.
     pub(super) fn seeds(&self) -> &Seeds {
         &self.seeds
     }
+    /// Every map, in the order a seed passes through them.
     pub(super) fn maps(&self) -> &RangeMaps {
         &self.maps
     }

@@ -1,3 +1,5 @@
+//! Day 2: Cube Conundrum. Part one adds up the ids of the games that fit a bag of 12 red, 13 green and 14 blue cubes. Part two finds each game's smallest possible bag and adds up the products of its counts.
+
 mod game;
 
 use anyhow::anyhow;
@@ -14,8 +16,10 @@ const BAG: Handful = Handful {
     blue: 14,
 };
 
+/// The game record.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One game per input line, in input order.
     games: Vec<Game>,
 }
 
