@@ -1,3 +1,5 @@
+//! The safe dial's rotations, one per line like `L68`.
+
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -8,10 +10,13 @@ use crate::domain::solution::common::turn::{InvalidTurn, Turn};
 /// Returned when a line does not name a turn and a distance.
 #[derive(Debug, Error)]
 pub(super) enum InvalidInstruction {
+    /// The line is empty.
     #[error("expected a turn letter followed by a distance")]
     TooFewParts,
+    /// The first character isn't a turn letter.
     #[error(transparent)]
     Turn(#[from] InvalidTurn),
+    /// What follows the letter isn't an [`i32`].
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
     /// The distance is below zero; a turn's direction comes from its letter.
@@ -22,6 +27,7 @@ pub(super) enum InvalidInstruction {
 /// A turn and how far to go, read from one line.
 #[derive(Debug)]
 pub(super) struct Instruction {
+    /// Left counts the dial down, right counts it up.
     pub(super) turn: Turn,
     /// Never negative, checked when parsed.
     pub(super) distance: i32,

@@ -1,3 +1,7 @@
+//! Secret Entrance: turn a 100-click safe dial and count how often it rests on 0, then how often any click lands on 0.
+//!
+//! Part two counts the multiples of 100 each turn sweeps past instead of stepping through the clicks one at a time.
+
 mod instructions;
 
 use anyhow::Context;
@@ -7,12 +11,16 @@ use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::turn::Turn;
 use crate::domain::solution::year_2025::day_01::instructions::Instructions;
 
+/// The rotations from the safe's document.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// Applied in order from [`START`].
     instructions: Instructions,
 }
 
+/// Clicks on the dial, numbered 0 to 99.
 const DIAL_SIZE: i64 = 100;
+/// Where the dial points before the first rotation.
 const START: i32 = 50;
 
 /// Where the dial points after `turn` by `distance` from `position`, always
