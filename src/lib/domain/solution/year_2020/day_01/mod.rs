@@ -1,3 +1,5 @@
+//! Report Repair: find the expense entries that sum to 2020 and multiply them, with a hash lookup for the pair and two pointers over a sorted list for the triple.
+
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -7,8 +9,12 @@ use crate::domain::solution::Solution;
 use crate::domain::solution::answer::Answer;
 use crate::domain::solution::common::parse;
 
+/// The sum both parts look for.
 const TARGET: i32 = 2020;
 
+/// Two entries at different positions that sum to `target`, the first found in input order.
+///
+/// The difference is taken in [`i64`], so an entry near [`i32::MIN`] or [`i32::MAX`] can't overflow it. Equal values at two positions count as a pair.
 fn two_sum(nums: &[i32], target: i32) -> Option<(i32, i32)> {
     let map = nums
         .iter()
@@ -29,6 +35,9 @@ fn two_sum(nums: &[i32], target: i32) -> Option<(i32, i32)> {
     None
 }
 
+/// Three entries at different positions that sum to `target`, or `None`.
+///
+/// Sorts a copy, then for each entry walks two pointers inward over the rest, so it runs in O(n²) without a set. The sum is taken in [`i64`].
 fn three_sum(nums: &[i32], target: i32) -> Option<(i32, i32, i32)> {
     let mut nums = nums.to_owned();
     nums.sort_unstable();
@@ -49,8 +58,10 @@ fn three_sum(nums: &[i32], target: i32) -> Option<(i32, i32, i32)> {
     None
 }
 
+/// The expense report.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One entry per line, in input order, duplicates kept.
     nums: Vec<i32>,
 }
 

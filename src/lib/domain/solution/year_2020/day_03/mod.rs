@@ -1,3 +1,5 @@
+//! Toboggan Trajectory: count trees hit sliding down a map that repeats to the right, stepping by row and wrapping the column.
+
 use anyhow::Context;
 
 use crate::domain::solution::Solution;
@@ -9,8 +11,10 @@ use crate::domain::solution::common::grid::{FixedWidth, Grid};
 /// The slopes part two multiplies together, as (right, down).
 const SLOPES: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
 
+/// The slope's map.
 #[derive(Debug)]
 pub(crate) struct Puzzle {
+    /// One repeat of the map, `#` for a tree and `.` for open snow.
     map: Rectangle<char>,
 }
 

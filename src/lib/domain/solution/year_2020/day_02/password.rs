@@ -1,22 +1,33 @@
+//! A password and the policy on its line, parsed from `1-3 a: abcde`.
+
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// The `1-3 a` before the colon. Its two numbers mean a count range in part one and two positions in part two.
 #[derive(Debug, Clone, Copy)]
 struct Policy {
+    /// The minimum count, or the first position counted from 1. Never more than `hi`.
     lo: usize,
+    /// The maximum count, or the second position counted from 1.
     hi: usize,
+    /// The one character the policy is about.
     letter: char,
 }
 
+/// Why a policy failed to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidPolicy {
+    /// The range or the letter is missing.
     #[error("expected a range and a letter separated by whitespace")]
     TooFewParts,
+    /// No hyphen, or a side that isn't an unsigned number.
     #[error("expected a range like `1-3`")]
     MalformedRange,
+    /// The low number is above the high one, like `3-1`.
     #[error("expected the range to run upward")]
     Backwards,
+    /// The letter part is empty or more than one character.
     #[error("expected a single letter")]
     MalformedLetter,
 }
@@ -45,17 +56,23 @@ impl FromStr for Policy {
     }
 }
 
+/// Why a database line failed to parse.
 #[derive(Debug, Error)]
 pub(super) enum InvalidPassword {
+    /// The line has no `:` to split on.
     #[error("expected a colon between the policy and the password")]
     MissingColon,
+    /// The part before the colon isn't a valid [`Policy`].
     #[error(transparent)]
     Policy(#[from] InvalidPolicy),
 }
 
+/// One database line: a password and the policy it should meet.
 #[derive(Debug, Clone)]
 pub(super) struct Password {
+    /// The rule written before the colon.
     policy: Policy,
+    /// The password after the colon, trimmed of surrounding whitespace.
     value: String,
 }
 
@@ -70,6 +87,7 @@ impl FromStr for Password {
 }
 
 impl Password {
+    /// Whether the letter appears between `lo` and `hi` times, both inclusive.
     pub(super) fn valid_count(&self) -> bool {
         let count = self
             .value

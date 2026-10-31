@@ -1,9 +1,12 @@
+//! One passport's fields, and the rules part two checks them against.
+
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 
 use thiserror::Error;
 
+/// A field with no `:` between its key and value.
 #[derive(Debug, Error)]
 #[error("expected fields as `key:value` separated by whitespace")]
 pub(super) struct InvalidPassport;
@@ -11,6 +14,7 @@ pub(super) struct InvalidPassport;
 /// Every field a passport must carry. `cid` is optional, which is the loophole.
 const REQUIRED: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 
+/// The values `ecl` accepts.
 const EYE_COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 
 /// One passport's fields, exactly as written.
@@ -41,7 +45,7 @@ impl Passport {
         REQUIRED.iter().all(|key| self.0.contains_key(*key))
     }
 
-    /// Whether every required field is present and holds a sensible value.
+    /// Whether every required field is present and passes its rule in [`field_is_valid`].
     pub(super) fn is_valid(&self) -> bool {
         REQUIRED.iter().all(|key| {
             self.0
